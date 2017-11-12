@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Bridge</string>
+    <string name="title_one">打牌</string>
+    <string name="title_two">复盘</string>
+    <string name="title_thr">个人</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_play">PlayActivity</string>
+</resources>
