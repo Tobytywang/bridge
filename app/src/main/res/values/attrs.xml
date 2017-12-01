@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="titleText" format="string"/>
-    <attr name="titleTextColor" format="color"/>
-    <attr name="titleTextSize" format="dimension"/>
+    <attr name="mText" format="string"/>
+    <attr name="mTextColor" format="color"/>
+    <attr name="mTextSize" format="dimension"/>
     <declare-styleable name="PlayView">
-        <attr name="titleText"/>
-        <attr name="titleTextColor"/>
-        <attr name="titleTextSize"/>
+        <attr name="mText"/>
+        <attr name="mTextColor"/>
+        <attr name="mTextSize"/>
     </declare-styleable>
 </resources>

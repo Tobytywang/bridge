@@ -37,4 +37,13 @@ public class CardImage {
             R.drawable.lord_card_spade_q, R.drawable.lord_card_spade_k,
             R.drawable.lord_card_spade_1,
     };
+    public static int[] resImages = {
+            R.drawable.res_1c, R.drawable.res_1d, R.drawable.res_1h, R.drawable.res_1s, R.drawable.res_1n,
+            R.drawable.res_2c, R.drawable.res_2d, R.drawable.res_2h, R.drawable.res_2s, R.drawable.res_2n,
+            R.drawable.res_3c, R.drawable.res_3d, R.drawable.res_3h, R.drawable.res_3s, R.drawable.res_3n,
+            R.drawable.res_4c, R.drawable.res_4d, R.drawable.res_4h, R.drawable.res_4s, R.drawable.res_4n,
+            R.drawable.res_5c, R.drawable.res_5d, R.drawable.res_5h, R.drawable.res_5s, R.drawable.res_5n,
+            R.drawable.res_6c, R.drawable.res_6d, R.drawable.res_6h, R.drawable.res_6s, R.drawable.res_6n,
+            R.drawable.res_7c, R.drawable.res_7d, R.drawable.res_7h, R.drawable.res_7s, R.drawable.res_7n,
+    };
 }

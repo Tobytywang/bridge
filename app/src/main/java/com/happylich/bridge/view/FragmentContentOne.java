@@ -80,7 +80,6 @@ public class FragmentContentOne extends Fragment {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "模拟叫牌", Toast.LENGTH_LONG).show();
                 Intent intent1 = new Intent(getActivity().getApplicationContext(),
                         PlayActivity.class);
                 startActivity(intent1);
@@ -90,21 +89,12 @@ public class FragmentContentOne extends Fragment {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "自定义牌型", Toast.LENGTH_LONG).show();
             }
         });
         Button button3 = (Button) getActivity().findViewById(R.id.button3);
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "WiFi游戏", Toast.LENGTH_LONG).show();
-            }
-        });
-        Button button4 = (Button) getActivity().findViewById(R.id.button4);
-        button4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity(), "在线游戏", Toast.LENGTH_LONG).show();
             }
         });
     }

@@ -32,24 +32,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="模拟叫牌"/>
+            android:text="单机游戏"/>
         <Button
             android:id="@+id/button2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="自定义牌型"/>
+            android:text="在线游戏"/>
         <Button
             android:id="@+id/button3"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="WiFi游戏"/>
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="在线游戏"/>
+            android:text="局域网游戏"/>
     </LinearLayout>
 </RelativeLayout>
