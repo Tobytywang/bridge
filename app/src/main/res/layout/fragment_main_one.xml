@@ -2,10 +2,9 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content_one"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.happylich.bridge.view.FragmentContentOne">
+    tools:context=".game.fragment.FragmentContentOne">
 
     <!--<Button-->
         <!--android:id="@+id/button1"-->
@@ -32,18 +31,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="单机游戏"/>
+            android:text="机机游戏"/>
         <Button
             android:id="@+id/button2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="在线游戏"/>
+            android:text="人机游戏"/>
         <Button
             android:id="@+id/button3"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="局域网游戏"/>
+            android:text="人人游戏"/>
     </LinearLayout>
 </RelativeLayout>

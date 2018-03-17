@@ -2,7 +2,6 @@
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content_two"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -10,5 +9,5 @@
     android:layout_marginRight="@dimen/activity_horizontal_margin"
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:text="@string/title_two"
-    tools:context="com.happylich.bridge.view.FragmentContentTwo">
+    tools:context=".game.fragment.FragmentContentTwo">
 </TextView>
