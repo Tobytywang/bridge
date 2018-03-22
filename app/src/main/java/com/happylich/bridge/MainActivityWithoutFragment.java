@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.happylich.bridge.game.PlayActivity;
+import com.happylich.bridge.engine.PlayActivity;
 
 // 没有Fragment的Activity
 // 要考虑向后兼容，继承自AppCompatActivity

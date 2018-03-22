@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.happylich.bridge.R;
-import com.happylich.bridge.game.PlayActivity;
+import com.happylich.bridge.engine.PlayActivity;
 
 /**
  * A simple {@link Fragment} subclass.
