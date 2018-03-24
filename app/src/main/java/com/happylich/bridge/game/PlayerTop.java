@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.engine;
+package com.happylich.bridge.game;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,8 +12,8 @@ import android.graphics.Rect;
  */
 
 public class PlayerTop extends AbstractPlayer {
-    public PlayerTop(int id, int[] cards, int left, int top, boolean side, Manager manager, Context context) {
-        super(id, cards, left, top, side, manager, context);
+    public PlayerTop(int id, int[] cards, int left, int top, boolean side, Game game, Context context) {
+        super(id, cards, left, top, side, game, context);
     }
     @Override
     public void paint0(Canvas canvas) {

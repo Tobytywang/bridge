@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.engine;
+package com.happylich.bridge.game;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,7 +14,7 @@ import java.util.Random;
 
 /**
  * Created by wangt on 2017/11/10.
- * View->Manager->Players->Card
+ * View->Game->Players->Card
  * Manager控制整个游戏的流程，提供游戏辅助资源
  *
  */
@@ -23,7 +23,7 @@ import java.util.Random;
  * 由于绘制工作大多由Manager完成，所以Manager也要负责适配工作
  */
 
-public class Manager {
+public class Game {
     private AbstractPlayer[] players = new AbstractPlayer[4];
     private int[] allCards = new int[52];
     private int[][] playerCards = new int[4][13];
@@ -43,7 +43,7 @@ public class Manager {
      * 构造函数
      * @param context
      */
-    public Manager(Context context) {
+    public Game(Context context) {
         this.context = context;
         init();
     }

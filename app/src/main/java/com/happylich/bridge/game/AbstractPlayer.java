@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.engine;
+package com.happylich.bridge.game;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 
 public abstract class AbstractPlayer {
-    protected Manager manager;
+    protected Game game;
     protected int playerId;
     protected boolean side;
     protected int[] cards;
@@ -26,8 +26,8 @@ public abstract class AbstractPlayer {
     protected AbstractPlayer next;
 
     // 构造函数
-    public AbstractPlayer(int id, int[] cards, int left, int top, boolean side, Manager manager, Context context) {
-        this.manager = manager;
+    public AbstractPlayer(int id, int[] cards, int left, int top, boolean side, Game game, Context context) {
+        this.game = game;
         this.playerId = id;
         this.cards = cards;
         this.context = context;

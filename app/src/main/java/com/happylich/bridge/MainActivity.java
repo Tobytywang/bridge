@@ -10,7 +10,7 @@ import com.happylich.bridge.engine.PlayActivity;
 
 // 没有Fragment的Activity
 // 要考虑向后兼容，继承自AppCompatActivity
-public class MainActivityWithoutFragment extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,7 @@ public class MainActivityWithoutFragment extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent1 = new Intent(
-                        MainActivityWithoutFragment.this,
+                        MainActivity.this,
                         PlayActivity.class);
                 startActivity(intent1);
             }

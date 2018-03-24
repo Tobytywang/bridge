@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.engine;
+package com.happylich.bridge.game;
 
 import com.happylich.bridge.R;
 
