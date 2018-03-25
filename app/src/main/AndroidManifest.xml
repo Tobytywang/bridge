@@ -20,7 +20,7 @@
         </activity>
         <activity
             android:screenOrientation="portrait"
-            android:name=".engine.PlayActivity"
+            android:name=".engine.GameActivity"
             android:label="@string/title_activity_play"
             android:theme="@style/AppTheme" />
 

@@ -7,14 +7,14 @@ import android.graphics.Bitmap;
  * 精灵代表一个具有绘制和消费点击事件的单元的抽象
  */
 
-public class sprite {
+public class Sprite {
 
     // 精灵的位置
     private int[] position = new int[4];
     // 精灵的图像
     private Bitmap bitmap;
 
-    public sprite(int[] position, Bitmap bitmap) {
+    public Sprite(int[] position, Bitmap bitmap) {
         this.position = position;
         this.bitmap   = bitmap;
     }

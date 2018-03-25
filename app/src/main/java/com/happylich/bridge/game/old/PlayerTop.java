@@ -1,4 +1,4 @@
-package com.happylich.bridge.game;
+package com.happylich.bridge.game.old;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,8 +11,8 @@ import android.graphics.Rect;
  * Created by wangt on 2017/11/16.
  */
 
-public class PlayerRight extends AbstractPlayer {
-    public PlayerRight(int id, int[] cards, int left, int top, boolean side, Game game, Context context) {
+public class PlayerTop extends AbstractPlayer {
+    public PlayerTop(int id, int[] cards, int left, int top, boolean side, Game game, Context context) {
         super(id, cards, left, top, side, game, context);
     }
     @Override
@@ -26,8 +26,8 @@ public class PlayerRight extends AbstractPlayer {
         Bitmap Image;
         Paint paint = new Paint();
         Rect des = new Rect();
-        int left = 600;
-        int top = 315;
+        int left = 120;
+        int top = 275;
         for (int i=0; i<calls.size(); i++) {
             Image = BitmapFactory.decodeResource(context.getResources(), CardImage.callImage[calls.get(i)]);
             des.set(left , top, left+35, top + 20);

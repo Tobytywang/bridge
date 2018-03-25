@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.ui;
+package com.happylich.bridge.game;
 
 /**
  * Created by wangt on 2018/3/22.

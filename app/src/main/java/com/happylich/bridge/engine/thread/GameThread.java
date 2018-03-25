@@ -14,7 +14,7 @@ import android.view.SurfaceHolder;
  * 线程负责游戏的绘制，触摸事件的响应等
  */
 
-public class PlayThread extends Thread {
+public class GameThread extends Thread {
 
     // 游戏线程每执行一次需要睡眠的时间
     private final static int DELAY_TIME = 100;
@@ -44,7 +44,7 @@ public class PlayThread extends Thread {
      * @param context Context
      * @param handler handler
      */
-    public PlayThread(SurfaceHolder holder, Context context, Handler handler) {
+    public GameThread(SurfaceHolder holder, Context context, Handler handler) {
         this.surfaceHolder = holder;
         this.context = context;
         this.handler = handler;

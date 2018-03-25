@@ -9,30 +9,30 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
-import com.happylich.bridge.engine.thread.PlayThread;
+import com.happylich.bridge.engine.thread.GameThread;
 
 /**
  * Created by wangt on 2018/3/20.
- * 1. 将SurfaceHolder交给主线程PlayThread，使得PlayThread完成绘画工作，并管理线程的运行状态
- * 2. 捕获按键事件交给PlayThread处理，如果有需要也可以捕捉其他事件交给PlayThread处理
+ * 1. 将SurfaceHolder交给主线程PlayThread，使得GameThread完成绘画工作，并管理线程的运行状态
+ * 2. 捕获按键事件交给GameThread处理，如果有需要也可以捕捉其他事件交给GameThread处理
  * 3. 在需要时调用协助显示其他View，如框架中的TextView
  */
 
 public class GameView extends SurfaceView
         implements SurfaceHolder.Callback {
 
-    private PlayThread playThread;
+    private GameThread gameThread;
     private SurfaceHolder holder;
     private Context context;
 
     private int Width, Height;
+
     /**
-     * 构造方法
+     * 构造方法（单参数）
      * @param context 上下文
-     * @param attrs   额外的参数
      */
-    public GameView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public GameView(Context context) {
+        super(context);
 
         this.holder = getHolder();
         holder.addCallback(this);
@@ -56,14 +56,14 @@ public class GameView extends SurfaceView
     public void surfaceCreated(SurfaceHolder holder) {
         Log.v(this.getClass().getName(), "创建Surface");
 
-        playThread = new PlayThread(holder, context, new Handler() {
+        gameThread = new GameThread(holder, context, new Handler() {
             @Override
             public void handleMessage(Message m) {
                 // TODO:
             }
         });
-        playThread.setRunning(true);
-        playThread.start();
+        gameThread.setRunning(true);
+        gameThread.start();
     }
 
     @Override
@@ -78,6 +78,6 @@ public class GameView extends SurfaceView
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.v(this.getClass().getName(), "销毁Surface");
 
-        playThread.setRunning(false);
+        gameThread.setRunning(false);
     }
 }

@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
  * Created by wangt on 2018/3/22.
  */
 
-public class spriteGroup extends sprite {
+public class SpriteGroup extends Sprite {
 
     // 维护的子精灵队列
 //    private
@@ -16,7 +16,7 @@ public class spriteGroup extends sprite {
      * @param position
      * @param bitmap
      */
-    public spriteGroup(int[] position, Bitmap bitmap) {
+    public SpriteGroup(int[] position, Bitmap bitmap) {
         super(position, bitmap);
         throw new RuntimeException("Stub!");
     }

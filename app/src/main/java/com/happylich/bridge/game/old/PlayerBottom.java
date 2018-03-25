@@ -1,4 +1,4 @@
-package com.happylich.bridge.game;
+package com.happylich.bridge.game.old;
 
 import android.content.Context;
 import android.graphics.Bitmap;
