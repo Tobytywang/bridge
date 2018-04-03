@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
+import com.happylich.bridge.engine.game.Game;
 import com.happylich.bridge.engine.thread.GameThread;
 
 /**
@@ -25,7 +26,23 @@ public class GameView extends SurfaceView
     private SurfaceHolder holder;
     private Context context;
 
-    private int Width, Height;
+    private Game game;
+
+    /**
+     * 构造方法（自定义的）
+     * @param context 上下文
+     * @param game 游戏
+     */
+    public GameView(Context context, Game game) {
+        super(context);
+
+        this.holder = getHolder();
+        holder.addCallback(this);
+
+        this.context = context;
+
+        this.game = game;
+    }
 
     /**
      * 构造方法（单参数）
@@ -38,6 +55,8 @@ public class GameView extends SurfaceView
         holder.addCallback(this);
 
         this.context = context;
+
+        this.game = new Game();
     }
 
     @Override
@@ -46,8 +65,9 @@ public class GameView extends SurfaceView
             case MotionEvent.ACTION_DOWN:
                 // TODO:
                 Log.v(this.getClass().getName(), "按下事件");
+                game.onTouch((int)event.getX(), (int)event.getY());
             default:
-                Log.v(this.getClass().getName(), "其他事件");
+//                Log.v(this.getClass().getName(), "其他事件");
         }
         return true;
     }
@@ -70,8 +90,11 @@ public class GameView extends SurfaceView
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Log.v(this.getClass().getName(), "改变Surface");
 
-        Width = this.getWidth();
-        Height = this.getHeight();
+        // 在这里创建游戏
+        // TODO:把新建游戏的过程延迟到这里执行，就可以解决宽高的问题
+        game.setWidthHeight(this.getWidth(), this.getHeight());
+        Log.v(this.getClass().getName(), "修改宽高");
+        gameThread.setGame(game);
     }
 
     @Override

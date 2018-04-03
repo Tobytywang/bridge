@@ -1,0 +1,15 @@
+2018-03-26
+  已经完成基本框架：一个移动的小球
+  18个线程
+  1ms
+    CPU：10%
+    MEMORY：29MB
+  10ms
+    CPU：8%
+    MEMORY：28MB
+  50ms
+    CPU：2%
+    MEMORY：27MB
+  100ms
+    CPU：1%
+    MEMORY：24MB

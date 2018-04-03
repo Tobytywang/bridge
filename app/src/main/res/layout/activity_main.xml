@@ -9,14 +9,13 @@
 
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="桥牌"
-            android:textSize="20sp"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/AppTheme"
+        app:title="桥牌"
+        app:titleTextColor="#ffffff">
     </android.support.v7.widget.Toolbar>
+
     <FrameLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
@@ -27,24 +26,46 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <Button
-                android:id="@+id/button1"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="机机游戏"/>
-            <Button
-                android:id="@+id/button2"
+                android:orientation="horizontal"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/button1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="18dp"
+                    android:text="机机游戏"/>
+                <Button
+                    android:id="@+id/button2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="18dp"
+                    android:text="人机游戏"/>
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="人机游戏"/>
-            <Button
-                android:id="@+id/button3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="人人游戏"/>
+                android:orientation="horizontal"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/button3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="18dp"
+                    android:text="蓝牙联机"/>
+                <Button
+                    android:id="@+id/button4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="18dp"
+                    android:text="Wifi联机"/>
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 

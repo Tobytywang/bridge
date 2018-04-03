@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import com.happylich.bridge.engine.game.Game;
+
 /**
  * Created by wangt on 2018/3/20.
  * 线程负责游戏的绘制，触摸事件的响应等
@@ -17,9 +19,12 @@ import android.view.SurfaceHolder;
 public class GameThread extends Thread {
 
     // 游戏线程每执行一次需要睡眠的时间
-    private final static int DELAY_TIME = 100;
+    private final static int DELAY_TIME = 50;
     // 上下文，方便获取到应用的各项资源，如图片、音乐和字符串等
     private Context context;
+
+    // 游戏类，可以调用游戏类的绘图方法
+    private Game game;
 
     // 与Activity其他View交互用的handler
     private Handler handler;
@@ -50,32 +55,28 @@ public class GameThread extends Thread {
         this.handler = handler;
     }
 
-
-    public void pause() {
-        synchronized (surfaceHolder) {
-            isPaused = true;
-        }
+    /**
+     * 设置游戏类
+     * @param game
+     */
+    public void setGame(Game game) {
+        this.game = game;
     }
 
-    public void unPause() {
-        synchronized (surfaceHolder) {
-            isPaused = false;
-        }
-    }
-
-    public void restoreState(Bundle saveState) {
-        // TODO
-    }
-
-    public void saveState(Bundle outState) {
-        // TODO
-    }
-
-    public void setRunning (boolean b) {
+    /**
+     * 线程运行标志设置函数（设置为false后停止线程）
+     * @param state
+     */
+    public void setRunning (boolean state) {
         Log.v(this.getClass().getName(), "设置running");
-        running = b;
+        running = state;
     }
 
+    /**
+     * 在初始化的时候用到
+     * @param width
+     * @param height
+     */
     public void setSurfaceSize(int width, int height) {
         synchronized (surfaceHolder) {
             mCanvasHeight = width;
@@ -84,6 +85,9 @@ public class GameThread extends Thread {
         }
     }
 
+    /**
+     * 线程更新函数
+     */
     public void run() {
         Log.v(this.getClass().getName(), "我要跑了！");
         while (running) {
@@ -95,9 +99,8 @@ public class GameThread extends Thread {
                         Log.v(this.getClass().getName(), "空的canvas");
                     }
                     synchronized (surfaceHolder) {
-                        doDraw(canvas);
+                        game.draw(canvas);
                     }
-                    logic();
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -117,23 +120,26 @@ public class GameThread extends Thread {
         Log.v(this.getClass().getName(), "我不跑了！");
     }
 
-    public void logic() {
-//        Log.v(this.getClass().getName(), "logic");
-        // TODO:
-    }
-
-    public void doStart() {
-        // TODO:
-    }
-
+    /**
+     * 绘制函数（由开发者重载）
+     * @param canvas
+     */
     private void doDraw(Canvas canvas) {
-//        Log.v(this.getClass().getName(), "doDraw");
+        // Log.v(this.getClass().getName(), "doDraw");
         // TODO:
         canvas.drawColor(Color.WHITE);
         canvas.drawArc(0, 0, 100, 100, 0, 90, true, new Paint());
 
         canvas.save();
         canvas.scale(2f, 2f);
+    }
+
+    /**
+     * 重新调整大小
+     * @param canvas
+     */
+    private void resize(Canvas canvas) {
+
     }
 
 }
