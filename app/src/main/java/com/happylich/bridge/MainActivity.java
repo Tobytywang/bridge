@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         // 蓝牙和WiFi模式下，需要先建立C/S关系才能运行游戏
         // 考虑如何建立这个C/S关系，以及如何对机-机和人-机对战方式进行抽象
 
+
         // 处理按钮点击事件（切换到机-机模式）
         Button button1 = (Button) this.findViewById(R.id.button1);
         button1.setOnClickListener(new View.OnClickListener() {

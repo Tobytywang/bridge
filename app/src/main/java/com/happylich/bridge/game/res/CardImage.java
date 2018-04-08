@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.old;
+package com.happylich.bridge.game.res;
 
 import com.happylich.bridge.R;
 
@@ -7,6 +7,7 @@ import com.happylich.bridge.R;
  */
 
 public class CardImage {
+    // 卡牌矩阵
     public static int[] cardImages = {
             R.drawable.lord_card_club_2, R.drawable.lord_card_club_3,
             R.drawable.lord_card_club_4, R.drawable.lord_card_club_5,
@@ -67,13 +68,23 @@ public class CardImage {
             R.drawable.lord_card_heart_7_small_new,
             R.drawable.lord_card_spade_7_small_new
     };
+
+    // 叫牌矩阵
     public static int[] resImages = {
-            R.drawable.res_1c, R.drawable.res_1d, R.drawable.res_1h, R.drawable.res_1s, R.drawable.res_1n,
-            R.drawable.res_2c, R.drawable.res_2d, R.drawable.res_2h, R.drawable.res_2s, R.drawable.res_2n,
-            R.drawable.res_3c, R.drawable.res_3d, R.drawable.res_3h, R.drawable.res_3s, R.drawable.res_3n,
-            R.drawable.res_4c, R.drawable.res_4d, R.drawable.res_4h, R.drawable.res_4s, R.drawable.res_4n,
-            R.drawable.res_5c, R.drawable.res_5d, R.drawable.res_5h, R.drawable.res_5s, R.drawable.res_5n,
-            R.drawable.res_6c, R.drawable.res_6d, R.drawable.res_6h, R.drawable.res_6s, R.drawable.res_6n,
-            R.drawable.res_7c, R.drawable.res_7d, R.drawable.res_7h, R.drawable.res_7s, R.drawable.res_7n,
+            R.drawable.res_1c, R.drawable.res_1d, R.drawable.res_1h, R.drawable.res_1s,
+            R.drawable.res_1n,
+            R.drawable.res_2c, R.drawable.res_2d, R.drawable.res_2h, R.drawable.res_2s,
+            R.drawable.res_2n,
+            R.drawable.res_3c, R.drawable.res_3d, R.drawable.res_3h, R.drawable.res_3s,
+            R.drawable.res_3n,
+            R.drawable.res_4c, R.drawable.res_4d, R.drawable.res_4h, R.drawable.res_4s,
+            R.drawable.res_4n,
+            R.drawable.res_5c, R.drawable.res_5d, R.drawable.res_5h, R.drawable.res_5s,
+            R.drawable.res_5n,
+            R.drawable.res_6c, R.drawable.res_6d, R.drawable.res_6h, R.drawable.res_6s,
+            R.drawable.res_6n,
+            R.drawable.res_7c, R.drawable.res_7d, R.drawable.res_7h, R.drawable.res_7s,
+            R.drawable.res_7n,
+            R.drawable.res_pass,
     };
 }

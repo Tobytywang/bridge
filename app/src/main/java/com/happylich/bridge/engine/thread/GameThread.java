@@ -99,7 +99,7 @@ public class GameThread extends Thread {
                         Log.v(this.getClass().getName(), "空的canvas");
                     }
                     synchronized (surfaceHolder) {
-                        game.draw(canvas);
+                        game.process(canvas);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

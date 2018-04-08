@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.framework.widget;
+package com.happylich.bridge.game.widget;
 
 /**
  * 代表一个按键

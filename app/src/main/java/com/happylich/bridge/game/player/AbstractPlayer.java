@@ -1,30 +1,30 @@
-package com.happylich.bridge.game.framework.player;
+package com.happylich.bridge.game.player;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
-import com.happylich.bridge.game.framework.res.CardImage;
+import com.happylich.bridge.game.call.Call;
+import com.happylich.bridge.game.res.CardImage;
 
 import java.util.ArrayList;
 
 /**
- * 抽象玩家
- * 1. 机器人
- * 2. 真人玩家
- * 3. 远程玩家
  * Created by wangt on 2017/11/16.
  */
 
 public abstract class AbstractPlayer {
 
-    // 玩家ID:0-3（出牌顺序？）
-    protected int playerId;
+    // 储存玩家的座位0-S 1-W 2-N 3-E
+    public int position;
+
+    // 本地玩家用来获取叫牌值
+    public Call call;
+
     // 玩家持有的牌
     protected int[] cards;
     // 玩家的叫牌列表
@@ -51,9 +51,6 @@ public abstract class AbstractPlayer {
     protected int top, left;
     protected Context context;
 
-    protected AbstractPlayer last;
-    protected AbstractPlayer next;
-
     /**
      * 构造函数
      */
@@ -61,26 +58,39 @@ public abstract class AbstractPlayer {
     }
 
     /**
-     * 构造函数（实际上并没有用，要被覆盖掉的）
-     * @param id
+     * 给玩家派牌
      * @param cards
      */
-//    public AbstractPlayer(int id,
-//                          int[] cards) {
-//        this.stage = 200;
-//        this.playerId = id;
-//        this.cards = cards;
-//    }
+    public void setCards(int[] cards) {
+        this.cards = cards;
+    }
 
     /**
-     * 设置上家和下家
-     * @param last
-     * @param next
+     * 打牌函数
      */
-    public void setLastAndNext(AbstractPlayer last, AbstractPlayer next) {
-        this.last = last;
-        this.next = next;
+    abstract public int dropCard();
+
+    /**
+     * 设置玩家持有的call副本
+     * @param call
+     */
+    public void setCall(Call call) {
+        this.call = call;
     }
+
+    /**
+     * 设置宽高
+     */
+    public void setWidthHeight(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    /**
+     * 叫牌函数
+     * 叫牌函数返回0-35，0-34表示有效叫牌值，35表示pass
+     */
+    abstract public boolean callCard();
 
     /**
      * 设置绘图模式
@@ -100,14 +110,6 @@ public abstract class AbstractPlayer {
     }
 
     /**
-     * 设置宽高
-     */
-    public void setWidthHeight(int width, int height) {
-        this.width = width;
-        this.height = height;
-    }
-
-    /**
      * 绘图函数
      * @param canvas
      */
@@ -116,9 +118,7 @@ public abstract class AbstractPlayer {
             case 200:
                 // do-nothing
             case 201:
-//                Log.v(this.getClass().getName(), "201");
                 paintBottomUp(canvas);
-//                Log.v(this.getClass().getName(), "---");
             case 202:
                 paintBottomDown(canvas);
             case 211:
@@ -137,6 +137,7 @@ public abstract class AbstractPlayer {
                 // do-nothing
         }
     }
+
     private void paintBottomUp(Canvas canvas) {
         Bitmap Image;
         Paint paint = new Paint();
@@ -165,59 +166,32 @@ public abstract class AbstractPlayer {
 //        canvas.drawText(String.valueOf(this.height), 0, 200, paint);
 //        canvas.drawLine(0, 2160, 1440, 2160, paint);
     }
+
     private void paintBottomDown(Canvas canvas) {
 
     }
+
     private void paintTopUp(Canvas canvas) {
 
     }
+
     private void paintTopDown(Canvas canvas) {
 
     }
+
     private void paintLeftUp(Canvas canvas) {
 
     }
+
     private void paintLeftDown(Canvas canvas) {
 
     }
+
     private void paintRightUp(Canvas canvas) {
 
     }
+
     private void paintRightDown(Canvas canvas) {
 
     }
-
-    /**
-     * 键盘输入
-     * 键盘输入只有对于本地人类玩家有效
-     * 当玩家是机器人或者远程玩家时不再有效
-     * @param x
-     * @param y
-     */
-    // TODO：选牌，重选
-//    public void onTouch(int x, int y) {
-//        Log.d("时间调优：", "Players.onTouch");
-//        for (int i=0; i<cards.length; i++) {
-//            if (i != cards.length - 1) {
-//                // 判定区域
-//                if (inRect(x, y, left+i*35, top,35, 160)) {
-//                    // 重绘
-//                    Log.d("坐标", String.valueOf(i));
-//                    selectCard = i;
-//                    break;
-//                } selectCard = -1;
-//            } else {
-//                // 判定区域
-//                if (inRect(x, y, left+i*35, top,120, 160)) {
-//                    // 重绘
-//                    selectCard = i;
-//                    break;
-//                } else {
-//                    selectCard = -1;
-//                }
-//            }
-//        }
-//    }
-
-
 }

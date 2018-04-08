@@ -62,7 +62,7 @@ public class Game {
      * 子类重载这个函数来绘制游戏界面
      * @param canvas
      */
-    public void draw(Canvas canvas) {
+    public void process(Canvas canvas) {
         this.canvas = canvas;
 
         // 新建画笔

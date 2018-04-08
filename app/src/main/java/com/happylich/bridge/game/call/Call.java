@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.framework.call;
+package com.happylich.bridge.game.call;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,28 +7,42 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 
 import com.happylich.bridge.R;
 import com.happylich.bridge.engine.util.Position;
-import com.happylich.bridge.game.framework.res.CardImage;
+import com.happylich.bridge.game.res.CardImage;
 
 /**
+ * Created by lich on 2018/3/26.
  * 绘制叫牌矩阵的类
  * 1. 小
  * 2. 大（未选中）
  * 3. 大（选中）
- * Created by lich on 2018/3/26.
+ *
+ * Call是Game的一个子类，但也要和玩家类一起工作，返回玩家的叫牌值？
+ * Call的作用
+ * 1. 绘制
+ * 2. 处理叫牌按键
+ * 3. 获得叫牌按键的结果
+ *    call和玩家要有交互（将call的touch结果通知给player）
+ *    call的触摸事件只需要和人类玩家交互
+ *    call的状态需要和所有玩家交互
+ *    1. call.setPlayerE(player) playerE.setLastCall:人类玩家 playerE.getLastCall
+ *    2. player.setCall(call) call.getLastCall
  */
 
 public class Call {
-    // 资源
     private Context context;
 
-    // 叫牌矩阵标志位
-    private int callFlag;
+    // 叫牌阶段标志位
+    private int callStage;
 
-    // 绘制基准
+    // 叫牌阶段完成
+    private boolean finish;
+
+    // 绘制尺寸
     private int width, height;
     private int left, top;
 
@@ -45,7 +59,6 @@ public class Call {
     private int callHistoryS = -1;
     private int callHistoryW = -1;
 
-
     // 叫牌矩阵（0表示有,1表示空）
     private int[][] calls = new int[5][7];
 
@@ -54,6 +67,22 @@ public class Call {
      */
     public Call(Context context) {
         this.context = context;
+    }
+
+    /**
+     * 每次在玩家监听的时候置为false
+     * @param finish
+     */
+    public void setFinish(boolean finish) {
+        this.finish = finish;
+    }
+
+    /**
+     * 获得人类玩家的叫牌值？
+     * 0-34表示有效叫牌值，35表示pass
+     */
+    public boolean callCard() {
+        return finish;
     }
 
     /**
@@ -74,23 +103,61 @@ public class Call {
     }
 
     /**
-     * 设置callflag
-     * @param flag
+     * 设置callstage
+     * @param stage
      */
-    public void setCallFlag(int flag) {
-        this.callFlag = flag;
+    public void setCallStage(int stage) {
+        this.callStage = stage;
     }
 
     /**
-     * 检测按键
+     * 获得上一次的叫牌点
+     */
+    public int getLastCallCard() {
+        return lastCallCard;
+    }
+
+    /**
+     * 机器人玩家专用的
+     */
+    public void setCallW(int callCard) {
+        this.lastCallCard = callCard;
+        this.callHistoryW = callCard;
+    }
+
+    /**
+     * 机器人玩家专用的
+     */
+    public void setCallN(int callCard) {
+        this.lastCallCard = callCard;
+        this.callHistoryN = callCard;
+    }
+
+    /**
+     * 机器人玩家专用的
+     */
+    public void setCallE(int callCard) {
+        this.lastCallCard = callCard;
+        this.callHistoryE = callCard;
+    }
+
+    /**
+     * 机器人玩家专用的
+     */
+    public void setCallS(int callCard) {
+        this.lastCallCard = callCard;
+        this.callHistoryS = callCard;
+    }
+
+    /**
+     * 检测按键（这个只有本地玩家有）
+     * 在特定阶段被game.call调用
      * @param x
      * @param y
      * @return 表示事件类型，0表示无效区域，1表示有效区域
      */
     public int onTouch(int x, int y) {
-        Log.v(this.getClass().getName(), "CallFlag");
-        Log.v(this.getClass().getName(), String.valueOf(callFlag));
-        switch(callFlag) {
+        switch(callStage) {
             case 0:
                 if (touchSmall(x, y) == 1) {
                     return 1;
@@ -107,6 +174,8 @@ public class Call {
                 int touchBig = touchBigSelected(x, y);
                 if (touchBig == 0) {
                     Log.v(this.getClass().getName(), "触摸到本方格，返回阶段0");
+                    this.callHistoryS = lastCallCard;
+                    this.finish = true;
                     return 0;
                 } else if (touchBig == 2) {
                     Log.v(this.getClass().getName(), "触摸到其他方格，返回阶段2");
@@ -119,38 +188,6 @@ public class Call {
                 return 0;
         }
     }
-    /**
-     * 绘制叫牌矩阵
-     * @param canvas
-     */
-    public void draw(Canvas canvas) {
-//        drawTest(canvas);
-        switch (callFlag) {
-            case 0:
-                drawSmall(canvas);
-                drawHistory(canvas);
-                break;
-            case 1:
-                drawBig(canvas);
-                break;
-            case 2:
-                drawBigSelected(canvas);
-                break;
-            default:
-                drawSmall(canvas);
-        }
-    }
-
-    /**
-     * 测试
-     * @param canvas
-     */
-    public void drawTest(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setColor(Color.GRAY);
-        canvas.drawRect(this.left, this.top,
-                this.left+720, this.top+720, paint);
-    }
 
     /**
      * 小矩阵
@@ -159,8 +196,10 @@ public class Call {
      * @return
      */
     private int touchSmall(int x, int y) {
-        Position position = new Position(this.top, this.left,
-                this.top + 1100, this.left + 720);
+        int left = this.left;
+        int top = this.top + 150;
+        Position position = new Position(top, left,
+                top + 1100, left + 720);
         position.resieze((float)this.width / (float)1440);
         Log.v(this.getClass().getName(), String.valueOf(Position.inPosition(x, y, position)));
         if (Position.inPosition(x, y, position)) {
@@ -168,83 +207,6 @@ public class Call {
             return 1;
         }
         return 0;
-    }
-
-    /**
-     * 绘制小矩阵（带边框）
-     * @param canvas
-     */
-    private void drawSmall(Canvas canvas) {
-        Bitmap Image;
-        Rect des = new Rect();
-        Paint paint = new Paint();
-
-        int left = this.left;
-        int top = this.top + 150;
-
-        // 绘制底版
-        paint.setColor(Color.GREEN);
-        paint.setStrokeWidth(5);
-        canvas.drawRect(this.left + 0 - 130, this.top,
-                this.left + 720 + 130, this.top + 1100 + 320, paint);
-
-        // 绘制选择矩阵
-        for(int j=0; j<7; j++) {
-            for (int i=0; i<5; i++) {
-                if ((j*5+i)>lastCallCard) {
-                    Image = BitmapFactory.decodeResource(context.getResources(),
-                            CardImage.resImages[j * 5 + i]);
-                    des.set(left + 9 + 134 * i + 8 * i,
-                            top + 134 * j + 4 * j,
-                            left + 9 + 134 * (i + 1) + 8 * i,
-                            top + 134 * (j + 1) + 4 * j);
-                    canvas.drawBitmap(Image, null, des, paint);
-                    Image = null;
-                }
-            }
-        }
-
-        // 绘制PASS按钮
-        Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
-        des.set(left + 9 + 5, top + 964, left + 702 + 5, top + 1100);
-        canvas.drawBitmap(Image, null, des, paint);
-
-        // 绘制线条
-        paint.setColor(Color.GREEN);
-        paint.setStrokeWidth(5);
-//        canvas.drawLine(left + 0 - 120, top - 120,
-//                left + 360 - 50, top - 120, paint);
-//        canvas.drawLine(left + 360 + 50, top - 120,
-//                left + 720 + 120, top - 120, paint);
-//
-//        canvas.drawLine(left + 720 + 120, top - 120,
-//                left + 720 + 120, top + 550 - 50, paint);
-//        canvas.drawLine(left + 720 + 120, top + 550 + 50 ,
-//                left + 720 + 120, top + 1100 + 120, paint);
-//
-//        canvas.drawLine(left + 720 + 120, top + 1100 + 120,
-//                left + 360  + 50, top + 1100 + 120, paint);
-//        canvas.drawLine(left + 360 - 50, top + 1100 + 120,
-//                left + 0 - 120, top + 1100 + 120, paint);
-//
-//        canvas.drawLine(left + 0 - 120, top + 1100 + 120,
-//                left + 0 - 120, top + 550 + 50, paint);
-//        canvas.drawLine(left + 0 - 120, top + 550 - 50,
-//                left + 0 - 120, top - 120, paint);
-
-        // 绘制文字
-        paint.setStrokeWidth(3);
-        paint.setTextSize(80);
-        paint.setColor(Color.BLACK);
-        paint.setTextAlign(Paint.Align.CENTER);
-//        canvas.drawText("北", left + 360, top - 20, paint);
-//        canvas.drawText("东", left + 720 + 50, top + 550 + 30, paint);
-//        canvas.drawText("南", left + 360, top + 1100 + 80, paint);
-//        canvas.drawText("西", left + 0 - 50, top + 550 + 30, paint);
-        canvas.drawText("北", left + 50, top - 20, paint);
-        canvas.drawText("东", left + 720 + 50, top + 80, paint);
-        canvas.drawText("南", left + 680, top + 1100 + 90, paint);
-        canvas.drawText("西", left + 0 - 50, top + 1090, paint);
     }
 
     /**
@@ -281,47 +243,6 @@ public class Call {
     }
 
     /**
-     * 绘制大矩阵
-     * @param canvas
-     */
-    private void drawBig(Canvas canvas) {
-        Bitmap Image;
-        Rect des = new Rect();
-        Paint paint = new Paint();
-
-        // 重新修订width的宽度
-        int left = (1440 - 180 * 5 - 20 * 4) / 2;
-        int top = this.top - 10;
-
-        // 绘制底版
-        paint.setColor(Color.GREEN);
-        paint.setStrokeWidth(5);
-        canvas.drawRect(this.left + 0 - 130, this.top,
-                this.left + 720 + 130, this.top + 1100 + 320, paint);
-
-        // 绘制选择矩阵
-        for(int j=0; j<7; j++) {
-            for (int i=0; i<5; i++) {
-                if ((j * 5 + i)>lastCallCard) {
-                    Image = BitmapFactory.decodeResource(context.getResources(),
-                            CardImage.resImages[j * 5 + i]);
-                    des.set(left + 180 * i + 20 * i,
-                            top + 180 * j - 2 * j,
-                            left + 180 * (i + 1) + 20 * i,
-                            top + 180 * (j + 1) - 2 * j);
-                    canvas.drawBitmap(Image, null, des, paint);
-                    Image = null;
-                }
-            }
-        }
-
-        // 绘制pass
-        Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
-        des.set(left + 5, top + 1250, left + 980 - 5, top + 1250 + 180);
-        canvas.drawBitmap(Image, null, des, paint);
-    }
-
-    /**
      * 检测大矩阵
      * 0. 按到本方格时，进入阶段0
      * 1. 按到其他方格时，进入阶段2，重新绘制bigselected
@@ -338,11 +259,11 @@ public class Call {
         // 检测是否PASS
         position = new Position(top + 1250,
                 left + 5,
-                top + 1250 + 180,
+                top + 1250 + 160,
                 left + 980 - 5);
         position.resieze((float)this.width / (float)1440);
         if (Position.inPosition(x, y, position)) {
-           return 0;
+            return 0;
         }
 
         for(int j=0; j<7; j++) {
@@ -361,6 +282,8 @@ public class Call {
                             selectFlagY = -1;
 
                             Log.v(this.getClass().getName(),"更新lastCallCard");
+                            // 这里是更新lastCallCard的操作
+                            // 如何识别lastCallCard更新了
                             lastCallCard = j * 5 + i;
                             Log.v(this.getClass().getName(), "返回0");
                             return 0;
@@ -387,6 +310,164 @@ public class Call {
     }
 
     /**
+     * 测试
+     * @param canvas
+     */
+    public void drawTest(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.GRAY);
+        canvas.drawRect(this.left, this.top,
+                this.left+720, this.top+720, paint);
+    }
+
+    /**
+     * 绘制叫牌矩阵
+     * @param canvas
+     */
+    public void draw(Canvas canvas) {
+//        drawTest(canvas);
+        switch (callStage) {
+            case 0:
+                drawSmall(canvas);
+                drawHistory(canvas);
+                break;
+            case 1:
+                drawBig(canvas);
+                break;
+            case 2:
+                drawBigSelected(canvas);
+                break;
+            default:
+                drawSmall(canvas);
+        }
+    }
+
+    /**
+     * 绘制小矩阵（带边框）
+     * @param canvas
+     */
+    private void drawSmall(Canvas canvas) {
+        Bitmap Image;
+        Rect des = new Rect();
+        Paint paint = new Paint();
+
+        int left = this.left;
+        int top = this.top + 150;
+
+        // 绘制底版
+        paint.setColor(Color.GREEN);
+        paint.setStrokeWidth(5);
+        RectF round = new RectF();
+        round.left = left + 0 - 130;
+        round.top = top - 150 - 5;
+        round.right = left + 720 + 130;
+        round.bottom = top - 150 + 1100 + 320 - 5;
+//        canvas.drawRect(this.left + 0 - 130, this.top,
+//                this.left + 720 + 130, this.top + 1100 + 320, paint);
+        canvas.drawRoundRect(round, 50, 25, paint);
+
+        // 绘制选择矩阵
+        for(int j=0; j<7; j++) {
+            for (int i=0; i<5; i++) {
+                if ((j*5+i)>lastCallCard) {
+                    Image = BitmapFactory.decodeResource(context.getResources(),
+                            CardImage.resImages[j * 5 + i]);
+                    des.set(left + 9 + 134 * i + 8 * i,
+                            top + 5 + 134 * j + 4 * j,
+                            left + 9 + 134 * (i + 1) + 8 * i,
+                            top + 5 + 134 * (j + 1) + 4 * j);
+                    canvas.drawBitmap(Image, null, des, paint);
+                    Image = null;
+                }
+            }
+        }
+
+        // 绘制PASS按钮
+        Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
+        des.set(left + 9 + 5, top + 5 + 964,
+                left + 702 + 5, top + 1100 + 5);
+        canvas.drawBitmap(Image, null, des, paint);
+
+        // 绘制线条
+        paint.setColor(Color.parseColor("#408030"));
+        paint.setStrokeWidth(8);
+        canvas.drawLine(left - 130, top - 150,
+                left, top, paint);
+        canvas.drawLine(left + 720 + 130, top - 150,
+                left + 720, top, paint);
+        canvas.drawLine(left - 130, top + 1100 - 150 + 320,
+                left, top + 1100 + 20, paint);
+        canvas.drawLine(left + 720 + 130, top + 1100 - 150 + 320,
+                left + 720, top + 1100 + 20, paint);
+
+        paint.setStrokeWidth(6);
+        canvas.drawLine(left, top,
+                left + 720, top, paint);
+        canvas.drawLine(left + 720, top,
+                left + 720, top + 1100 + 20, paint);
+        canvas.drawLine(left + 720, top + 1100 + 20,
+                left, top + 1100 + 20, paint);
+        canvas.drawLine(left, top + 1100 + 20,
+                left, top, paint);
+
+        // 绘制文字
+        paint.setStrokeWidth(3);
+        paint.setTextSize(80);
+        paint.setColor(Color.BLACK);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText("北", left + 50, top - 20, paint);
+        canvas.drawText("东", left + 720 + 50, top + 80, paint);
+        canvas.drawText("南", left + 680, top + 1100 + 100, paint);
+        canvas.drawText("西", left + 0 - 50, top + 1090, paint);
+
+    }
+
+    /**
+     * 绘制大矩阵
+     * @param canvas
+     */
+    private void drawBig(Canvas canvas) {
+        Bitmap Image;
+        Rect des = new Rect();
+        Paint paint = new Paint();
+
+        // 重新修订width的宽度
+        int left = (1440 - 180 * 5 - 20 * 4) / 2;
+        int top = this.top - 10;
+
+        // 绘制底版
+        paint.setColor(Color.GREEN);
+        paint.setStrokeWidth(5);
+        RectF round = new RectF();
+        round.left = this.left + 0 - 130;
+        round.top = this.top - 5;
+        round.right = this.left + 720 + 130;
+        round.bottom = this.top + 1100 + 320 - 5;
+        canvas.drawRoundRect(round, 50, 25, paint);
+
+        // 绘制选择矩阵
+        for(int j=0; j<7; j++) {
+            for (int i=0; i<5; i++) {
+                if ((j * 5 + i)>lastCallCard) {
+                    Image = BitmapFactory.decodeResource(context.getResources(),
+                            CardImage.resImages[j * 5 + i]);
+                    des.set(left + 180 * i + 20 * i,
+                            top + 180 * j - 2 * j,
+                            left + 180 * (i + 1) + 20 * i,
+                            top + 180 * (j + 1) - 2 * j);
+                    canvas.drawBitmap(Image, null, des, paint);
+                    Image = null;
+                }
+            }
+        }
+
+        // 绘制pass
+        Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
+        des.set(left + 5, top + 1250, left + 980 - 5, top + 1250 + 160);
+        canvas.drawBitmap(Image, null, des, paint);
+    }
+
+    /**
      * 绘制大矩阵（选中的）
      * @param canvas
      */
@@ -402,8 +483,12 @@ public class Call {
         // 绘制底版
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(5);
-        canvas.drawRect(this.left + 0 - 130, this.top,
-                this.left + 720 + 130, this.top + 1100 + 320, paint);
+        RectF round = new RectF();
+        round.left = this.left + 0 - 130;
+        round.top = this.top - 5;
+        round.right = this.left + 720 + 130;
+        round.bottom = this.top + 1100 + 320 - 5;
+        canvas.drawRoundRect(round, 50, 25, paint);
 
         // 绘制选择矩阵
         for(int j = 0; j < 7; j++) {
@@ -423,7 +508,7 @@ public class Call {
 
         // 绘制pass
         Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
-        des.set(left + 5, top + 1250, left + 980 - 5, top + 1250 + 180);
+        des.set(left + 5, top + 1250, left + 980 - 5, top + 1250 + 160);
         canvas.drawBitmap(Image, null, des, paint);
 
         // 绘制大卡片
@@ -453,6 +538,8 @@ public class Call {
         int left = this.left;
         int top = this.top + 150;
 
+        Log.v(this.getClass().getName(), "绘制历史");
+        Log.v(this.getClass().getName(), String.valueOf(callHistoryN));
         if (callHistoryN != -1) {
             Image = BitmapFactory.decodeResource(context.getResources(),
                     CardImage.resImages[callHistoryN]);
