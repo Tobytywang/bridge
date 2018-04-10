@@ -19,6 +19,11 @@ import java.util.ArrayList;
 
 public abstract class AbstractPlayer {
 
+    protected Context context;
+    protected int stage;
+    protected int width, height;
+    protected int top, left;
+
     // 储存玩家的座位0-S 1-W 2-N 3-E
     public int position;
 
@@ -46,10 +51,6 @@ public abstract class AbstractPlayer {
     // 231：右方，向上
     // 232：右方，向下
     // 3表示结算：结算
-    protected int stage;
-    protected int width, height;
-    protected int top, left;
-    protected Context context;
 
     /**
      * 构造函数
@@ -193,5 +194,90 @@ public abstract class AbstractPlayer {
 
     private void paintRightDown(Canvas canvas) {
 
+    }
+
+
+    /**
+     * 获得大牌点
+     * @return
+     */
+    public int getPoints() {
+        int point = 0;
+        for (int i = 0; i < cards.length; i++) {
+            if (cards[i] % 13 >= 9) {
+                point = point + ((cards[i] / 13) - 8);
+            }
+        }
+        return point;
+    }
+
+    /**
+     * 获得牌点调整值
+     * @param color
+     */
+    public int getPointsExt(int color) {
+        int point = 0;
+        for (int i = 0; i < cards.length; i++) {
+            if (cards[i] / 13 == color) {
+                point++;
+            }
+        }
+        switch (point) {
+            case 0:
+                return 5;
+            case 1:
+                return 3;
+            case 2:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * 是否是均型牌
+     * @return
+     */
+    public int isBalance() {
+        int[] numbers = {0, 0, 0, 0};
+        for (int i = 0; i < cards.length; i++) {
+            if (cards[i] / 13 == 0) {
+                numbers[0]++;
+            } else if (cards[i] / 13 == 1) {
+                numbers[1]++;
+            } else if (cards[i] / 13 == 2) {
+                numbers[2]++;
+            } else {
+                numbers[3]++;
+            }
+        }
+
+        // 写一个冒泡循环
+        for (int i = 4; i > 0; i++) {
+            for (int j = 0; j < i; j++) {
+                if (numbers[j] < numbers[j+1]) {
+                    int temp = numbers[j];
+                    numbers[j] = numbers[j+1];
+                    numbers[j+1] = temp;
+                }
+            }
+        }
+
+        if (numbers[0] == 4 && numbers[1] == 3 && numbers[2] == 3 && numbers[3] == 3) {
+            return 0;
+        }
+        if (numbers[0] == 4 && numbers[1] == 4 && numbers[2] == 3 && numbers[3] == 2) {
+            return 0;
+        }
+        if (numbers[0] == 5 && numbers[1] == 3 && numbers[2] == 3 && numbers[3] == 2) {
+            return 0;
+        }
+        if (numbers[0] == 5 && numbers[1] == 4 && numbers[2] == 2 && numbers[3] == 2) {
+            return 1;
+        }
+        if (numbers[0] == 6 && numbers[1] == 3 && numbers[2] == 2 && numbers[3] == 2) {
+            return 1;
+        }
+        return 2;
     }
 }

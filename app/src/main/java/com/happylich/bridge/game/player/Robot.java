@@ -28,13 +28,10 @@ public class Robot extends AbstractPlayer{
     @Override
     public boolean callCard() {
         // 机器人要叫牌，需要根据
-        // 1. 手里的牌力
+        // 1. 手里的牌力(打牌点，控制张，止张，关键张）
         // 2. 叫牌历史
-//        int i = 100000000;
-//        while(i > 0) {
-//            i--;
-//        }
 
+        // 首先实现
 
         // 现在只要根据之前的叫牌历史，叫大一号的就好
         int last = call.getLastCallCard();

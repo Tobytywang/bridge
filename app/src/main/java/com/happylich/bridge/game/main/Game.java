@@ -306,7 +306,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         playerPositionBottom[1] = 1980;
         // 叫牌矩阵
         callPosition[0] = 360;
-        callPosition[1] = 360 + 90;
+        callPosition[1] = 360 + 80;
         // 牌桌
     }
 

@@ -38,6 +38,7 @@ public class GameActivity extends AppCompatActivity {
         Call call = new Call(this);
 
         // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
+        // TODO:玩家的位置应该是随机的
         AbstractPlayer playerS = new Player(this,0);
         playerS.setCards(cards.getCards(13));
         playerS.setCall(call);

@@ -197,9 +197,9 @@ public class Call {
      */
     private int touchSmall(int x, int y) {
         int left = this.left;
-        int top = this.top + 150;
+        int top = this.top + 100;
         Position position = new Position(top, left,
-                top + 1100, left + 720);
+                top + 1144, left + 720);
         position.resieze((float)this.width / (float)1440);
         Log.v(this.getClass().getName(), String.valueOf(Position.inPosition(x, y, position)));
         if (Position.inPosition(x, y, position)) {
@@ -217,16 +217,16 @@ public class Call {
      */
     private int touchBig(int x, int y) {
         Position position;
-        int left = (1440 - 180 * 5 - 20 * 4) / 2;
-        int top = this.top - 10;
+        int left = this.left - 100;
+        int top = this.top;
 
         for(int j=0; j<7; j++) {
             for (int i=0; i<5; i++) {
                 if ((j * 5 + i) > lastCallCard) {
-                    position = new Position(top + 180 * j - 2 * j,
-                            left + 180 * i + 20 * i,
-                            top + 180 * (j + 1) - 2 * j,
-                            left + 180 * (i + 1) + 20 * i);
+                    position = new Position(top + 5 + 165 * j + 2 * j,
+                            left + 1 + 170 * i + 17 * i,
+                            top + 5 + 165 * (j + 1) + 2 * j,
+                            left + 1 + 170 * (i + 1) + 17 * i);
                     position.resieze((float) this.width / (float) 1440);
                     if (Position.inPosition(x, y, position)) {
                         selectFlag = j * 5 + i;
@@ -253,14 +253,14 @@ public class Call {
      */
     private int touchBigSelected(int x, int y) {
         Position position;
-        int left = (1440 - 180 * 5 - 20 * 4) / 2;
-        int top = this.top - 10;
+        int left = this.left - 100;
+        int top = this.top;
 
         // 检测是否PASS
-        position = new Position(top + 1250,
-                left + 5,
-                top + 1250 + 160,
-                left + 980 - 5);
+        position = new Position(top + 1177,
+                left + 1,
+                top + 1177 + 163,
+                left + 1 + 920);
         position.resieze((float)this.width / (float)1440);
         if (Position.inPosition(x, y, position)) {
             return 0;
@@ -270,10 +270,10 @@ public class Call {
             for (int i=0; i<5; i++) {
                 if ((j * 5 + i) > lastCallCard) {
                     if ((j * 5 + i) == selectFlag) {
-                        position = new Position(top + 180 * j - 2 * j - 15,
-                                left + 180 * i + 20 * i - 15,
-                                top + 180 * (j + 1) - 2 * j + 15,
-                                left + 180 * (i + 1) + 20 * i + 15);
+                        position = new Position(top + 5 + 165 * j + 2 * j - 15,
+                                left + 1 + 170 * i + 17 * i - 15,
+                                top + 5 + 165 * (j + 1) + 2 * j + 15,
+                                left + 1 + 170 * (i + 1) + 17 * i + 15);
                         position.resieze((float)this.width / (float)1440);
                         Log.v(this.getClass().getName(), "触摸本方块");
                         if (Position.inPosition(x, y, position)) {
@@ -289,10 +289,10 @@ public class Call {
                             return 0;
                         }
                     } else {
-                        position = new Position(top + 180 * j - 2 * j,
-                                left + 180 * i + 20 * i,
-                                top + 180 * (j + 1) - 2 * j,
-                                left + 180 * (i + 1) + 20 * i);
+                        position = new Position(top + 5 + 165 * j + 2 * j,
+                                left + 1 + 170 * i + 17 * i,
+                                top + 5 + 165 * (j + 1) + 2 * j,
+                                left + 1 + 170 * (i + 1) + 17 * i);
                         position.resieze((float)this.width / (float)1440);
                         if (Position.inPosition(x, y, position)) {
                             selectFlag = j * 5 + i;
@@ -352,19 +352,59 @@ public class Call {
         Paint paint = new Paint();
 
         int left = this.left;
-        int top = this.top + 150;
+        int top = this.top;
+
+        paint.setColor(Color.WHITE);
+        canvas.drawLine(0, 0, 1440, 0, paint);
+        canvas.drawLine(0, 360, 1440, 360, paint);
+        canvas.drawLine(0, 1800, 1440, 1800, paint);
+        canvas.drawLine(0, 2160, 1440, 2160, paint);
 
         // 绘制底版
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(5);
         RectF round = new RectF();
-        round.left = left + 0 - 130;
-        round.top = top - 150 - 5;
-        round.right = left + 720 + 130;
-        round.bottom = top - 150 + 1100 + 320 - 5;
-//        canvas.drawRect(this.left + 0 - 130, this.top,
-//                this.left + 720 + 130, this.top + 1100 + 320, paint);
-        canvas.drawRoundRect(round, 50, 25, paint);
+        round.left = left - 150;
+        round.right = left + 720 + 150;
+        round.top = top;
+        // 1144 = 134*7 + 8*6 + 134 + 8*3
+        round.bottom = top + 1144 + 200;
+        canvas.drawRoundRect(round, 20, 20, paint);
+
+        // 绘制线条
+        paint.setColor(Color.parseColor("#408030"));
+        paint.setStrokeWidth(8);
+        canvas.drawLine(left - 150, top,
+                left, top + 100, paint);
+        canvas.drawLine(left + 720 + 150, top,
+                left + 720, top + 100, paint);
+        canvas.drawLine(left - 150, top + 1144 + 200,
+                left, top + 1144 + 100, paint);
+        canvas.drawLine(left + 720 + 150, top + 1144 + 200,
+                left + 720, top + 1144 + 100, paint);
+
+        paint.setStrokeWidth(8);
+        canvas.drawLine(left, top + 100,
+                left + 720, top + 100, paint);
+        canvas.drawLine(left + 720, top + 100,
+                left + 720, top + 1144 + 100, paint);
+        canvas.drawLine(left + 720, top + 1144 + 100,
+                left, top + 1144 + 100, paint);
+        canvas.drawLine(left, top + 1144 + 100,
+                left, top + 100, paint);
+
+        // 绘制文字
+        paint.setTextSize(80);
+        paint.setColor(Color.BLACK);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText("北", left + 50, top + 80, paint);
+        canvas.drawText("东", left + 720 + 50, top + 180, paint);
+        canvas.drawText("南", left + 680, top + 1160 + 200 - 35, paint);
+        canvas.drawText("西", left + 0 - 50, top + 1160 + 70, paint);
+
+        // 重新设置left和top
+        left = this.left;
+        top = this.top + 100;
 
         // 绘制选择矩阵
         for(int j=0; j<7; j++) {
@@ -373,9 +413,9 @@ public class Call {
                     Image = BitmapFactory.decodeResource(context.getResources(),
                             CardImage.resImages[j * 5 + i]);
                     des.set(left + 9 + 134 * i + 8 * i,
-                            top + 5 + 134 * j + 4 * j,
+                            top + 8 + 134 * j + 8 * j,
                             left + 9 + 134 * (i + 1) + 8 * i,
-                            top + 5 + 134 * (j + 1) + 4 * j);
+                            top + 8 + 134 * (j + 1) + 8 * j);
                     canvas.drawBitmap(Image, null, des, paint);
                     Image = null;
                 }
@@ -383,43 +423,11 @@ public class Call {
         }
 
         // 绘制PASS按钮
+        // 134*7 + 8*6 + 16 = 1002
         Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
-        des.set(left + 9 + 5, top + 5 + 964,
-                left + 702 + 5, top + 1100 + 5);
+        des.set(left + 9, top + 8 + 8 + 986,
+                left + 720 - 9, top + 8 + 8 + 986 + 134);
         canvas.drawBitmap(Image, null, des, paint);
-
-        // 绘制线条
-        paint.setColor(Color.parseColor("#408030"));
-        paint.setStrokeWidth(8);
-        canvas.drawLine(left - 130, top - 150,
-                left, top, paint);
-        canvas.drawLine(left + 720 + 130, top - 150,
-                left + 720, top, paint);
-        canvas.drawLine(left - 130, top + 1100 - 150 + 320,
-                left, top + 1100 + 20, paint);
-        canvas.drawLine(left + 720 + 130, top + 1100 - 150 + 320,
-                left + 720, top + 1100 + 20, paint);
-
-        paint.setStrokeWidth(6);
-        canvas.drawLine(left, top,
-                left + 720, top, paint);
-        canvas.drawLine(left + 720, top,
-                left + 720, top + 1100 + 20, paint);
-        canvas.drawLine(left + 720, top + 1100 + 20,
-                left, top + 1100 + 20, paint);
-        canvas.drawLine(left, top + 1100 + 20,
-                left, top, paint);
-
-        // 绘制文字
-        paint.setStrokeWidth(3);
-        paint.setTextSize(80);
-        paint.setColor(Color.BLACK);
-        paint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("北", left + 50, top - 20, paint);
-        canvas.drawText("东", left + 720 + 50, top + 80, paint);
-        canvas.drawText("南", left + 680, top + 1100 + 100, paint);
-        canvas.drawText("西", left + 0 - 50, top + 1090, paint);
-
     }
 
     /**
@@ -431,19 +439,29 @@ public class Call {
         Rect des = new Rect();
         Paint paint = new Paint();
 
-        // 重新修订width的宽度
-        int left = (1440 - 180 * 5 - 20 * 4) / 2;
-        int top = this.top - 10;
+        int left = this.left;
+        int top = this.top;
+
+        paint.setColor(Color.WHITE);
+        canvas.drawLine(0, 0, 1440, 0, paint);
+        canvas.drawLine(0, 360, 1440, 360, paint);
+        canvas.drawLine(0, 1800, 1440, 1800, paint);
+        canvas.drawLine(0, 2160, 1440, 2160, paint);
 
         // 绘制底版
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(5);
         RectF round = new RectF();
-        round.left = this.left + 0 - 130;
-        round.top = this.top - 5;
-        round.right = this.left + 720 + 130;
-        round.bottom = this.top + 1100 + 320 - 5;
-        canvas.drawRoundRect(round, 50, 25, paint);
+        round.left = left - 150;
+        round.right = left + 720 + 150;
+        round.top = top;
+        // 1144 = 134*7 + 8*6 + 134 + 8*3
+        round.bottom = top + 1144 + 200;
+        canvas.drawRoundRect(round, 20, 20, paint);
+
+        // 重新修订width的宽度
+        left = this.left - 100;
+        top = this.top;
 
         // 绘制选择矩阵
         for(int j=0; j<7; j++) {
@@ -451,10 +469,10 @@ public class Call {
                 if ((j * 5 + i)>lastCallCard) {
                     Image = BitmapFactory.decodeResource(context.getResources(),
                             CardImage.resImages[j * 5 + i]);
-                    des.set(left + 180 * i + 20 * i,
-                            top + 180 * j - 2 * j,
-                            left + 180 * (i + 1) + 20 * i,
-                            top + 180 * (j + 1) - 2 * j);
+                    des.set(left + 1 + 170 * i + 17 * i,
+                            top + 5 + 165 * j + 2 * j,
+                            left + 1 + 170 * (i + 1) + 17 * i,
+                            top + 5 + 165 * (j + 1) + 2 * j);
                     canvas.drawBitmap(Image, null, des, paint);
                     Image = null;
                 }
@@ -463,7 +481,7 @@ public class Call {
 
         // 绘制pass
         Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
-        des.set(left + 5, top + 1250, left + 980 - 5, top + 1250 + 160);
+        des.set(left + 1, top + 1177, left + 1 + 920, top + 1177 + 163);
         canvas.drawBitmap(Image, null, des, paint);
     }
 
@@ -476,30 +494,40 @@ public class Call {
         Rect des = new Rect();
         Paint paint = new Paint();
 
-        // 重新修订width的宽度
-        int left = (1440 - 180 * 5 - 20 * 4) / 2;
-        int top = this.top - 10;
+        int left = this.left;
+        int top = this.top;
+
+        paint.setColor(Color.WHITE);
+        canvas.drawLine(0, 0, 1440, 0, paint);
+        canvas.drawLine(0, 360, 1440, 360, paint);
+        canvas.drawLine(0, 1800, 1440, 1800, paint);
+        canvas.drawLine(0, 2160, 1440, 2160, paint);
 
         // 绘制底版
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(5);
         RectF round = new RectF();
-        round.left = this.left + 0 - 130;
-        round.top = this.top - 5;
-        round.right = this.left + 720 + 130;
-        round.bottom = this.top + 1100 + 320 - 5;
-        canvas.drawRoundRect(round, 50, 25, paint);
+        round.left = left - 150;
+        round.right = left + 720 + 150;
+        round.top = top;
+        // 1144 = 134*7 + 8*6 + 134 + 8*3
+        round.bottom = top + 1144 + 200;
+        canvas.drawRoundRect(round, 20, 20, paint);
+
+        // 重新修订width的宽度
+        left = this.left - 100;
+        top = this.top;
 
         // 绘制选择矩阵
-        for(int j = 0; j < 7; j++) {
-            for (int i = 0; i < 5; i++) {
-                if ((j * 5 + i) > lastCallCard) {
+        for(int j=0; j<7; j++) {
+            for (int i=0; i<5; i++) {
+                if ((j * 5 + i)>lastCallCard) {
                     Image = BitmapFactory.decodeResource(context.getResources(),
                             CardImage.resImages[j * 5 + i]);
-                    des.set(left + 180 * i + 20 * i,
-                            top + 180 * j - 2 * j,
-                            left + 180 * (i + 1) + 20 * i,
-                            top + 180 * (j + 1) - 2 * j);
+                    des.set(left + 1 + 170 * i + 17 * i,
+                            top + 5 + 165 * j + 2 * j,
+                            left + 1 + 170 * (i + 1) + 17 * i,
+                            top + 5 + 165 * (j + 1) + 2 * j);
                     canvas.drawBitmap(Image, null, des, paint);
                     Image = null;
                 }
@@ -508,7 +536,7 @@ public class Call {
 
         // 绘制pass
         Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
-        des.set(left + 5, top + 1250, left + 980 - 5, top + 1250 + 160);
+        des.set(left + 1, top + 1177, left + 1 + 920, top + 1177 + 163);
         canvas.drawBitmap(Image, null, des, paint);
 
         // 绘制大卡片
@@ -517,10 +545,10 @@ public class Call {
         if ((selectFlagX!=-1 && selectFlagY!=-1)) {
             Image = BitmapFactory.decodeResource(context.getResources(),
                     CardImage.resImages[selectFlagY * 5 + selectFlagX]);
-            des.set(left + 180 * selectFlagX + 20 * selectFlagX - 15,
-                    top + 180 * selectFlagY - 2 * selectFlagY- 15,
-                    left + 180 * (selectFlagX + 1) + 20 * selectFlagX + 15,
-                    top + 180 * (selectFlagY + 1) - 2 * selectFlagY + 15);
+            des.set(left + 1 + 170 * selectFlagX + 17 * selectFlagX - 15,
+                    top + 5 + 165 * selectFlagY + 2 * selectFlagY - 15,
+                    left + 1 + 170 * (selectFlagX + 1) + 17 * selectFlagX + 15,
+                    top + 5 + 165 * (selectFlagY + 1) + 2 * selectFlagY + 15);
             canvas.drawBitmap(Image, null, des, paint);
         }
     }
@@ -536,7 +564,7 @@ public class Call {
         Paint paint = new Paint();
 
         int left = this.left;
-        int top = this.top + 150;
+        int top = this.top;
 
         Log.v(this.getClass().getName(), "绘制历史");
         Log.v(this.getClass().getName(), String.valueOf(callHistoryN));
@@ -544,36 +572,36 @@ public class Call {
             Image = BitmapFactory.decodeResource(context.getResources(),
                     CardImage.resImages[callHistoryN]);
             des.set(left + 130,
-                    top - 100,
+                    top,
                     left + 130 + 100,
-                    top - 100 + 100);
+                    top + 100);
             canvas.drawBitmap(Image, null, des, paint);
         }
         if (callHistoryE != -1) {
             Image = BitmapFactory.decodeResource(context.getResources(),
                     CardImage.resImages[callHistoryE]);
-            des.set(left + 720,
-                    top + 120,
-                    left + 720 + 100,
-                    top + 120 + 100);
+            des.set(left + 730,
+                    top + 220,
+                    left + 730 + 100,
+                    top + 220 + 100);
             canvas.drawBitmap(Image, null, des, paint);
         }
         if (callHistoryS != -1) {
             Image = BitmapFactory.decodeResource(context.getResources(),
                     CardImage.resImages[callHistoryS]);
             des.set(left + 610 - 100,
-                    top + 1100 + 15,
+                    top + 1144 + 100,
                     left + 610 - 100 + 100,
-                    top + 1100 + 15 + 100);
+                    top + 1144 + 200);
             canvas.drawBitmap(Image, null, des, paint);
         }
         if (callHistoryW != -1) {
             Image = BitmapFactory.decodeResource(context.getResources(),
                     CardImage.resImages[callHistoryW]);
-            des.set(left - 100,
-                    top + 1090 - 200,
-                    left - 100 + 100,
-                    top + 1090 + 100 - 200);
+            des.set(left - 110,
+                    top + 1144 - 100,
+                    left - 110 + 100,
+                    top + 1144);
             canvas.drawBitmap(Image, null, des, paint);
         }
     }
