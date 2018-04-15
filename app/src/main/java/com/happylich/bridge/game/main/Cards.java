@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.cards;
+package com.happylich.bridge.game.main;
 
 import java.util.Random;
 

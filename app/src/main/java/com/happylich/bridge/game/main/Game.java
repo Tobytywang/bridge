@@ -6,31 +6,42 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 
-import com.happylich.bridge.game.call.Call;
 import com.happylich.bridge.game.player.AbstractPlayer;
 
 /**
  * Created by lich on 2018/3/25.
+ * 叫牌阶段要确定庄家和定约，庄家的下一家是首攻，对家是明手
  */
 
 public class Game extends com.happylich.bridge.engine.game.Game{
+
     private Context context;
 
     // stage和player一起推动游戏进程向前进行
     protected int stage = 0;
     protected int player = 0;
 
-
-    // 叫牌矩阵
+    // 叫牌
     private Call call;
-
+    // 打牌
+    private Table table;
+    // 玩家
     private AbstractPlayer playerN;
     private AbstractPlayer playerS;
     private AbstractPlayer playerW;
     private AbstractPlayer playerE;
 
+    private AbstractPlayer localPlayer;
+
+    // 赢墩（界面上显示当前玩家的）
+    private int nsContract = -1;
+    private int weContract = -1;
+    private int nsNow = -1;
+    private int weNow = -1;
+
     //各类绘制尺寸
     private int[] callPosition = new int[2];
+    private int[] tablePosition = new int[2];
     private int[] playerPositionTop = new int[2];
     private int[] playerPositionLeft = new int[2];
     private int[] playerPositionRight = new int[2];
@@ -51,6 +62,22 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     public void setCall(Call call) {
         this.call = call;
+    }
+
+    /**
+     * 设置牌桌
+     * @param table
+     */
+    public void setTable(Table table) {
+        this.table = table;
+    }
+
+    /**
+     * 设置本地玩家
+     * @param player
+     */
+    public void setLocalPlayer(AbstractPlayer player) {
+        localPlayer = player;
     }
 
     /**
@@ -86,19 +113,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     }
 
 
-    /**
-     * 初始化宽高
-     * @param width 宽度
-     * @param height 高度
-     */
-    @Override
-    public void setWidthHeight(int width, int height) {
-        this.width = width;
-        this.height = height;
-        initWidgetPosition();
-        setWidgetPosition();
-        setWidgetWidthHeight();
-    }
 
     /**
      * 对于本地人类玩家：处理触摸事件
@@ -107,11 +121,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     @Override
     public void onTouch(int x, int y) {
-        // 只有当player==0时才可以响应touch事件
-        if (player == 0)
-        {
-            switch (stage) {
-                case 0:
+        switch (stage) {
+            case 0:
+                if (player == 0)
+                {
                     switch (call.onTouch(x, y)) {
                         case 0:
                             stage = 0;
@@ -122,11 +135,21 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         case 2:
                             stage = 2;
                             break;
+                        case 3:
+                            // 为了解决之前的bug
+                            stage = 0;
+                            player++;
+                            break;
                     }
-                    break;
-                case 1:
+                }
+                break;
+            case 1:
+                if (player == 0) {
                     switch (call.onTouch(x, y)) {
                         case 0:
+                            // TODO:这个地方可以有吗？不可以，会引起big的情况跳过玩家的bug
+                            // TODO:玩家按PASS后player不会++
+//                            player++;
                             stage = 0;
                             break;
                         case 1:
@@ -135,12 +158,18 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         case 2:
                             stage = 2;
                             break;
+                        case 3:
+                            // 为了解决之前的bug
+                            stage = 0;
+                            player++;
+                            break;
                     }
-                    break;
-                case 2:
+                }
+                break;
+            case 2:
+                if (player == 0) {
                     switch (call.onTouch(x, y)) {
                         case 0:
-                            // 这里完成玩家交接
                             player++;
                             stage = 0;
                             break;
@@ -150,15 +179,21 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         case 2:
                             stage = 2;
                             break;
+                        case 3:
+                            // 为了解决之前的bug
+                            stage = 0;
+                            player++;
+                            break;
                     }
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                default:
-                    break;
-            }
+                }
+                break;
+            case 3:
+                stage = 4;
+                break;
+            case 4:
+                break;
+            default:
+                break;
         }
     }
 
@@ -179,26 +214,77 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     @Override
     public void process(Canvas canvas) {
-        switch(player) {
+        // TODO:刷帧的函数应该放在哪儿？
+        draw(canvas);
+        switch (stage) {
             case 0:
-                if(playerS.callCard()) {
-                    player = 1;
-                };
-                break;
             case 1:
-                playerW.callCard();
-                player = 2;
-                break;
             case 2:
-                playerN.callCard();
-                player = 3;
+                // TODO:修改game的stage可以将游戏进程向前推进
+                if (call.isFinish()) {
+                    stage = 3;
+                } else {
+//                    Log.v(this.getClass().getName(), "player:" + String.valueOf(player));
+                    switch (player) {
+                        case 0:
+                            // TODO:怎么获得人类玩家的叫牌值
+                            // TODO:怎么在获得机器人玩家的叫牌值得同时，不阻碍界面绘制
+                            if (playerS.callCard()) {
+                                player = 1;
+                            }
+                            break;
+                        case 1:
+                            playerW.callCard();
+                            player = 2;
+                            break;
+                        case 2:
+                            playerN.callCard();
+                            player = 3;
+                            break;
+                        case 3:
+                            playerE.callCard();
+                            player = 0;
+                            break;
+                    }
+                }
                 break;
             case 3:
-                playerE.callCard();
-                player = 0;
+                // TODO:坐庄提示
+                // TODO:没有逻辑处理
+                break;
+            case 4:
+                // TODO:出牌循环
+                // TODO:修改game的stage可以将游戏进程向前推进
+                // TODO:要设置table的位置（左，中，右）
+                if (table.isFinish()) {
+                    // 跳转到结算画面
+                    stage = 5;
+                } else {
+                    // 轮流出牌
+//                    table.setModifier(1);
+                    switch (player) {
+                        case 0:
+                            table.dropCardS(playerS.dropCard());
+                            player = 1;
+                            break;
+                        case 1:
+                            table.dropCardW(playerW.dropCard());
+                            player = 2;
+                            break;
+                        case 2:
+                            table.dropCardN(playerN.dropCard());
+                            player = 3;
+                            break;
+                        case 3:
+                            table.dropCardE(playerE.dropCard());
+                            player = 0;
+                            break;
+                    }
+                }
+                break;
+            default:
                 break;
         }
-
         draw(canvas);
     }
 
@@ -208,6 +294,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     public void draw(Canvas canvas) {
         // drawText(canvas);
+        Log.v(this.getClass().getName(), "stage:" + String.valueOf(stage));
         initCanvas(canvas);
         switch(stage) {
             case 0:
@@ -226,11 +313,23 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 call.draw(canvas);
                 break;
             case 3:
+                // TODO:画点什么好呢？
+                // TODO:坐庄
+                playerS.draw(canvas);
+                call.setCallStage(0);
+                call.draw(canvas);
                 break;
+            case 4:
+                // TODO:出牌循环
+                // 根据叫牌情况选择不同的绘制形态
+                playerS.draw(canvas);
+                playerW.draw(canvas);
+                playerN.draw(canvas);
+                playerE.draw(canvas);
+                table.draw(canvas);
             default:
                 break;
         }
-
     }
 
     /**
@@ -288,6 +387,22 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         canvas.drawCircle(1440, 2160, 100, paint);
     }
 
+
+
+    /**
+     * 初始化宽高
+     * @param width 宽度
+     * @param height 高度
+     */
+    @Override
+    public void setWidthHeight(int width, int height) {
+        this.width = width;
+        this.height = height;
+        initWidgetPosition();
+        setWidgetPosition();
+        setWidgetWidthHeight();
+    }
+
     /**
      * 计算玩家位置
      */
@@ -299,7 +414,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         playerPositionLeft[0] = 0;
         playerPositionLeft[1] = 720;
         // 右
-        playerPositionRight[0] = 1170;
+        playerPositionRight[0] = 1440;
         playerPositionRight[1] = 720;
         // 下
         playerPositionBottom[0] = 360;
@@ -308,6 +423,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         callPosition[0] = 360;
         callPosition[1] = 360 + 80;
         // 牌桌
+        tablePosition[0] = 360;
+        tablePosition[1] = 360;
+
     }
 
     /**
@@ -322,6 +440,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
         // 叫牌矩阵
         call.setPosition(callPosition);
+
+        table.setPosition(tablePosition);
     }
 
     /**
@@ -338,5 +458,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         call.setWidthHeight(this.width, this.height);
 
         // 牌桌
+        table.setWidthHeight(this.width, this.height);
     }
 }

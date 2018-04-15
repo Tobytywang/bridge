@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.call;
+package com.happylich.bridge.game.main;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,7 +12,10 @@ import android.util.Log;
 
 import com.happylich.bridge.R;
 import com.happylich.bridge.engine.util.Position;
+import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.res.CardImage;
+
+import java.util.ArrayList;
 
 /**
  * Created by lich on 2018/3/26.
@@ -39,8 +42,16 @@ public class Call {
     // 叫牌阶段标志位
     private int callStage;
 
-    // 叫牌阶段完成
+    // 叫牌阶段完成标志位
     private boolean finish;
+
+    // 庄家
+    private int dealer = -1;
+    // 领牌人（本轮首次出牌的）
+    private int lead = -1;
+    // 定约阶
+    private int level = -1;
+    private int suits = -1;
 
     // 绘制尺寸
     private int width, height;
@@ -53,14 +64,17 @@ public class Call {
 
     // 叫牌历史
     private int lastCallCard = -1;
-    private int[] callHistory = new int[35];
-    private int callHistoryN = -1;
-    private int callHistoryE = -1;
-    private int callHistoryS = -1;
-    private int callHistoryW = -1;
+    private ArrayList<Integer> callHistory  = new ArrayList<>();
+    private ArrayList<Integer> callHistoryN = new ArrayList<>();
+    private ArrayList<Integer> callHistoryE = new ArrayList<>();
+    private ArrayList<Integer> callHistoryS = new ArrayList<>();
+    private ArrayList<Integer> callHistoryW = new ArrayList<>();
+
+    private ArrayList<Integer> callHistoryLocal = callHistoryS;
 
     // 叫牌矩阵（0表示有,1表示空）
     private int[][] calls = new int[5][7];
+
 
     /**
      * 构造函数
@@ -69,21 +83,33 @@ public class Call {
         this.context = context;
     }
 
+
     /**
-     * 每次在玩家监听的时候置为false
-     * @param finish
+     * 设置叫牌的结束标志为真
+     * @return
      */
-    public void setFinish(boolean finish) {
-        this.finish = finish;
+    public void finish() {
+        // 设置庄家（需要获得最后叫牌的玩家）
+
+        // 设置定约（需要获得最后的非pass牌）
+
+        finish = true;
     }
 
     /**
-     * 获得人类玩家的叫牌值？
-     * 0-34表示有效叫牌值，35表示pass
+     * 判断是否满足结束叫牌条件
      */
-    public boolean callCard() {
-        return finish;
+    public boolean isFinish() {
+        if (getCallHistory().size() >=3) {
+            if (getCallHistory().get(getCallHistory().size() - 1) == 35 &&
+                    getCallHistory().get(getCallHistory().size() - 2) == 35 &&
+                    getCallHistory().get(getCallHistory().size() - 3) == 35) {
+                return true;
+            }
+        }
+        return false;
     }
+
 
     /**
      * 设置绘图基准点
@@ -102,12 +128,21 @@ public class Call {
         this.height = height;
     }
 
+
     /**
      * 设置callstage
      * @param stage
      */
     public void setCallStage(int stage) {
         this.callStage = stage;
+    }
+
+
+    /**
+     * 获取叫牌历史（全局）
+     */
+    public ArrayList<Integer> getCallHistory() {
+        return callHistory;
     }
 
     /**
@@ -117,37 +152,39 @@ public class Call {
         return lastCallCard;
     }
 
-    /**
-     * 机器人玩家专用的
-     */
-    public void setCallW(int callCard) {
-        this.lastCallCard = callCard;
-        this.callHistoryW = callCard;
-    }
 
     /**
-     * 机器人玩家专用的
+     * 设置叫牌值
+     * @param player
+     * @param callCard
      */
-    public void setCallN(int callCard) {
-        this.lastCallCard = callCard;
-        this.callHistoryN = callCard;
+    public void setCall(int player, int callCard) {
+        if (callCard < 35) {
+            this.lastCallCard = callCard;
+            this.suits = callCard % 5;
+            this.level = callCard / 5;
+        }
+        this.callHistory.add(callCard);
+        switch (player) {
+            case 0:
+                this.callHistoryS.add(callCard);
+                this.dealer = 0;
+                break;
+            case 1:
+                this.callHistoryW.add(callCard);
+                this.dealer = 1;
+                break;
+            case 2:
+                this.callHistoryN.add(callCard);
+                this.dealer = 2;
+                break;
+            case 3:
+                this.callHistoryE.add(callCard);
+                this.dealer = 3;
+                break;
+        }
     }
 
-    /**
-     * 机器人玩家专用的
-     */
-    public void setCallE(int callCard) {
-        this.lastCallCard = callCard;
-        this.callHistoryE = callCard;
-    }
-
-    /**
-     * 机器人玩家专用的
-     */
-    public void setCallS(int callCard) {
-        this.lastCallCard = callCard;
-        this.callHistoryS = callCard;
-    }
 
     /**
      * 检测按键（这个只有本地玩家有）
@@ -157,31 +194,33 @@ public class Call {
      * @return 表示事件类型，0表示无效区域，1表示有效区域
      */
     public int onTouch(int x, int y) {
+        int touch;
         switch(callStage) {
             case 0:
-                if (touchSmall(x, y) == 1) {
+                touch = touchSmall(x, y);
+                if (touch == 1) {
                     return 1;
                 } else {
                     return 0;
                 }
             case 1:
-                if (touchBig(x, y) == 1) {
+                touch = touchBig(x, y);
+                if (touch == 2) {
                     return 2;
+                } else if(touch == 3){
+                    return 3;
                 } else {
                     return 0;
                 }
             case 2:
-                int touchBig = touchBigSelected(x, y);
-                if (touchBig == 0) {
-                    Log.v(this.getClass().getName(), "触摸到本方格，返回阶段0");
-                    this.callHistoryS = lastCallCard;
-                    this.finish = true;
+                touch = touchBigSelected(x, y);
+                if (touch == 0) {
                     return 0;
-                } else if (touchBig == 2) {
-                    Log.v(this.getClass().getName(), "触摸到其他方格，返回阶段2");
+                } else if (touch == 2) {
                     return 2;
+                } else if (touch == 3) {
+                    return 3;
                 } else {
-                    Log.v(this.getClass().getName(), "触摸无效区域，返回阶段1");
                     return 1;
                 }
             default:
@@ -220,6 +259,18 @@ public class Call {
         int left = this.left - 100;
         int top = this.top;
 
+        // 检测是否PASS（PASS进入阶段0）
+        position = new Position(top + 1177,
+                left + 1,
+                top + 1177 + 163,
+                left + 1 + 920);
+        position.resieze((float)this.width / (float)1440);
+        if (Position.inPosition(x, y, position)) {
+            setCall(0,35);
+            return 3;
+        }
+
+        // 检测是否触摸一个方块（进入阶段2）
         for(int j=0; j<7; j++) {
             for (int i=0; i<5; i++) {
                 if ((j * 5 + i) > lastCallCard) {
@@ -232,13 +283,13 @@ public class Call {
                         selectFlag = j * 5 + i;
                         selectFlagX = i;
                         selectFlagY = j;
-                        return 1;
+                        return 2;
                     }
                 }
             }
         }
 
-        Log.v(this.getClass().getName(), "大键盘返回0");
+        // 触摸其他区域进入阶段0
         return 0;
     }
 
@@ -256,16 +307,18 @@ public class Call {
         int left = this.left - 100;
         int top = this.top;
 
-        // 检测是否PASS
+        // 检测是否PASS（PASS进入阶段0）
         position = new Position(top + 1177,
                 left + 1,
                 top + 1177 + 163,
                 left + 1 + 920);
         position.resieze((float)this.width / (float)1440);
         if (Position.inPosition(x, y, position)) {
-            return 0;
+            setCall(0,35);
+            return 3;
         }
 
+        // 检测是否触摸方块（有效方块进入阶段0， 无效方块重复阶段2）
         for(int j=0; j<7; j++) {
             for (int i=0; i<5; i++) {
                 if ((j * 5 + i) > lastCallCard) {
@@ -275,17 +328,11 @@ public class Call {
                                 top + 5 + 165 * (j + 1) + 2 * j + 15,
                                 left + 1 + 170 * (i + 1) + 17 * i + 15);
                         position.resieze((float)this.width / (float)1440);
-                        Log.v(this.getClass().getName(), "触摸本方块");
                         if (Position.inPosition(x, y, position)) {
                             selectFlag = -1;
                             selectFlagX = -1;
                             selectFlagY = -1;
-
-                            Log.v(this.getClass().getName(),"更新lastCallCard");
-                            // 这里是更新lastCallCard的操作
-                            // 如何识别lastCallCard更新了
-                            lastCallCard = j * 5 + i;
-                            Log.v(this.getClass().getName(), "返回0");
+                            setCall(0, j * 5 + i);
                             return 0;
                         }
                     } else {
@@ -298,14 +345,14 @@ public class Call {
                             selectFlag = j * 5 + i;
                             selectFlagX = i;
                             selectFlagY = j;
-                            Log.v(this.getClass().getName(), "返回2");
                             return 2;
                         }
                     }
                 }
             }
         }
-        Log.v(this.getClass().getName(), "返回1");
+
+        // 否则返回阶段1
         return 1;
     }
 
@@ -339,6 +386,7 @@ public class Call {
                 break;
             default:
                 drawSmall(canvas);
+                drawHistory(canvas);
         }
     }
 
@@ -355,10 +403,10 @@ public class Call {
         int top = this.top;
 
         paint.setColor(Color.WHITE);
-        canvas.drawLine(0, 0, 1440, 0, paint);
-        canvas.drawLine(0, 360, 1440, 360, paint);
-        canvas.drawLine(0, 1800, 1440, 1800, paint);
-        canvas.drawLine(0, 2160, 1440, 2160, paint);
+//        canvas.drawLine(0, 0, 1440, 0, paint);
+//        canvas.drawLine(0, 360, 1440, 360, paint);
+//        canvas.drawLine(0, 1800, 1440, 1800, paint);
+//        canvas.drawLine(0, 2160, 1440, 2160, paint);
 
         // 绘制底版
         paint.setColor(Color.GREEN);
@@ -442,11 +490,11 @@ public class Call {
         int left = this.left;
         int top = this.top;
 
-        paint.setColor(Color.WHITE);
-        canvas.drawLine(0, 0, 1440, 0, paint);
-        canvas.drawLine(0, 360, 1440, 360, paint);
-        canvas.drawLine(0, 1800, 1440, 1800, paint);
-        canvas.drawLine(0, 2160, 1440, 2160, paint);
+//        paint.setColor(Color.WHITE);
+//        canvas.drawLine(0, 0, 1440, 0, paint);
+//        canvas.drawLine(0, 360, 1440, 360, paint);
+//        canvas.drawLine(0, 1800, 1440, 1800, paint);
+//        canvas.drawLine(0, 2160, 1440, 2160, paint);
 
         // 绘制底版
         paint.setColor(Color.GREEN);
@@ -497,11 +545,11 @@ public class Call {
         int left = this.left;
         int top = this.top;
 
-        paint.setColor(Color.WHITE);
-        canvas.drawLine(0, 0, 1440, 0, paint);
-        canvas.drawLine(0, 360, 1440, 360, paint);
-        canvas.drawLine(0, 1800, 1440, 1800, paint);
-        canvas.drawLine(0, 2160, 1440, 2160, paint);
+//        paint.setColor(Color.WHITE);
+//        canvas.drawLine(0, 0, 1440, 0, paint);
+//        canvas.drawLine(0, 360, 1440, 360, paint);
+//        canvas.drawLine(0, 1800, 1440, 1800, paint);
+//        canvas.drawLine(0, 2160, 1440, 2160, paint);
 
         // 绘制底版
         paint.setColor(Color.GREEN);
@@ -566,42 +614,47 @@ public class Call {
         int left = this.left;
         int top = this.top;
 
-        Log.v(this.getClass().getName(), "绘制历史");
-        Log.v(this.getClass().getName(), String.valueOf(callHistoryN));
-        if (callHistoryN != -1) {
+
+//        Log.v(this.getClass().getName(), String.valueOf(callHistory));
+//        Log.v(this.getClass().getName(), String.valueOf(callHistoryS));
+//        Log.v(this.getClass().getName(), String.valueOf(callHistoryW));
+//        Log.v(this.getClass().getName(), String.valueOf(callHistoryN));
+//        Log.v(this.getClass().getName(), String.valueOf(callHistoryE));
+
+        for (int i = 0; i < callHistoryS.size(); i++) {
             Image = BitmapFactory.decodeResource(context.getResources(),
-                    CardImage.resImages[callHistoryN]);
-            des.set(left + 130,
-                    top,
-                    left + 130 + 100,
-                    top + 100);
-            canvas.drawBitmap(Image, null, des, paint);
-        }
-        if (callHistoryE != -1) {
-            Image = BitmapFactory.decodeResource(context.getResources(),
-                    CardImage.resImages[callHistoryE]);
-            des.set(left + 730,
-                    top + 220,
-                    left + 730 + 100,
-                    top + 220 + 100);
-            canvas.drawBitmap(Image, null, des, paint);
-        }
-        if (callHistoryS != -1) {
-            Image = BitmapFactory.decodeResource(context.getResources(),
-                    CardImage.resImages[callHistoryS]);
-            des.set(left + 610 - 100,
+                    CardImage.resImages[callHistoryS.get(i)]);
+            des.set(left + 610 - 100 * (i + 1),
                     top + 1144 + 100,
-                    left + 610 - 100 + 100,
+                    left + 610 - 100 * (i + 1) + 100,
                     top + 1144 + 200);
             canvas.drawBitmap(Image, null, des, paint);
         }
-        if (callHistoryW != -1) {
+        for (int i = 0; i < callHistoryW.size(); i++) {
             Image = BitmapFactory.decodeResource(context.getResources(),
-                    CardImage.resImages[callHistoryW]);
+                    CardImage.resImages[callHistoryW.get(i)]);
             des.set(left - 110,
-                    top + 1144 - 100,
+                    top + 1144 - 100 * (i + 1),
                     left - 110 + 100,
-                    top + 1144);
+                    top + 1144 - 100 * i);
+            canvas.drawBitmap(Image, null, des, paint);
+        }
+        for (int i = 0; i < callHistoryN.size(); i++) {
+            Image = BitmapFactory.decodeResource(context.getResources(),
+                    CardImage.resImages[callHistoryN.get(i)]);
+            des.set(left + 110 + 100 * i,
+                    top,
+                    left + 110 + 100 * (i + 1),
+                    top + 100);
+            canvas.drawBitmap(Image, null, des, paint);
+        }
+        for (int i = 0; i < callHistoryE.size(); i++) {
+            Image = BitmapFactory.decodeResource(context.getResources(),
+                    CardImage.resImages[callHistoryE.get(i)]);
+            des.set(left + 730,
+                    top + 220 + 100 * i,
+                    left + 730 + 100,
+                    top + 220 + 100 * (i + 1));
             canvas.drawBitmap(Image, null, des, paint);
         }
     }

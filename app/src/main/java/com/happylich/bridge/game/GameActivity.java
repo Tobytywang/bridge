@@ -2,12 +2,12 @@ package com.happylich.bridge.game;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.happylich.bridge.engine.view.GameView;
-import com.happylich.bridge.game.call.Call;
-import com.happylich.bridge.game.cards.Cards;
+import com.happylich.bridge.game.main.Call;
+import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.main.Game;
+import com.happylich.bridge.game.main.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.Robot;
@@ -37,6 +37,8 @@ public class GameActivity extends AppCompatActivity {
         // TODO:为什么不设置的话就无法显示？
         Call call = new Call(this);
 
+        Table table = new Table(this);
+
         // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
         // TODO:玩家的位置应该是随机的
         AbstractPlayer playerS = new Player(this,0);
@@ -48,23 +50,28 @@ public class GameActivity extends AppCompatActivity {
         AbstractPlayer playerW = new Robot(this,1);
         playerW.setCards(cards.getCards(13));
         playerW.setCall(call);
+        playerW.setStage(211);
 
         AbstractPlayer playerN = new Robot(this,2);
         playerN.setCards(cards.getCards(13));
         playerN.setCall(call);
+        playerN.setStage(221);
 
         AbstractPlayer playerE = new Robot(this,3);
         playerE.setCards(cards.getCards(13));
         playerE.setCall(call);
+        playerE.setStage(231);
 
         // 设置game元素
         // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右
         // TODO:游戏需要维持一个四个玩家的轮询结构，实现四个玩家轮流叫牌，出牌的过程
         game.setCall(call);
+        game.setTable(table);
         game.setPlayerW(playerW);
         game.setPlayerN(playerN);
         game.setPlayerE(playerE);
         game.setPlayerS(playerS);
+        game.setLocalPlayer(playerS);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
