@@ -38,6 +38,9 @@ public class CardImage {
             R.drawable.lord_card_spade_q, R.drawable.lord_card_spade_k,
             R.drawable.lord_card_spade_1,
     };
+
+    public static int backImage = R.drawable.lord_card_back;
+
     public static int[] callImage = {
             R.drawable.lord_card_club_1_small_new,
             R.drawable.lord_card_diamond_1_small_new,

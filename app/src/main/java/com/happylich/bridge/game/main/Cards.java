@@ -1,5 +1,8 @@
 package com.happylich.bridge.game.main;
 
+import android.util.Log;
+
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -11,29 +14,25 @@ import java.util.Random;
  */
 
 public class Cards {
-    private int[] cards;
+//    private int[] cards;
+    private ArrayList<Integer> cards;
     private int   numberOfPlayer = 0;
+    private int   numberOfCards = 0;
 
     /**
      * 构造函数
      */
     public Cards(int numberOfCards) {
-        initCards(numberOfCards);
-    }
-
-    /**
-     * 初始化所有牌，并打乱
-     */
-    public void initCards(int numberOfCards) {
-        cards = new int[numberOfCards];
-        for (int i = 0; i < cards.length; i++) {
-            cards[i] = i;
+        this.numberOfCards = numberOfCards;
+        this.cards = new ArrayList<>();
+        for (int i = 0; i < this.numberOfCards; i++) {
+            cards.add(i);
         }
-        for (int i = 0; i < cards.length; i++) {
+        for (int i = 0; i < cards.size(); i++) {
             int des = new Random().nextInt(52);
-            int temp = cards[i];
-            cards[i] = cards[des];
-            cards[des] = temp;
+            int temp = cards.get(i);
+            cards.set(i, cards.get(des));
+            cards.set(des, temp);
         }
     }
 
@@ -41,16 +40,12 @@ public class Cards {
      * 玩家用这个函数获得手牌(而不是之前的fapai函数)
      * @return 取得的牌
      */
-    public int[] getCards(int numberOfCards) {
-        int[] cards = new int[numberOfCards];
-        for (int i = 0; i < cards.length; i++) {
-            cards[i] = this.cards[numberOfPlayer * numberOfCards + i];
+    public ArrayList<Integer> getCards(int numberOfPlayer) {
+        ArrayList<Integer> cards = new ArrayList<>();
+        for (int i = 0; i < 13; i++) {
+            cards.add(this.cards.get(numberOfPlayer * 13 + i));
         }
         // 发牌前将牌序整理好
-        numberOfPlayer++;
-        if (numberOfPlayer >= 4) {
-            numberOfPlayer = 0;
-        }
         sort(cards);
         return cards;
     }
@@ -59,13 +54,13 @@ public class Cards {
      * 对牌进行排序
      * @param cards
      */
-    public void sort(int[] cards) {
-        for (int i = 0; i < cards.length; i++) {
-            for (int j = i + 1; j < cards.length; j++) {
-                if (cards[i] < cards[j]) {
-                    int temp = cards[i];
-                    cards[i] = cards[j];
-                    cards[j] = temp;
+    public void sort(ArrayList<Integer> cards) {
+        for (int i = 0; i < cards.size(); i++) {
+            for (int j = i + 1; j < cards.size(); j++) {
+                if (cards.get(i) < cards.get(j)) {
+                    int temp = cards.get(j);
+                    cards.set(j, cards.get(i));
+                    cards.set(i, temp);
                 }
             }
         }

@@ -32,10 +32,12 @@ public class Player extends AbstractPlayer {
 
     /**
      * 获得出牌值
+     * 人类玩家的出牌值要调用触摸函数得到
      */
     @Override
-    public int dropCard() {
-        return -1;
+    public boolean dropCard() {
+        // 参考叫牌函数的实现
+        return table.isFinish();
     }
 
 }

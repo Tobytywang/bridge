@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class Robot extends AbstractPlayer{
 
-    /**
+    /**c
      * 构造函数
      * @param context
      * @param position
@@ -40,8 +40,6 @@ public class Robot extends AbstractPlayer{
 
         // 现在只要根据之前的叫牌历史，叫大一号的就好
         int last = call.getLastCallCard();
-        Log.v(this.getClass().getName(), "机器人要叫的牌是");
-        Log.v(this.getClass().getName(), String.valueOf(last));
         switch(this.position) {
             case 0:
                 if (call.isFinish()) {
@@ -92,7 +90,50 @@ public class Robot extends AbstractPlayer{
      * @return
      */
     @Override
-    public int dropCard() {
-        return -1;
+    public boolean dropCard() {
+        // 随机出一张牌
+        // TODO:关键要获取自己是本轮的第几顺
+
+        Log.v(this.getClass().getName(), String.valueOf(this.position));
+        Log.v(this.getClass().getName(), String.valueOf(this.cards));
+        switch(position) {
+            case 0:
+                if (table.isFinish()) {
+                    table.finish();
+                } else if (cards.size() > 0) {
+                    table.dropCard(0, cards.remove(0));
+                } else if (cards.size() <= 0) {
+                    table.finish();
+                }
+                break;
+            case 1:
+                if (table.isFinish()) {
+                    table.finish();
+                } else if (cards.size() > 0) {
+                    table.dropCard(1, cards.remove(0));
+                } else if (cards.size() <= 0) {
+                    table.finish();
+                }
+                break;
+            case 2:
+                if (table.isFinish()) {
+                    table.finish();
+                } else if (cards.size() > 0) {
+                    table.dropCard(2, cards.remove(0));
+                } else if (cards.size() <= 0) {
+                    table.finish();
+                }
+                break;
+            case 3:
+                if (table.isFinish()) {
+                    table.finish();
+                } else if (cards.size() > 0) {
+                    table.dropCard(3, cards.remove(0));
+                } else if (cards.size() <= 0) {
+                    table.finish();
+                }
+                break;
+        }
+        return true;
     }
 }

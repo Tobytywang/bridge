@@ -110,6 +110,33 @@ public class Call {
         return false;
     }
 
+    /**
+     * 返回庄家
+     * @return
+     */
+    public int getDealer() {
+        if (this.dealer == 0 || this.dealer == 1 ||
+                this.dealer == 2 || this.dealer == 3) {
+            return this.dealer;
+        }
+        return -1;
+    }
+
+    /**
+     * 获取定约level
+     * @return
+     */
+    public int getLevel() {
+        return this.level;
+    }
+
+    /**
+     * 获得定约花色
+     * @return
+     */
+    public int getSuits() {
+        return this.suits;
+    }
 
     /**
      * 设置绘图基准点
@@ -168,19 +195,27 @@ public class Call {
         switch (player) {
             case 0:
                 this.callHistoryS.add(callCard);
-                this.dealer = 0;
+                if (callCard < 35) {
+                    this.dealer = 0;
+                }
                 break;
             case 1:
                 this.callHistoryW.add(callCard);
-                this.dealer = 1;
+                if (callCard < 35) {
+                    this.dealer = 1;
+                }
                 break;
             case 2:
                 this.callHistoryN.add(callCard);
-                this.dealer = 2;
+                if (callCard < 35) {
+                    this.dealer = 2;
+                }
                 break;
             case 3:
                 this.callHistoryE.add(callCard);
-                this.dealer = 3;
+                if (callCard < 35) {
+                    this.dealer = 3;
+                }
                 break;
         }
     }
@@ -240,9 +275,7 @@ public class Call {
         Position position = new Position(top, left,
                 top + 1144, left + 720);
         position.resieze((float)this.width / (float)1440);
-        Log.v(this.getClass().getName(), String.valueOf(Position.inPosition(x, y, position)));
         if (Position.inPosition(x, y, position)) {
-            Log.v(this.getClass().getName(), "Bingo");
             return 1;
         }
         return 0;

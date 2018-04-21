@@ -29,6 +29,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Do Nothings
+                Intent intent = new Intent(
+                        MainActivity.this,
+                        GameActivity.class);
+                intent.putExtra("type", "Robots");
+                startActivity(intent);
             }
         });
 
@@ -37,26 +42,27 @@ public class MainActivity extends AppCompatActivity {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent1 = new Intent(
+                Intent intent = new Intent(
                         MainActivity.this,
                         GameActivity.class);
-                startActivity(intent1);
+                intent.putExtra("type", "HumanRobots");
+                startActivity(intent);
             }
         });
 
         // 处理按钮点击事件（切换到蓝牙联机模式）
-        Button button3 = (Button) this.findViewById(R.id.button3);
-        button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Do Nothing
-            }
-        });
+//        Button button3 = (Button) this.findViewById(R.id.button3);
+//        button3.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // Do Nothing
+//            }
+//        });
 
 
         // 处理按钮点击事件（切换到Wifi对战模式）
         Button button4 = (Button) this.findViewById(R.id.button4);
-        button3.setOnClickListener(new View.OnClickListener() {
+        button4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Do Nothing

@@ -25,6 +25,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     private Call call;
     // 打牌
     private Table table;
+
     // 玩家
     private AbstractPlayer playerN;
     private AbstractPlayer playerS;
@@ -32,6 +33,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     private AbstractPlayer playerE;
 
     private AbstractPlayer localPlayer;
+    private int localPlayerNumber;
 
     // 赢墩（界面上显示当前玩家的）
     private int nsContract = -1;
@@ -78,6 +80,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     public void setLocalPlayer(AbstractPlayer player) {
         localPlayer = player;
+    }
+
+    public void setLocalPlayerNumber(int number) {
+        localPlayerNumber = number;
     }
 
     /**
@@ -188,9 +194,47 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 3:
+                // 确定首攻：庄家的下家
+                player = table.getPlayer();
+                Log.v(this.getClass().getName(),"首攻:"+String.valueOf(player));
                 stage = 4;
                 break;
             case 4:
+                // 出牌检测（为什么是player0）
+                // 0表示当前阶段——什么都不按
+                // 1表示显示选中
+                // 2表示出牌
+                // 应该有一个标志位表示本地玩家是哪个？
+
+                Log.v(this.getClass().getName(), "Player: " + String.valueOf(player));
+                // TODO:还需要检测玩家的类型是否是机器人
+                // 如果当前玩家时本地玩家——需要检测触摸事件
+                // 如果本地玩家是庄家并且当前玩家是本地玩家（庄家）的对家——需要检测触摸事件
+                Log.v(this.getClass().getName(), "需要检测触摸事件吗");
+                if (player == localPlayerNumber ||
+                        ( localPlayerNumber == call.getDealer() &&
+                                (player == (localPlayerNumber + 2) || (player == (localPlayerNumber - 2))))) {
+                    Log.v(this.getClass().getName(), "需要");
+                    switch (table.onTouch(x, y)) {
+                        case 0:
+                            // 触摸无效部分
+                            Log.v(this.getClass().getName(), "无效触摸事件");
+                            stage = 4;
+                            break;
+                        case 1:
+                            // 选中牌的状态
+                            Log.v(this.getClass().getName(), "选中牌事件");
+                            stage = 4;
+                            break;
+                        case 2:
+                            // 出牌的状态
+                            Log.v(this.getClass().getName(), "出牌事件");
+//                            player++;
+                            stage = 4;
+                            break;
+                    }
+                }
+                Log.v(this.getClass().getName(), "不需要");
                 break;
             default:
                 break;
@@ -214,7 +258,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     @Override
     public void process(Canvas canvas) {
-        // TODO:刷帧的函数应该放在哪儿？
+        // TODO:刷帧的函数应该放在哪儿
+        initCanvas(canvas);
         draw(canvas);
         switch (stage) {
             case 0:
@@ -229,6 +274,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         case 0:
                             // TODO:怎么获得人类玩家的叫牌值
                             // TODO:怎么在获得机器人玩家的叫牌值得同时，不阻碍界面绘制
+                            // TODO:不够抽象？
                             if (playerS.callCard()) {
                                 player = 1;
                             }
@@ -261,26 +307,39 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     stage = 5;
                 } else {
                     // 轮流出牌
-//                    table.setModifier(1);
-                    switch (player) {
+                    // 不是leader不能出牌
+                    // TODO:leader还是player
+                    // player表示玩家
+                    // leader表示同样的意思
+                    Log.v(this.getClass().getName(), "Player: " + String.valueOf(table.getPlayer()));
+                    Log.v(this.getClass().getName(), "Player: " + String.valueOf(table.getPlayer()));
+                    switch (table.getPlayer()) {
                         case 0:
-                            table.dropCardS(playerS.dropCard());
-                            player = 1;
+                            table.setDropStage(0);
+                            Log.v(this.getClass().getName(), "南 家 出牌");
+//                            Log.v(this.getClass().getName(), String.valueOf(playerS.getCards()));
+//                            table.dropCardS(playerS.dropCard());
+                            if (playerS.dropCard()) {
+                                Log.v(this.getClass().getName(), "南 家 出牌了");
+                                player = 1;
+                            }
                             break;
                         case 1:
-                            table.dropCardW(playerW.dropCard());
-                            player = 2;
+                            Log.v(this.getClass().getName(), "西 家 出牌");
+                            playerW.dropCard();
                             break;
                         case 2:
-                            table.dropCardN(playerN.dropCard());
-                            player = 3;
+                            Log.v(this.getClass().getName(), "北 家 出牌");
+                            playerN.dropCard();
                             break;
                         case 3:
-                            table.dropCardE(playerE.dropCard());
-                            player = 0;
+                            Log.v(this.getClass().getName(), "东 家 出牌");
+                            playerE.dropCard();
                             break;
                     }
                 }
+                break;
+            case 5:
                 break;
             default:
                 break;
@@ -294,8 +353,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     public void draw(Canvas canvas) {
         // drawText(canvas);
-        Log.v(this.getClass().getName(), "stage:" + String.valueOf(stage));
-        initCanvas(canvas);
+//        Log.v(this.getClass().getName(), "stage:" + String.valueOf(stage));
+//        initCanvas(canvas);
         switch(stage) {
             case 0:
                 playerS.draw(canvas);
@@ -322,11 +381,24 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 4:
                 // TODO:出牌循环
                 // 根据叫牌情况选择不同的绘制形态
-                playerS.draw(canvas);
-                playerW.draw(canvas);
-                playerN.draw(canvas);
-                playerE.draw(canvas);
+                table.setModifier(getModifier());
+                table.setDealerAndContract(this.call.getDealer(),
+                        this.call.getLevel(), this.call.getSuits());
                 table.draw(canvas);
+                localPlayer.draw(canvas);
+                if (this.call.getDealer() == 0 || this.call.getDealer() == 2) {
+                    playerN.draw(canvas);
+                } else if (this.call.getDealer() == 1) {
+                    playerN.setStage(222);
+                    playerN.draw(canvas);
+                    playerE.draw(canvas);
+                } else if (this.call.getDealer() == 3) {
+                    playerN.setStage(222);
+                    playerN.draw(canvas);
+                    playerW.draw(canvas);
+                }
+            case 5:
+                break;
             default:
                 break;
         }
@@ -387,7 +459,22 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         canvas.drawCircle(1440, 2160, 100, paint);
     }
 
-
+    /**
+     * 从庄家获得明手
+     * @return
+     */
+    public int getModifier() {
+        if (this.call.getDealer() == 0) {
+            return 1;
+        } else if (this.call.getDealer() == 1) {
+            return 0;
+        } else if (this.call.getDealer() == 2) {
+            return 1;
+        } else if (this.call.getDealer() == 3) {
+            return 2;
+        }
+        return 1;
+    }
 
     /**
      * 初始化宽高
