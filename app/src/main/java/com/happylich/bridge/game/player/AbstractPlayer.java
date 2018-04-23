@@ -176,6 +176,119 @@ public abstract class AbstractPlayer {
         }
     }
 
+    /**
+     * 南家触摸事件
+     * @param x
+     * @param y
+     * @return
+     */
+    public int touchBottom(int x, int y) {
+        Position position;
+        Position positionSelected;
+
+        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
+        int left = (1440 - (cards.size() - 1) * 90 - 180) / 2;
+        int top = this.top;
+
+        for (int i=0; i<cards.size(); i++) {
+
+            if (selectCard != -1) {
+                // 如果已经选中牌了，则出牌或者重新选牌
+                if (i < cards.size() - 1) {
+                    position = new Position(top, left + i * 90,
+                            top + 240, left + 90 + i * 90);
+                } else {
+                    position = new Position(top, left + i * 90,
+                            top + 240, left + 180 + i * 90);
+                }
+                position.resieze((float)this.width / (float)1440);
+
+                positionSelected = new Position(top - 120, left + selectCardIndex * 90,
+                        top, left + 180 + selectCardIndex * 90);
+                positionSelected.resieze((float)this.width / (float)1440);
+
+                if (Position.inPosition(x, y, positionSelected)) {
+                    // 出牌
+                    Log.v(this.getClass().getName(), "出牌");
+                    table.dropCard(this.position, cards.remove(selectCardIndex));
+                    selectCardIndex = -1;
+                    selectCard = -1;
+                    return 2;
+                } else if (Position.inPosition(x, y, position)) {
+                    // 换牌
+                    Log.v(this.getClass().getName(), "换牌");
+                    selectCardIndex = i;
+                    selectCard = cards.get(i);
+                    return 1;
+                }
+                Log.v(this.getClass().getName(), "既不出牌也不换牌");
+            } else {
+                // 如果没有选中牌，则选牌
+                if (i < cards.size() - 1) {
+                    position = new Position(top, left + i * 90,
+                            top + 240, left + 90 + i * 90);
+                } else {
+                    position = new Position(top, left + i * 90,
+                            top + 240, left + 180 + i * 90);
+                }
+                position.resieze((float)this.width / (float)1440);
+                if (Position.inPosition(x, y, position)) {
+                    // 选中牌
+                    Log.v(this.getClass().getName(), "选中牌");
+                    selectCardIndex = i;
+                    selectCard = cards.get(i);
+                    return 1;
+                }
+            }
+        }
+        Log.v(this.getClass().getName(), "什么都不做");
+        return 0;
+    }
+
+    /**
+     * 北家触摸事件
+     * @param x
+     * @param y
+     * @return
+     */
+    public int touchTop(int x, int y) {
+        Position position;
+        Rect des = new Rect();
+
+        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
+        int left = (1440 - (cards.size() - 1) * 80 - 180) / 2;
+        int top = this.top;
+
+        Log.v(this.getClass().getName(), "touch-top:" + String.valueOf(this.top));
+        Log.v(this.getClass().getName(), "touch-width:" + String.valueOf(this.width));
+
+        // 绘制纸牌（底部玩家）
+        for (int i=0; i<cards.size(); i++) {
+            if (selectCard != -1) {
+                position = new Position(top + 120, left + i * 90,
+                        top + 360, left + i * 90);
+                position.resieze((float)this.width / (float)1440);
+                if (Position.inPosition(x, y, position)) {
+                    // 出牌
+                    Log.v(this.getClass().getName(), "出牌");
+                    return 2;
+                }
+            } else {
+                position = new Position(top, left + i * 80,
+                        top + 240, left + 180 + i * 80);
+                position.resieze((float)this.width / (float)1440);
+                if (Position.inPosition(x, y, position)) {
+                    // 选中牌
+                    Log.v(this.getClass().getName(), "选中牌");
+                    selectCard = i;
+                    return 1;
+                }
+            }
+        }
+        Log.v(this.getClass().getName(), "什么都不做");
+        return 0;
+    }
+
 
     /**
      * 南家绘制

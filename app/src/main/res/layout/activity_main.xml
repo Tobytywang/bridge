@@ -118,7 +118,7 @@
                             android:textColor="@color/colorButtonText"
                             android:text="创建游戏"/>
                         <Button
-                            android:id="@+id/button5"
+                            android:id="@+id/button4"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -149,7 +149,7 @@
                         android:orientation="horizontal"
                         android:layout_weight="1">
                         <Button
-                            android:id="@+id/button4"
+                            android:id="@+id/button5"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"

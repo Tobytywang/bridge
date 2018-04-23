@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.happylich.bridge.game.GameActivity;
+import com.happylich.bridge.game.WifiGameActivity;
 
 // 没有Fragment的Activity
 // 要考虑向后兼容，继承自AppCompatActivity
@@ -60,12 +61,31 @@ public class MainActivity extends AppCompatActivity {
 //        });
 
 
-        // 处理按钮点击事件（切换到Wifi对战模式）
-        Button button4 = (Button) this.findViewById(R.id.button4);
-        button4.setOnClickListener(new View.OnClickListener() {
+        // 处理按钮点击事件（创建Wifi对战——创建并进入房间）
+        Button button5 = (Button) this.findViewById(R.id.button5);
+        button5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Do Nothing
+                // 创建并且进入房间
+                Intent intent = new Intent(
+                MainActivity.this,
+                        WifiGameActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // 处理按钮点击事件（切换到Wifi对战——选择房间并进入）
+        Button button6 = (Button) this.findViewById(R.id.button6);
+        button6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Do Nothing
+                // 进入选择房间Activity
+                Intent intent = new Intent(
+                        MainActivity.this,
+                        SelectActivity.class);
+                startActivity(intent);
             }
         });
     }

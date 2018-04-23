@@ -19,7 +19,7 @@ import com.happylich.bridge.engine.game.Game;
 public class GameThread extends Thread {
 
     // 游戏线程每执行一次需要睡眠的时间
-    private final static int DELAY_TIME = 50;
+    private final static int DELAY_TIME = 10;
     // 上下文，方便获取到应用的各项资源，如图片、音乐和字符串等
     private Context context;
 
