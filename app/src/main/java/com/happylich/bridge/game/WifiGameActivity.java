@@ -1,11 +1,12 @@
 package com.happylich.bridge.game;
 
 import android.content.Context;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.AdapterView;
 
 import com.happylich.bridge.R;
@@ -18,6 +19,10 @@ import java.util.ArrayList;
  * Created by lich on 2018/4/23.
  */
 
+/**
+ * 这个Activity同时充当服务器和客户端
+ * 这个Activity实现了WifiP2p的一些方法，使得他能够获取与远程机器的连接
+ */
 public class WifiGameActivity extends AppCompatActivity implements WifiP2pManager.ChannelListener {
 
     Context context;
@@ -32,6 +37,10 @@ public class WifiGameActivity extends AppCompatActivity implements WifiP2pManage
 
     private AdapterView hybridAdapter;
 
+    /**
+     * onCreate函数
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +73,47 @@ public class WifiGameActivity extends AppCompatActivity implements WifiP2pManage
     }
 
     public void reinitialize() {
+        mChannel=mManager.initialize(this, getMainLooper(), this);
+        if(mChannel!=null){
+//            Log.d(TAG,"WIFI Direct reinitialize : SUCCESS");
+        }else{
+//            Log.d(TAG, "WIFI Direct reinitialize : FAILURE");
+        }
+    }
 
+    public void peerAvailable() {
+        devicesList = mReceiver.getDeviceList();
+        if (devicesList != null) {
+            //clear adapter from outdated data
+//            hybridAdapter.clear();
+            // update the names of available devices
+            calculateDevices();
+            //notify adapter to change listView content
+//            hybridAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void calculateDevices() {
+        if(devicesList!=null) {
+            if(devicesNames!=null) devicesNames.clear();
+            if(devicesAddress!=null) devicesAddress.clear();
+            for (int i=0;i<devicesList.size();i++) {
+                devicesNames.add(devicesList.get(i).deviceName);
+                devicesAddress.add(devicesList.get(i).deviceAddress);
+            }
+        }
+    }
+
+    public void connectToPeer(WifiP2pDevice device) {
+        if(device!=null){
+            WifiP2pConfig config = new WifiP2pConfig();
+            config.deviceAddress = device.deviceAddress;
+//            opponentsName=device.deviceName;
+            config.wps.setup= WpsInfo.PBC;
+            mManager.connect(mChannel, config, new ActionListenerHandler(this, "Connection to peer"));
+        }else{
+//            Log.d(TAG, "Can not find that device");
+        }
     }
 
     private void registerWifiReceiver() {
@@ -78,5 +127,26 @@ public class WifiGameActivity extends AppCompatActivity implements WifiP2pManage
             mReceiver.unregisterReceiver();
         }
         mReceiver=null;
+    }
+
+    public void handleIncoming(String msg){
+        int x,y;
+//        Log.d(TAG, "Incoming " + msg);
+        if(msg.equals("RESET")){
+//            resetCanvasBoard();
+        }else if (msg.equals("LEFT")) {
+            onBackPressed();
+        }
+        else{
+            x = Character.getNumericValue(msg.charAt(0));
+            y = Character.getNumericValue(msg.charAt(1));
+//            Log.d(TAG, "interpretered as x = " + x + " y= " + y);
+//            board.incomingMove(x, y);
+        }
+    }
+
+    public void sendMsg(String msg){
+        mReceiver.sendMsg(msg);
+//        Log.d(TAG, "Sending move");
     }
 }

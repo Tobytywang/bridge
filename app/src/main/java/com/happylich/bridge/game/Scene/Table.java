@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.main;
+package com.happylich.bridge.game.Scene;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -25,7 +25,7 @@ import java.util.Map;
  * 负责牌桌的绘制和结算
  */
 
-public class Table {
+public class Table extends AbstractScene {
     private Context context;
 
     // 叫牌阶段标志位
@@ -35,8 +35,6 @@ public class Table {
     private boolean finish;
 
     // 绘制尺寸
-    private int width, height;
-    private int left, top;
     private int modifier;
 
     // 庄家
@@ -146,23 +144,6 @@ public class Table {
      */
     public void setPlayerBottom(AbstractPlayer playerBottom) {
         this.playerBottom = playerBottom;
-    }
-
-    /**
-     * 设置绘图基准点
-     * @param position
-     */
-    public void setPosition(int[] position) {
-        this.left = position[0];
-        this.top = position[1];
-    }
-
-    /**
-     * 设置宽高
-     */
-    public void setWidthHeight(int width, int height) {
-        this.width = width;
-        this.height = height;
     }
 
     /**

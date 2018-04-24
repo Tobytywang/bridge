@@ -7,16 +7,19 @@ package com.happylich.bridge.game.player;
 import android.content.Context;
 
 /**
- *
+ * 使用情景：
+ * 1. 主机玩家创建房间，主机玩家设置Player1
+ * 2. 从机玩家加入房间，从机玩家与主机沟通，分别建立对对方的代理
+ * 3. 第三个玩家加入房间，从机玩家与主机玩家沟通，设置对所有玩家的代理
  */
-public class Remote extends AbstractPlayer{
+public class ProxyPlayer extends AbstractPlayer{
 
     /**
      * 构造函数
      * @param context
      * @param position
      */
-    public Remote(Context context, int position) {
+    public ProxyPlayer(Context context, int position) {
         this.context = context;
         this.position = position;
     }

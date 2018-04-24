@@ -9,8 +9,8 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import com.happylich.bridge.engine.util.Position;
-import com.happylich.bridge.game.main.Call;
-import com.happylich.bridge.game.main.Table;
+import com.happylich.bridge.game.Scene.Call;
+import com.happylich.bridge.game.Scene.Table;
 import com.happylich.bridge.game.res.CardImage;
 
 import java.util.ArrayList;
@@ -19,12 +19,16 @@ import java.util.ArrayList;
  * Created by wangt on 2017/11/16.
  */
 
+/**
+ * TODO:玩家的绘制工作与Game.stage无关！
+ */
 public abstract class AbstractPlayer {
 
     protected Context context;
 
     // 储存游戏的阶段
     protected int stage;
+
     // 储存玩家的座位0-S 1-W 2-N 3-E
     public int position;
 

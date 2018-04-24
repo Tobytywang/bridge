@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.main;
+package com.happylich.bridge.game.Scene;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
  *    2. player.setCall(call) call.getLastCall
  */
 
-public class Call {
+public class Call extends AbstractScene {
     private Context context;
 
     // 叫牌阶段标志位
@@ -52,10 +52,6 @@ public class Call {
     // 定约阶
     private int level = -1;
     private int suits = -1;
-
-    // 绘制尺寸
-    private int width, height;
-    private int left, top;
 
     // 选牌标志
     private int selectFlag = -1;
@@ -137,24 +133,6 @@ public class Call {
     public int getSuits() {
         return this.suits;
     }
-
-    /**
-     * 设置绘图基准点
-     * @param position
-     */
-    public void setPosition(int[] position) {
-        this.left = position[0];
-        this.top = position[1];
-    }
-
-    /**
-     * 设置宽高
-     */
-    public void setWidthHeight(int width, int height) {
-        this.width = width;
-        this.height = height;
-    }
-
 
     /**
      * 设置callstage

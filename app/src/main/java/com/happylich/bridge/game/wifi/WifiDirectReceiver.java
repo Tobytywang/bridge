@@ -123,9 +123,9 @@ public class WifiDirectReceiver extends BroadcastReceiver
         isWifiDirectEnabled = state == WifiP2pManager.WIFI_P2P_STATE_ENABLED;
 
         if(!isWifiDirectEnabled) {
-            mActivity.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-            Toast.makeText(mActivity.getApplication().getApplicationContext(),
-                    "Enabled Wifi and then press Back", Toast.LENGTH_LONG).show();
+//            mActivity.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+//            Toast.makeText(mActivity.getApplication().getApplicationContext(),
+//                    "Enabled Wifi and then press Back", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -148,10 +148,10 @@ public class WifiDirectReceiver extends BroadcastReceiver
     }
 
     public void registerReceiver() {
-        mActivity.registerReceiver(this, getIntentFilter());
+//        mActivity.registerReceiver(this, getIntentFilter());
     }
     public void unregisterReceiver() {
-        mActivity.unregisterReceiver(this);
+//        mActivity.unregisterReceiver(this);
         if (game != null) {
 //            game.cancel(true);
         }

@@ -10,10 +10,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.happylich.bridge.engine.view.GameView;
-import com.happylich.bridge.game.main.Call;
+import com.happylich.bridge.game.Scene.Call;
 import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.main.Game;
-import com.happylich.bridge.game.main.Table;
+import com.happylich.bridge.game.Scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.Robot;
