@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import com.happylich.bridge.game.GameActivity;
 import com.happylich.bridge.game.WifiGameActivity;
+import com.happylich.bridge.game.wifi.SelectActivity;
 
 // 没有Fragment的Activity
 // 要考虑向后兼容，继承自AppCompatActivity
