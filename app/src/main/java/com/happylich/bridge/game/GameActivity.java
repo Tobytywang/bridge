@@ -7,8 +7,11 @@ import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
+import com.happylich.bridge.BuildConfig;
 import com.happylich.bridge.engine.view.GameView;
 import com.happylich.bridge.game.Scene.Call;
 import com.happylich.bridge.game.main.Cards;
@@ -17,6 +20,7 @@ import com.happylich.bridge.game.Scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.Robot;
+import com.happylich.bridge.game.res.CardImage;
 
 /**
  * GameActivity着眼于系统层级的控制
@@ -41,7 +45,7 @@ public class GameActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String gameType = intent.getStringExtra("type");
         if (gameType.equals("Robots")) {
-            Robots();
+            Robots(this);
         } else if (gameType.equals("HumanRobots")) {
             HumanRobot();
         } else if (gameType.equals("CreatePVP")) {
@@ -54,8 +58,13 @@ public class GameActivity extends AppCompatActivity {
     /**
      * 专门处理人机模式的函数
      */
-    public void Robots() {
+    public void Robots(Context context) {
+        Log.v(this.getClass().getName(), "开始机机模式1：");
         // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
+        CardImage.getResource(context);
+
+        Log.v(this.getClass().getName(), String.valueOf(CardImage.backBitmapImage));
+
         Game game = new Game(this);
 
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
@@ -111,12 +120,14 @@ public class GameActivity extends AppCompatActivity {
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
+        Log.v(this.getClass().getName(), "开始机机模式2：");
     }
 
     /**
      * 专门处理人机模式的函数
      */
     public void HumanRobot() {
+        Log.v(this.getClass().getName(), "开始人机模式1：");
         // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
         Game game = new Game(this);
 
@@ -171,6 +182,7 @@ public class GameActivity extends AppCompatActivity {
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
+        Log.v(this.getClass().getName(), "开始人机模式2：");
     }
 
     /**

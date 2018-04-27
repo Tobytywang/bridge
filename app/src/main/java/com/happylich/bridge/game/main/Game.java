@@ -1,14 +1,19 @@
 package com.happylich.bridge.game.main;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 
+import com.happylich.bridge.engine.thread.GameThread;
 import com.happylich.bridge.game.Scene.Call;
 import com.happylich.bridge.game.Scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
+
+import java.util.Date;
 
 /**
  * Created by lich on 2018/3/25.
@@ -252,6 +257,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     }
 
     /**
+     * TODO:需要把process做成非阻塞式的工作方式
      * 逻辑更新在这里完成（绘图工作交给draw）
      * 区分每个阶段的原则是：阶段检测按键的逻辑发生变化后就引入新的阶段来表现
      * 0. 叫牌阶段1：只有下方的显示内容，显示叫牌矩阵和历史叫牌数据？，点击叫牌矩阵进入阶段1
@@ -268,8 +274,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     @Override
     public void process(Canvas canvas) {
-        // TODO:刷帧的函数应该放在哪儿
-        draw(canvas);
         switch (stage) {
             case 0:
 
@@ -357,7 +361,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             default:
                 break;
         }
-        draw(canvas);
     }
 
     /**
@@ -365,35 +368,49 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      * @param canvas
      */
     public void draw(Canvas canvas) {
+        Paint paint  = new Paint();
+        Rect des = new Rect();
+
         // drawText(canvas);
 //        Log.v(this.getClass().getName(), "stage:" + String.valueOf(stage));
-        initCanvas(canvas);
+
+        Date d = new Date();
+        initCanvas(canvas, paint);
+//        Log.v(this.getClass().getName(), "init    " + String.valueOf((new Date().getTime() - d.getTime())));
         switch(stage) {
             case 0:
                 break;
             case 1:
                 break;
             case 2:
-                playerS.draw(canvas);
+                playerS.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage2:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(0);
-                call.draw(canvas);
+                call.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage2:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 3:
-                playerS.draw(canvas);
+                playerS.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage3:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(1);
-                call.draw(canvas);
+                call.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage3:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 4:
-                playerS.draw(canvas);
+                playerS.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage4:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(2);
-                call.draw(canvas);
+                call.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage4:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 5:
                 // TODO:画点什么好呢？
                 // TODO:坐庄
-                playerS.draw(canvas);
+                playerS.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage5:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(0);
-                call.draw(canvas);
+                call.draw(canvas, paint, des);
+//                Log.v(this.getClass().getName(), "stage5:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 6:
                 // TODO:出牌循环
@@ -401,19 +418,21 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 table.setModifier(getModifier());
                 table.setDealerAndContract(this.call.getDealer(),
                         this.call.getLevel(), this.call.getSuits());
-                table.draw(canvas);
-                localPlayer.draw(canvas);
+                table.draw(canvas, paint, des);
+                localPlayer.draw(canvas, paint, des);
                 if (this.call.getDealer() == 0 || this.call.getDealer() == 2) {
-                    playerN.draw(canvas);
+                    playerN.draw(canvas, paint, des);
                 } else if (this.call.getDealer() == 1) {
                     playerN.setStage(222);
-                    playerN.draw(canvas);
-                    playerE.draw(canvas);
+                    playerN.draw(canvas, paint, des);
+                    playerE.draw(canvas, paint, des);
                 } else if (this.call.getDealer() == 3) {
                     playerN.setStage(222);
-                    playerN.draw(canvas);
-                    playerW.draw(canvas);
+                    playerN.draw(canvas, paint, des);
+                    playerW.draw(canvas, paint, des);
                 }
+//                Log.v(this.getClass().getName(), "stage6  " + String.valueOf((new Date().getTime() - d.getTime())));
+                break;
             case 7:
                 break;
             default:
@@ -425,20 +444,19 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      * 初始化画布
      * @param canvas
      */
-    public void initCanvas(Canvas canvas) {
-        Paint paint = new Paint();
+    public void initCanvas(Canvas canvas, Paint paint) {
         // 绘制底色
 //        paint.setColor(Color.WHITE);
         paint.setColor(Color.parseColor("#408030"));
         canvas.drawRect(0, 0, this.width, this.height, paint);
 
         // 设置缩放
-        if (hasSetScale == 0) {
+//        if (hasSetScale == 0) {
             canvas.scale( (float)this.width / (float)1440 ,(float)this.width / (float)1440);
-            hasSetScale = 1;
-        } else {
-            hasSetScale = 0;
-        }
+//            hasSetScale = 1;
+//        } else {
+//            hasSetScale = 0;
+//        }
         // 绘制一个描述框
         paint.setColor(Color.CYAN);
         canvas.drawRect(0, 0, 1440, 360, paint);

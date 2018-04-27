@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.wifi;
+package com.happylich.bridge.game.wlan.wifip2p;
 
 import android.util.Log;
 

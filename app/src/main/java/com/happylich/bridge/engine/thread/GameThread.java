@@ -11,6 +11,8 @@ import android.view.SurfaceHolder;
 
 import com.happylich.bridge.engine.game.Game;
 
+import java.util.Date;
+
 /**
  * Created by wangt on 2018/3/20.
  * 线程负责游戏的绘制，触摸事件的响应等
@@ -18,8 +20,11 @@ import com.happylich.bridge.engine.game.Game;
 
 public class GameThread extends Thread {
 
+
+    public Date d = null;
+
     // 游戏线程每执行一次需要睡眠的时间
-    private final static int DELAY_TIME = 10;
+    private final static int DELAY_TIME = 33;
     // 上下文，方便获取到应用的各项资源，如图片、音乐和字符串等
     private Context context;
 
@@ -91,15 +96,22 @@ public class GameThread extends Thread {
     public void run() {
         Log.v(this.getClass().getName(), "我要跑了！");
         while (running) {
+            d = new Date();
             Canvas canvas = null;
             if (!isPaused) {
+                game.process(canvas);
+//                Log.v(this.getClass().getName(), "process " + String.valueOf((new Date().getTime() - d.getTime())));
                 try {
                     canvas = surfaceHolder.lockCanvas(null);
-                    if (canvas == null) {
-                        Log.v(this.getClass().getName(), "空的canvas");
-                    }
                     synchronized (surfaceHolder) {
-                        game.process(canvas);
+                        // 这段时间最好执行和绘图有关的操作，其他代码越少越好
+                        game.draw(canvas);
+                    }
+                    if ((new Date().getTime() - d.getTime()) < DELAY_TIME) {
+                        Thread.sleep(Math.max(0, DELAY_TIME - (new Date().getTime() - d.getTime())));
+                        Log.v(this.getClass().getName(), "draw    " + String.valueOf((new Date().getTime() - d.getTime())));
+                    } else {
+                        Log.v(this.getClass().getName(), "draw----" + String.valueOf((new Date().getTime() - d.getTime())));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -107,13 +119,6 @@ public class GameThread extends Thread {
                     if (canvas != null) {
                         surfaceHolder.unlockCanvasAndPost(canvas);
                     }
-                }
-
-                try {
-                    Thread.sleep(DELAY_TIME);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }

@@ -2,10 +2,8 @@ package com.happylich.bridge.game.Scene;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -15,7 +13,6 @@ import android.util.Log;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.res.CardImage;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -254,11 +251,9 @@ public class Table extends AbstractScene {
      * 绘制图形界面
      * @param canvas
      */
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, Paint paint, Rect des) {
         // TODO:do nothing
         Bitmap Image;
-        Rect des = new Rect();
-        Paint paint = new Paint();
         Path path = new Path();
 
         int left = this.left + 240 * (this.modifier - 1);
@@ -278,8 +273,11 @@ public class Table extends AbstractScene {
         left = this.left + 240 * (this.modifier - 1);
         top = this.top + 360 + 180;
         // 绘制庄家
-        Image = BitmapFactory.decodeResource(context.getResources(),
-                CardImage.resImages[level * 5 + suits]);
+
+//        Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[level * 5 + suits], 180, 240);
+        Image = CardImage.callBitmapImages.get(level * 5 + suits);
+//        Image = BitmapFactory.decodeResource(context.getResources(),
+//                CardImage.callImages[level * 5 + suits]);
         paint.setColor(Color.BLACK);
         paint.setTextSize(80);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -345,8 +343,10 @@ public class Table extends AbstractScene {
         {
             Map.Entry entity = (Map.Entry) it.next();
             for (int i = 0; i < dropHistory.size(); i++) {
-                Image =  BitmapFactory.decodeResource(context.getResources(),
-                        CardImage.cardImages[(Integer)entity.getValue()]);
+//                Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[(Integer)entity.getValue()], 180, 240);
+                Image = CardImage.cardBitmapImages.get((Integer)entity.getValue());
+//                Image =  BitmapFactory.decodeResource(context.getResources(),
+//                        CardImage.cardImages[(Integer)entity.getValue()]);
                 if ((Integer)entity.getKey() == 0) {
                     // 绘制出牌
                     des.set(left + 275 + 50, top + 340, left + 445 + 50, top + 580);

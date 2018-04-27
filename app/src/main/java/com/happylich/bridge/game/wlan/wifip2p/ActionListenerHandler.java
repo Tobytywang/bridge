@@ -1,9 +1,7 @@
-package com.happylich.bridge.game.wifi;
+package com.happylich.bridge.game.wlan.wifip2p;
 
 import android.app.Activity;
 import android.net.wifi.p2p.WifiP2pManager;
-
-import com.happylich.bridge.game.WifiGameActivity;
 
 /**
  * Created by lich on 2018/4/23.

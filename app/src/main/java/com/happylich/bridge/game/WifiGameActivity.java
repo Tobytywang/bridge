@@ -1,19 +1,7 @@
 package com.happylich.bridge.game;
 
-import android.content.Context;
-import android.net.wifi.WpsInfo;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.AdapterView;
-
-import com.happylich.bridge.R;
-import com.happylich.bridge.game.wifi.ActionListenerHandler;
-import com.happylich.bridge.game.wifi.WifiDirectReceiver;
-
-import java.util.ArrayList;
 
 /**
  * Created by lich on 2018/4/23.

@@ -1,6 +1,8 @@
 package com.happylich.bridge.game.Scene;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 
 /**
  * Created by lich on 2018/4/24.
@@ -32,5 +34,5 @@ public abstract class AbstractScene {
 
     abstract public int onTouch(int x, int y);
 
-    abstract public void draw(Canvas canvas);
+    abstract public void draw(Canvas canvas, Paint paint, Rect rect);
 }

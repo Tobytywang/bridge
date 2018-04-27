@@ -44,7 +44,7 @@
                         android:layout_weight="1"
                         android:textSize="18dp"
                         android:gravity="center"
-                        android:text="机机游戏"/>
+                        android:text="机机演示"/>
                     <Button
                         android:id="@+id/button1"
                         android:layout_width="match_parent"
@@ -69,7 +69,7 @@
                         android:layout_weight="1"
                         android:textSize="18dp"
                         android:gravity="center"
-                        android:text="机机游戏"/>
+                        android:text="人机练习"/>
                     <Button
                         android:id="@+id/button2"
                         android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                         android:background="@color/colorButton"
                         android:textSize="18dp"
                         android:textColor="@color/colorButtonText"
-                        android:text="人机游戏"/>
+                        android:text="开始游戏"/>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
@@ -142,7 +142,7 @@
                         android:layout_weight="1"
                         android:textSize="18dp"
                         android:gravity="center"
-                        android:text="WiFi联机"/>
+                        android:text="人人练习"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -157,7 +157,7 @@
                             android:background="@color/colorButton"
                             android:textSize="18dp"
                             android:textColor="@color/colorButtonText"
-                            android:text="创建游戏"/>
+                            android:text="开始游戏"/>
                         <Button
                             android:id="@+id/button6"
                             android:layout_width="match_parent"

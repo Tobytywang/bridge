@@ -19,6 +19,9 @@ import com.happylich.bridge.engine.util.Position;
  */
 public class Game {
 
+    // fps
+    protected int fps;
+
     // 画布
     protected Canvas canvas;
 
@@ -46,6 +49,9 @@ public class Game {
         this.height = height;
     }
 
+    public int getFPS() {
+        return fps;
+    }
 
     /**
      * 判断触摸事件，子类重载这个函数来处理输入事件
@@ -63,6 +69,13 @@ public class Game {
      * @param canvas
      */
     public void process(Canvas canvas) {
+
+    }
+
+    /**
+     *
+     */
+    public void draw(Canvas canvas) {
         this.canvas = canvas;
 
         // 新建画笔
@@ -76,7 +89,7 @@ public class Game {
         paint.setColor(Color.BLACK);
         paint.setTextSize(60);
         canvas.drawText("Canvas大小：" + String.valueOf(this.height) + "*"
-                        + String.valueOf(this.width), 0, 60, paint);
+                + String.valueOf(this.width), 0, 60, paint);
 
         // 绘制：触点大小
         paint.setColor(Color.BLACK);

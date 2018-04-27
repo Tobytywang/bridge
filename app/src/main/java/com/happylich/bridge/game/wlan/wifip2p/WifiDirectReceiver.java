@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.wifi;
+package com.happylich.bridge.game.wlan.wifip2p;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,12 +10,9 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.provider.Settings;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.happylich.bridge.game.WifiGameActivity;
 import com.happylich.bridge.game.main.Game;
+import com.happylich.bridge.game.wlan.SelectActivity;
 
 import java.util.ArrayList;
 

@@ -5,6 +5,8 @@ package com.happylich.bridge.game.Scene;
  */
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 
 import com.happylich.bridge.engine.util.Position;
 
@@ -62,7 +64,7 @@ public class Ready extends AbstractScene {
      * 绘制叫牌矩阵
      * @param canvas
      */
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, Paint paint, Rect des) {
 //        drawTest(canvas);
         switch (readyStage) {
             case 0:

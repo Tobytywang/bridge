@@ -2,6 +2,7 @@ package com.happylich.bridge.engine.view;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -23,6 +24,10 @@ public class GameView extends SurfaceView
         implements SurfaceHolder.Callback {
 
     private GameThread gameThread;
+
+//    private HandlerThread handlerThread;
+//    private WeakHandler handler;
+
     private SurfaceHolder holder;
     private Context context;
 
@@ -103,4 +108,11 @@ public class GameView extends SurfaceView
 
         gameThread.setRunning(false);
     }
+
+//    private void refresh() {
+//        Message message = Message.obtain();
+//        message.what = 0;
+//        handler.removeMessage(0);
+//        handler.sendMessage(message);
+//    }
 }
