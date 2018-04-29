@@ -24,7 +24,7 @@ public class GameThread extends Thread {
     public Date d = null;
 
     // 游戏线程每执行一次需要睡眠的时间
-    private final static int DELAY_TIME = 33;
+    private final static int DELAY_TIME = 16;
     // 上下文，方便获取到应用的各项资源，如图片、音乐和字符串等
     private Context context;
 
@@ -100,13 +100,14 @@ public class GameThread extends Thread {
             Canvas canvas = null;
             if (!isPaused) {
                 game.process(canvas);
-//                Log.v(this.getClass().getName(), "process " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "process " + String.valueOf((new Date().getTime() - d.getTime())));
                 try {
                     canvas = surfaceHolder.lockCanvas(null);
                     synchronized (surfaceHolder) {
                         // 这段时间最好执行和绘图有关的操作，其他代码越少越好
                         game.draw(canvas);
                     }
+                    Log.v(this.getClass().getName(), "dddd    " + String.valueOf((new Date().getTime() - d.getTime())));
                     if ((new Date().getTime() - d.getTime()) < DELAY_TIME) {
                         Thread.sleep(Math.max(0, DELAY_TIME - (new Date().getTime() - d.getTime())));
                         Log.v(this.getClass().getName(), "draw    " + String.valueOf((new Date().getTime() - d.getTime())));

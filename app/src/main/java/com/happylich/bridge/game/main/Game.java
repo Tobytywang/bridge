@@ -211,7 +211,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 5:
                 // 确定首攻：庄家的下家
                 player = table.getPlayer();
-                Log.v(this.getClass().getName(),"首攻:"+String.valueOf(player));
+//                Log.v(this.getClass().getName(),"首攻:"+String.valueOf(player));
                 stage = 6;
                 break;
             case 6:
@@ -221,7 +221,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 2表示出牌
                 // 应该有一个标志位表示本地玩家是哪个？
 
-                Log.v(this.getClass().getName(), "Player: " + String.valueOf(player));
+//                Log.v(this.getClass().getName(), "Player: " + String.valueOf(player));
                 // TODO:还需要检测玩家的类型是否是机器人
                 // 如果当前玩家时本地玩家——需要检测触摸事件
                 // 如果本地玩家是庄家并且当前玩家是本地玩家（庄家）的对家——需要检测触摸事件
@@ -329,28 +329,28 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     // TODO:leader还是player
                     // player表示玩家
                     // leader表示同样的意思
-                    Log.v(this.getClass().getName(), "Player: " + String.valueOf(table.getPlayer()));
+//                    Log.v(this.getClass().getName(), "Player: " + String.valueOf(table.getPlayer()));
                     switch (table.getPlayer()) {
                         case 0:
                             table.setDropStage(0);
-                            Log.v(this.getClass().getName(), "南 家 出牌");
+//                            Log.v(this.getClass().getName(), "南 家 出牌");
 //                            Log.v(this.getClass().getName(), String.valueOf(playerS.getCards()));
 //                            table.dropCardS(playerS.dropCard());
                             if (playerS.dropCard()) {
-                                Log.v(this.getClass().getName(), "南 家 出牌了");
+//                                Log.v(this.getClass().getName(), "南 家 出牌了");
                                 player = 1;
                             }
                             break;
                         case 1:
-                            Log.v(this.getClass().getName(), "西 家 出牌");
+//                            Log.v(this.getClass().getName(), "西 家 出牌");
                             playerW.dropCard();
                             break;
                         case 2:
-                            Log.v(this.getClass().getName(), "北 家 出牌");
+//                            Log.v(this.getClass().getName(), "北 家 出牌");
                             playerN.dropCard();
                             break;
                         case 3:
-                            Log.v(this.getClass().getName(), "东 家 出牌");
+//                            Log.v(this.getClass().getName(), "东 家 出牌");
                             playerE.dropCard();
                             break;
                     }
@@ -376,7 +376,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
         Date d = new Date();
         initCanvas(canvas, paint);
-//        Log.v(this.getClass().getName(), "init    " + String.valueOf((new Date().getTime() - d.getTime())));
+        Log.v(this.getClass().getName(), "init    " + String.valueOf((new Date().getTime() - d.getTime())));
         switch(stage) {
             case 0:
                 break;
@@ -384,33 +384,33 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 break;
             case 2:
                 playerS.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage2:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage2:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(0);
                 call.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage2:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage2:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 3:
                 playerS.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage3:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage3:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(1);
                 call.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage3:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage3:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 4:
                 playerS.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage4:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage4:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(2);
                 call.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage4:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage4:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 5:
                 // TODO:画点什么好呢？
                 // TODO:坐庄
                 playerS.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage5:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage5:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(0);
                 call.draw(canvas, paint, des);
-//                Log.v(this.getClass().getName(), "stage5:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+                Log.v(this.getClass().getName(), "stage5:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 6:
                 // TODO:出牌循环
@@ -438,6 +438,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             default:
                 break;
         }
+        Log.v(this.getClass().getName(), "end     " + String.valueOf((new Date().getTime() - d.getTime())));
     }
 
     /**

@@ -94,8 +94,8 @@ public class Robot extends AbstractPlayer{
         // 随机出一张牌
         // TODO:关键要获取自己是本轮的第几顺
 
-        Log.v(this.getClass().getName(), String.valueOf(this.position));
-        Log.v(this.getClass().getName(), String.valueOf(this.cards));
+//        Log.v(this.getClass().getName(), String.valueOf(this.position));
+//        Log.v(this.getClass().getName(), String.valueOf(this.cards));
         switch(position) {
             case 0:
                 if (table.isFinish()) {
