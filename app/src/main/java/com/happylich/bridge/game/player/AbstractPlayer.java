@@ -2,15 +2,14 @@ package com.happylich.bridge.game.player;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
 import com.happylich.bridge.engine.util.Position;
-import com.happylich.bridge.game.Scene.Call;
-import com.happylich.bridge.game.Scene.Table;
+import com.happylich.bridge.game.scene.Call;
+import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.res.CardImage;
 
 import java.util.ArrayList;
@@ -26,6 +25,11 @@ import java.util.Date;
 public abstract class AbstractPlayer {
 
     protected Context context;
+    Rect des = new Rect();
+    protected Position position1 = new Position();
+    protected Position positionSelected1 = new Position();
+    protected Position positionSelected2 = new Position();
+
 
     // 储存游戏的阶段
     protected int stage;
@@ -188,9 +192,6 @@ public abstract class AbstractPlayer {
      * @return
      */
     public int touchBottom(int x, int y) {
-        Position position;
-        Position positionSelected1;
-        Position positionSelected2;
 
         // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = (1440 - (cards.size() - 1) * 90 - 180) / 2;
@@ -202,22 +203,29 @@ public abstract class AbstractPlayer {
                 // 如果已经选中牌了，则出牌或者重新选牌
                 if (i < cards.size() - 1) {
                     // 不是最后一张牌
-                    position = new Position(top, left + i * 90,
+                    position1.set(top, left + i * 90,
                             top + 240, left + 90 + i * 90);
                 } else {
                     // 是最后一张牌
-                    position = new Position(top, left + i * 90,
+                    position1.set(top, left + i * 90,
                             top + 240, left + 180 + i * 90);
                 }
-                position.resieze((float)this.width / (float)1440);
+                position1.resieze((float)this.width / (float)1440);
 
-                positionSelected1 = new Position(top - 120, left + selectCardIndex * 90,
+                positionSelected1.set(top - 120, left + selectCardIndex * 90,
                         top, left + 180 + selectCardIndex * 90);
                 positionSelected1.resieze((float)this.width / (float)1440);
 
-                positionSelected2 = new Position(top, left + selectCardIndex * 90,
-                        top + 120, left + 90 + selectCardIndex * 90);
-                positionSelected2.resieze((float)this.width / (float)1440);
+                // 如果选中的牌是最后一张
+                if (selectCardIndex == cards.size() - 1) {
+                    positionSelected2.set(top, left + selectCardIndex * 90,
+                            top + 120, left + 180 + selectCardIndex * 90);
+                    positionSelected2.resieze((float) this.width / (float) 1440);
+                } else {
+                    positionSelected2.set(top, left + selectCardIndex * 90,
+                            top + 120, left + 90 + selectCardIndex * 90);
+                    positionSelected2.resieze((float) this.width / (float) 1440);
+                }
 
                 if (Position.inPosition(x, y, positionSelected1) || Position.inPosition(x, y, positionSelected2)) {
                     // 出牌
@@ -226,7 +234,7 @@ public abstract class AbstractPlayer {
                     selectCardIndex = -1;
                     selectCard = -1;
                     return 2;
-                } else if (Position.inPosition(x, y, position)) {
+                } else if (Position.inPosition(x, y, position1)) {
                     // 换牌
                     Log.v(this.getClass().getName(), "换牌");
                     selectCardIndex = i;
@@ -237,14 +245,14 @@ public abstract class AbstractPlayer {
             } else {
                 // 如果没有选中牌，则选牌
                 if (i < cards.size() - 1) {
-                    position = new Position(top, left + i * 90,
+                    position1.set(top, left + i * 90,
                             top + 240, left + 90 + i * 90);
                 } else {
-                    position = new Position(top, left + i * 90,
+                    position1.set(top, left + i * 90,
                             top + 240, left + 180 + i * 90);
                 }
-                position.resieze((float)this.width / (float)1440);
-                if (Position.inPosition(x, y, position)) {
+                position1.resieze((float)this.width / (float)1440);
+                if (Position.inPosition(x, y, position1)) {
                     // 选中牌
                     Log.v(this.getClass().getName(), "选中牌");
                     selectCardIndex = i;
@@ -264,8 +272,6 @@ public abstract class AbstractPlayer {
      * @return
      */
     public int touchTop(int x, int y) {
-        Position position;
-        Rect des = new Rect();
 
         // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = (1440 - (cards.size() - 1) * 80 - 180) / 2;
@@ -277,19 +283,19 @@ public abstract class AbstractPlayer {
         // 绘制纸牌（底部玩家）
         for (int i=0; i<cards.size(); i++) {
             if (selectCard != -1) {
-                position = new Position(top + 120, left + i * 90,
+                position1.set(top + 120, left + i * 90,
                         top + 360, left + i * 90);
-                position.resieze((float)this.width / (float)1440);
-                if (Position.inPosition(x, y, position)) {
+                position1.resieze((float)this.width / (float)1440);
+                if (Position.inPosition(x, y, position1)) {
                     // 出牌
                     Log.v(this.getClass().getName(), "出牌");
                     return 2;
                 }
             } else {
-                position = new Position(top, left + i * 80,
+                position1.set(top, left + i * 80,
                         top + 240, left + 180 + i * 80);
-                position.resieze((float)this.width / (float)1440);
-                if (Position.inPosition(x, y, position)) {
+                position1.resieze((float)this.width / (float)1440);
+                if (Position.inPosition(x, y, position1)) {
                     // 选中牌
                     Log.v(this.getClass().getName(), "选中牌");
                     selectCard = i;
@@ -362,8 +368,9 @@ public abstract class AbstractPlayer {
                 canvas.drawBitmap(Image,null, des, paint);
                 Image = null;
             } else {
-                Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[cards.get(i)], 180, 240);
+//                Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[cards.get(i)], 180, 240);
 //                Image = BitmapFactory.decodeResource(context.getResources(), CardImage.cardImages[cards.get(i)]);
+                Image = CardImage.cardBitmapImages.get(cards.get(i));
                 des.set(left + i * 80, top, left + 180 + i * 80, top + 240);
                 canvas.drawBitmap(Image,null, des, paint);
                 Image = null;

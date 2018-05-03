@@ -24,15 +24,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".game.GameActivity"
+            android:name=".game.LocalGameActivity"
             android:label="@string/title_activity_play"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".game.wlan.SelectActivity"
+            android:name=".game.SelectHotspotRoomActivity"
             android:label="@string/title_activity_select"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

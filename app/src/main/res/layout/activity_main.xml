@@ -1,185 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".game.fragment.MainActivity">
+    tools:context="com.happylich.bridge.Main2Activity">
 
     <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:theme="@style/AppTheme"
         app:title="桥牌"
-        app:titleTextColor="#ffffff">
-    </android.support.v7.widget.Toolbar>
+        app:titleTextColor="#ffffff"></android.support.v7.widget.Toolbar>
 
     <FrameLayout
-        android:id="@+id/content"
-        android:layout_width="match_parent"
+        android:id="@+id/fragment_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_weight="1">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@color/colorBackground"
-                    android:layout_margin="3dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:gravity="center"
-                        android:text="机机演示"/>
-                    <Button
-                        android:id="@+id/button1"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_margin="5dp"
-                        android:background="@color/colorButton"
-                        android:textSize="18dp"
-                        android:textColor="@color/colorButtonText"
-                        android:text="机机游戏"/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@color/colorBackground"
-                    android:layout_margin="3dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:gravity="center"
-                        android:text="人机练习"/>
-                    <Button
-                        android:id="@+id/button2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_margin="5dp"
-                        android:background="@color/colorButton"
-                        android:textSize="18dp"
-                        android:textColor="@color/colorButtonText"
-                        android:text="开始游戏"/>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_weight="1">
-                <!--
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:background="@color/colorBackground"
-                    android:layout_margin="3dp">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2"
-                        android:textSize="18dp"
-                        android:gravity="center"
-                        android:text="蓝牙联机"/>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:layout_weight="1">
-                        <Button
-                            android:id="@+id/button3"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:layout_margin="5dp"
-                            android:background="@color/colorButton"
-                            android:textSize="18dp"
-                            android:textColor="@color/colorButtonText"
-                            android:text="创建游戏"/>
-                        <Button
-                            android:id="@+id/button4"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:layout_margin="5dp"
-                            android:background="@color/colorButton"
-                            android:textSize="18dp"
-                            android:textColor="@color/colorButtonText"
-                            android:text="加入游戏"/>
-                    </LinearLayout>
-                </LinearLayout>-->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:background="@color/colorBackground"
-                    android:layout_margin="3dp">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:gravity="center"
-                        android:text="人人练习"/>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:layout_weight="1">
-                        <Button
-                            android:id="@+id/button5"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:layout_margin="5dp"
-                            android:background="@color/colorButton"
-                            android:textSize="18dp"
-                            android:textColor="@color/colorButtonText"
-                            android:text="开始游戏"/>
-                        <Button
-                            android:id="@+id/button6"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:layout_margin="5dp"
-                            android:background="@color/colorButton"
-                            android:textSize="18dp"
-                            android:textColor="@color/colorButtonText"
-                            android:text="加入游戏"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
     </FrameLayout>
 
-    <!--<android.support.design.widget.BottomNavigationView-->
-    <!--android:id="@+id/navigation"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom"-->
-    <!--android:background="?android:attr/windowBackground"-->
-    <!--app:menu="@menu/navigation" />-->
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/navigation" />
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

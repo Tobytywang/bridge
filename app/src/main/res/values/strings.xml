@@ -2,6 +2,7 @@
     <string name="app_name">Bridge</string>
     <string name="title_two">复盘</string>
     <string name="title_thr">教程</string>
+    <string name="loading">加载中</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_play">PlayActivity</string>
@@ -95,5 +96,16 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+
     <string name="action_settings">Settings</string>
+    <string name="title_activity_history">HistoryActivity</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="title_home">游戏</string>
+    <string name="title_dashboard">历史</string>
+    <string name="title_notifications">Notifications</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.Scene;
+package com.happylich.bridge.game.scene;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
-import com.happylich.bridge.R;
 import com.happylich.bridge.engine.util.Position;
 import com.happylich.bridge.game.res.CardImage;
 

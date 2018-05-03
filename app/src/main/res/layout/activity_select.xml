@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.happylich.bridge.game.wlan.SelectActivity">
+    tools:context="com.happylich.bridge.game.SelectHotspotRoomActivity">
 
     <!--<android.support.design.widget.AppBarLayout-->
         <!--android:id="@+id/app_bar"-->
@@ -54,8 +54,8 @@
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent"-->
         <!--android:padding="16dp"-->
-        <!--tools:context="com.happylich.bridge.game.wifi.SelectActivity"-->
-        <!--tools:showIn="@layout/activity_select">-->
+        <!--tools:context="com.happylich.bridge.game.wSelectHotspotRoomActivityvity"-->
+        <!--tools:showIgame_loadingyout/activity_select">-->
 
     <!--</android.support.v7.widget.RecyclerView>-->
     <ListView

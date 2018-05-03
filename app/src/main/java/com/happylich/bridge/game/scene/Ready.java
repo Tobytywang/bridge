@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.Scene;
+package com.happylich.bridge.game.scene;
 
 /**
  * Created by lich on 2018/4/24.

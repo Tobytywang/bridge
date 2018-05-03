@@ -11,8 +11,8 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 
+import com.happylich.bridge.game.SelectHotspotRoomActivity;
 import com.happylich.bridge.game.main.Game;
-import com.happylich.bridge.game.wlan.SelectActivity;
 
 import java.util.ArrayList;
 
@@ -40,7 +40,7 @@ public class WifiDirectReceiver extends BroadcastReceiver
 
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
-    private SelectActivity mActivity;
+    private SelectHotspotRoomActivity mActivity;
     private boolean isWifiDirectEnabled;
     private ArrayList<WifiP2pDevice> wifiDevices;
 
@@ -53,7 +53,7 @@ public class WifiDirectReceiver extends BroadcastReceiver
      * @param activity
      */
     public WifiDirectReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
-                          SelectActivity activity) {
+                          SelectHotspotRoomActivity activity) {
         this.mManager = manager;
         this.mChannel = channel;
         this.mActivity = activity;

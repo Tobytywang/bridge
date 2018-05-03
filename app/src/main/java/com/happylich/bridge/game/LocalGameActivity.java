@@ -7,16 +7,15 @@ import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.happylich.bridge.BuildConfig;
+import com.happylich.bridge.R;
 import com.happylich.bridge.engine.view.GameView;
-import com.happylich.bridge.game.Scene.Call;
+import com.happylich.bridge.game.scene.Call;
 import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.main.Game;
-import com.happylich.bridge.game.Scene.Table;
+import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.Robot;
@@ -27,7 +26,7 @@ import com.happylich.bridge.game.res.CardImage;
  * 如：Activity何时创建和销毁，Activity界面如何切换前台和后台等
  * 基于游戏的具体需求，还可以添加对按键和触摸事件的处理：如按下返回键后退出整个游戏进程等
  */
-public class GameActivity extends AppCompatActivity {
+public class LocalGameActivity extends AppCompatActivity {
 
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager mManager;
@@ -44,26 +43,34 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         String gameType = intent.getStringExtra("type");
-        if (gameType.equals("Robots")) {
-            Robots(this);
-        } else if (gameType.equals("HumanRobots")) {
-            HumanRobot();
-        } else if (gameType.equals("CreatePVP")) {
-
-        } else if (gameType.equals("JoinPVP")) {
-            
+        if (gameType.equals("EVE")) {
+            EVE(this);
+        } else if (gameType.equals("PVE")) {
+            PVE(this);
         }
+    }
+
+    protected void onStop() {
+        super.onStop();
+        Log.v(this.getClass().getName(), "onStop......");
+        CardImage.releaseResource();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.v(this.getClass().getName(), "onDestroy...");
     }
 
     /**
      * 专门处理人机模式的函数
      */
-    public void Robots(Context context) {
+    public void EVE(Context context) {
         Log.v(this.getClass().getName(), "开始机机模式1：");
         // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
-        CardImage.getResource(context);
+        setContentView(R.layout.game_loading);
 
-        Log.v(this.getClass().getName(), String.valueOf(CardImage.backBitmapImage));
+        // TODO:在加载这些资源的时候显示loading
+        CardImage.getResource(context);
 
         Game game = new Game(this);
 
@@ -126,9 +133,14 @@ public class GameActivity extends AppCompatActivity {
     /**
      * 专门处理人机模式的函数
      */
-    public void HumanRobot() {
+    public void PVE(Context context) {
         Log.v(this.getClass().getName(), "开始人机模式1：");
         // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
+        setContentView(R.layout.game_loading);
+
+        // TODO:在加载这些资源的时候显示loading
+        CardImage.getResource(context);
+
         Game game = new Game(this);
 
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）

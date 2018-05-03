@@ -13,6 +13,23 @@ public class Position {
     public int right;
 
     /**
+     * 设置参数
+     */
+    public void set(int top, int left, int bottom, int right) {
+        this.top = top;
+        this.left = left;
+        this.bottom = bottom;
+        this.right = right;
+    }
+
+    /**
+     * 默认构造函数
+     */
+    public Position() {
+
+    }
+
+    /**
      * 构造函数
      * @param top
      * @param left

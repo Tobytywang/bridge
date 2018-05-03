@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.wlan;
+package com.happylich.bridge.game;
 
 import android.content.Context;
 import android.net.wifi.WpsInfo;
@@ -15,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.happylich.bridge.R;
-import com.happylich.bridge.game.AdapterImageView;
 import com.happylich.bridge.game.wlan.wifip2p.ActionListenerHandler;
 import com.happylich.bridge.game.wlan.wifip2p.WifiDirectReceiver;
 
@@ -48,8 +47,10 @@ import java.util.ArrayList;
  * SelectActivity负责选择连接的设备并建立连接
  *     SelectActivity只负责
  * WifiGameActivity负责游戏
+ *
+ *
  */
-public class SelectActivity extends AppCompatActivity
+public class SelectP2pRoomActivity extends AppCompatActivity
         implements WifiP2pManager.ChannelListener {
 
     Context context;
@@ -214,7 +215,7 @@ public class SelectActivity extends AppCompatActivity
     private void registerWifiReceiver() {
         // 注册Receiver
         // 需要mManager，mChannel，Activity
-        mReceiver = new WifiDirectReceiver(mManager,mChannel,this);
+//        mReceiver = new WifiDirectReceiver(mManager,mChannel,this);
         mReceiver.registerReceiver();
     }
 

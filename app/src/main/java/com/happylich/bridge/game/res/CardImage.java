@@ -143,6 +143,16 @@ public class CardImage {
         passBitmapImage = decodeSampledBitmapFromResource(context.getResources(), passImage, 720, 134);
     }
 
+    /**
+     * 释放资源
+     */
+    public static void releaseResource() {
+        callBitmapImages.clear();
+        cardBitmapImages.clear();
+        backBitmapImage = null;
+        passBitmapImage = null;
+    }
+
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {

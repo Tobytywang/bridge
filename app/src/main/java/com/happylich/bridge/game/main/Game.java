@@ -1,16 +1,15 @@
 package com.happylich.bridge.game.main;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
-import com.happylich.bridge.engine.thread.GameThread;
-import com.happylich.bridge.game.Scene.Call;
-import com.happylich.bridge.game.Scene.Table;
+import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.scene.Call;
+import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 
 import java.util.Date;
@@ -144,7 +143,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 已准备界面
                 break;
             case 2:
-                if (player == 0)
+                if (localPlayer instanceof Player && player == localPlayerNumber)
                 {
                     switch (call.onTouch(x, y)) {
                         case 0:
@@ -165,7 +164,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 3:
-                if (player == 0) {
+                if (localPlayer instanceof Player && player == localPlayerNumber)
+                {
                     switch (call.onTouch(x, y)) {
                         case 0:
                             // TODO:这个地方可以有吗？不可以，会引起big的情况跳过玩家的bug
@@ -188,7 +188,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 4:
-                if (player == 0) {
+                if (localPlayer instanceof Player && player == localPlayerNumber)
+                {
                     switch (call.onTouch(x, y)) {
                         case 0:
                             player++;
@@ -226,10 +227,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 如果当前玩家时本地玩家——需要检测触摸事件
                 // 如果本地玩家是庄家并且当前玩家是本地玩家（庄家）的对家——需要检测触摸事件
                 Log.v(this.getClass().getName(), "需要检测触摸事件吗");
-                if (player == localPlayerNumber ||
-                        ( localPlayerNumber == call.getDealer() &&
-                                (player == (localPlayerNumber + 2) || (player == (localPlayerNumber - 2))))) {
-                    Log.v(this.getClass().getName(), "需要");
+                if ( localPlayer instanceof Player &&
+                        (player == localPlayerNumber ||
+                        (localPlayerNumber == call.getDealer() &&
+                                (player == (localPlayerNumber + 2) || (player == (localPlayerNumber - 2)))))) {
                     switch (table.onTouch(x, y)) {
                         case 0:
                             // 触摸无效部分
@@ -374,9 +375,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         // drawText(canvas);
 //        Log.v(this.getClass().getName(), "stage:" + String.valueOf(stage));
 
-        Date d = new Date();
+//        Date d = new Date();
         initCanvas(canvas, paint);
-        Log.v(this.getClass().getName(), "init    " + String.valueOf((new Date().getTime() - d.getTime())));
+//        Log.v(this.getClass().getName(), "init    " + String.valueOf((new Date().getTime() - d.getTime())));
         switch(stage) {
             case 0:
                 break;
@@ -384,33 +385,33 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 break;
             case 2:
                 playerS.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage2:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage2:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(0);
                 call.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage2:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage2:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 3:
                 playerS.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage3:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage3:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(1);
                 call.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage3:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage3:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 4:
                 playerS.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage4:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage4:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(2);
                 call.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage4:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage4:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 5:
                 // TODO:画点什么好呢？
                 // TODO:坐庄
                 playerS.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage5:1  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage5:1  " + String.valueOf((new Date().getTime() - d.getTime())));
                 call.setCallStage(0);
                 call.draw(canvas, paint, des);
-                Log.v(this.getClass().getName(), "stage5:2  " + String.valueOf((new Date().getTime() - d.getTime())));
+//                Log.v(this.getClass().getName(), "stage5:2  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
             case 6:
                 // TODO:出牌循环
@@ -422,14 +423,24 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 localPlayer.draw(canvas, paint, des);
                 if (this.call.getDealer() == 0 || this.call.getDealer() == 2) {
                     playerN.draw(canvas, paint, des);
+//                    Log.v(this.getClass().getName(), "stage:61     " + String.valueOf((new Date().getTime() - d.getTime())));
+
                 } else if (this.call.getDealer() == 1) {
                     playerN.setStage(222);
+//                    Log.v(this.getClass().getName(), "stage:62 1    " + String.valueOf((new Date().getTime() - d.getTime())));
                     playerN.draw(canvas, paint, des);
+//                    Log.v(this.getClass().getName(), "stage:62 2    " + String.valueOf((new Date().getTime() - d.getTime())));
                     playerE.draw(canvas, paint, des);
+//                    Log.v(this.getClass().getName(), "stage:62 3    " + String.valueOf((new Date().getTime() - d.getTime())));
+
                 } else if (this.call.getDealer() == 3) {
                     playerN.setStage(222);
+//                    Log.v(this.getClass().getName(), "stage:63 1    " + String.valueOf((new Date().getTime() - d.getTime())));
                     playerN.draw(canvas, paint, des);
+//                    Log.v(this.getClass().getName(), "stage:63 2    " + String.valueOf((new Date().getTime() - d.getTime())));
                     playerW.draw(canvas, paint, des);
+//                    Log.v(this.getClass().getName(), "stage:63 3    " + String.valueOf((new Date().getTime() - d.getTime())));
+
                 }
 //                Log.v(this.getClass().getName(), "stage6  " + String.valueOf((new Date().getTime() - d.getTime())));
                 break;
@@ -438,7 +449,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             default:
                 break;
         }
-        Log.v(this.getClass().getName(), "end     " + String.valueOf((new Date().getTime() - d.getTime())));
+//        Log.v(this.getClass().getName(), "end     " + String.valueOf((new Date().getTime() - d.getTime())));
     }
 
     /**

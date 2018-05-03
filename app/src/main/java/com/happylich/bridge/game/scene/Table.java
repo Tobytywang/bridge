@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.Scene;
+package com.happylich.bridge.game.scene;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -24,6 +24,8 @@ import java.util.Map;
 
 public class Table extends AbstractScene {
     private Context context;
+     Path path = new Path();
+    RectF round = new RectF();
 
     // 叫牌阶段标志位
     private int dropStage;
@@ -254,7 +256,6 @@ public class Table extends AbstractScene {
     public void draw(Canvas canvas, Paint paint, Rect des) {
         // TODO:do nothing
         Bitmap Image;
-        Path path = new Path();
 
         int left = this.left + 240 * (this.modifier - 1);
         int top = this.top;
@@ -262,7 +263,6 @@ public class Table extends AbstractScene {
         // 绘制底版
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(5);
-        RectF round = new RectF();
         round.left = left;
         round.right = left + 720;
         round.top = top + 360 + 180;
@@ -313,18 +313,22 @@ public class Table extends AbstractScene {
 
         paint.setColor(Color.WHITE);
         if (player == 0) {
+            path.reset();
             path.moveTo(left + 360, top + 820);
             path.lineTo(left + 330, top + 740);
             path.lineTo(left + 390, top + 740);
         } else if (player == 1) {
+            path.reset();
             path.moveTo(left - 100, top + 360);
             path.lineTo(left - 20, top + 330);
             path.lineTo(left - 20, top + 390);
         } else if (player == 2) {
+            path.reset();
             path.moveTo(left + 360, top - 100);
             path.lineTo(left + 330, top - 20);
             path.lineTo(left + 390, top - 20);
         } else if (player == 3) {
+            path.reset();
             path.moveTo(left + 820, top + 360);
             path.lineTo(left + 740, top + 330);
             path.lineTo(left + 740, top + 390);

@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.Scene;
+package com.happylich.bridge.game.scene;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
