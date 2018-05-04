@@ -2,12 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+<<<<<<< Updated upstream
         android:id="@+id/navigation_home"
+=======
+        android:id="@+id/navigation_menu"
+>>>>>>> Stashed changes
         android:icon="@drawable/ic_home_black_24dp"
         android:title="@string/title_home" />
 
     <item
+<<<<<<< Updated upstream
         android:id="@+id/navigation_dashboard"
+=======
+        android:id="@+id/navigation_history"
+>>>>>>> Stashed changes
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/title_dashboard" />
 
