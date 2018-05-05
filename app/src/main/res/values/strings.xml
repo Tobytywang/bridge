@@ -6,6 +6,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_play">PlayActivity</string>
+    <string name="title_activity_play2">PlayActivity</string>
     <string name="title_activity_select">SelectActivity</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"

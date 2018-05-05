@@ -29,6 +29,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
+            android:name=".game.WifiHotspotGameActivity"
+            android:label="@string/title_activity_play2"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".game.SelectHotspotRoomActivity"
             android:label="@string/title_activity_select"
             android:screenOrientation="portrait"

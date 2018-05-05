@@ -65,155 +65,59 @@ public class LocalGameActivity extends AppCompatActivity {
      * 专门处理人机模式的函数
      */
     public void EVE(Context context) {
-        Log.v(this.getClass().getName(), "开始机机模式1：");
-        // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
         setContentView(R.layout.game_loading);
 
         // TODO:在加载这些资源的时候显示loading
-        CardImage.getResource(context);
+//        CardImage.getResource(context);
 
+        // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
         Game game = new Game(this);
 
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
         Cards cards = new Cards(52);
 
-        // TODO:为什么不设置的话就无法显示？
-        Call call = new Call(this);
-
-        Table table = new Table(this);
-
         // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
         // TODO:玩家的位置应该是随机的
-        AbstractPlayer playerS = new Robot(this,0);
-        playerS.setCards(cards.getCards(0));
-        playerS.setCall(call);
-        playerS.setTable(table);
+        AbstractPlayer robot1 = new Robot(this,0);
+        robot1.setCards(cards.getCards(0));
         // TODO：在这里似乎不好？
-        playerS.setStage(201);
+        robot1.setStage(201);
 
-        AbstractPlayer playerW = new Robot(this,1);
-        playerW.setCards(cards.getCards(1));
-        playerW.setCall(call);
-        playerW.setTable(table);
-        playerW.setStage(211);
+        AbstractPlayer robot2 = new Robot(this,1);
+        robot2.setCards(cards.getCards(1));
+        robot2.setStage(211);
 
-        AbstractPlayer playerN = new Robot(this,2);
-        playerN.setCards(cards.getCards(2));
-        playerN.setCall(call);
-        playerN.setTable(table);
-        playerN.setStage(221);
+        AbstractPlayer robot3 = new Robot(this,2);
+        robot3.setCards(cards.getCards(2));
+        robot3.setStage(221);
 
-        AbstractPlayer playerE = new Robot(this,3);
-        playerE.setCards(cards.getCards(3));
-        playerE.setCall(call);
-        playerE.setTable(table);
-        playerE.setStage(231);
+        AbstractPlayer robot4 = new Robot(this,3);
+        robot4.setCards(cards.getCards(3));
+        robot4.setStage(231);
 
         // 设置game元素
         // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右
         // TODO:游戏需要维持一个四个玩家的轮询结构，实现四个玩家轮流叫牌，出牌的过程
-        game.setCall(call);
-        game.setTable(table);
-        game.setPlayerW(playerW);
-        game.setPlayerN(playerN);
-        game.setPlayerE(playerE);
-        game.setPlayerS(playerS);
-
+        game.setLeftPlayer(robot2);
+        game.setTopPlayer(robot3);
+        game.setRightPlayer(robot4);
+        game.setLocalPlayer(robot1);
         game.setLocalPlayerNumber(0);
-        game.setLocalPlayer(playerS);
 
-        table.setPlayerTop(playerN);
-        table.setPlayerBottom(playerS);
+        // TODO:table为什么要持有这个引用
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
-        Log.v(this.getClass().getName(), "开始机机模式2：");
     }
 
     /**
      * 专门处理人机模式的函数
      */
     public void PVE(Context context) {
-        Log.v(this.getClass().getName(), "开始人机模式1：");
-        // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
         setContentView(R.layout.game_loading);
 
         // TODO:在加载这些资源的时候显示loading
-        CardImage.getResource(context);
-
-        Game game = new Game(this);
-
-        // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
-        Cards cards = new Cards(52);
-
-        // TODO:为什么不设置的话就无法显示？
-        Call call = new Call(this);
-
-        Table table = new Table(this);
-
-        // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
-        // TODO:玩家的位置应该是随机的
-        AbstractPlayer playerS = new Player(this,0);
-        playerS.setCards(cards.getCards(0));
-        playerS.setCall(call);
-        playerS.setTable(table);
-        // TODO：在这里似乎不好？
-        playerS.setStage(201);
-
-        AbstractPlayer playerW = new Robot(this,1);
-        playerW.setCards(cards.getCards(1));
-        playerW.setCall(call);
-        playerW.setTable(table);
-        playerW.setStage(211);
-
-        AbstractPlayer playerN = new Robot(this,2);
-        playerN.setCards(cards.getCards(2));
-        playerN.setCall(call);
-        playerN.setTable(table);
-        playerN.setStage(221);
-
-        AbstractPlayer playerE = new Robot(this,3);
-        playerE.setCards(cards.getCards(3));
-        playerE.setCall(call);
-        playerE.setTable(table);
-        playerE.setStage(231);
-
-        // 设置game元素
-        // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右
-        // TODO:游戏需要维持一个四个玩家的轮询结构，实现四个玩家轮流叫牌，出牌的过程
-        game.setCall(call);
-        game.setTable(table);
-        game.setPlayerW(playerW);
-        game.setPlayerN(playerN);
-        game.setPlayerE(playerE);
-        game.setPlayerS(playerS);
-        game.setLocalPlayer(playerS);
-
-        table.setPlayerTop(playerN);
-        table.setPlayerBottom(playerS);
-
-        GameView gameview = new GameView(this, game);
-        setContentView(gameview);
-        Log.v(this.getClass().getName(), "开始人机模式2：");
-    }
-
-    /**
-     * 创建局域网连接
-     *
-     */
-    public void CreatePVP() {
-
-        // Wifi对等网络状态发生了变化
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        // 可用的对等点列表发生了变化
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        // Wifi对等网络的连接状态发生了变化
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        // 该设备信息发生了变化
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel = mManager.initialize(this, getMainLooper(), null);
+//        CardImage.getResource(context);
 
         // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
         Game game = new Game(this);
@@ -222,115 +126,43 @@ public class LocalGameActivity extends AppCompatActivity {
         Cards cards = new Cards(52);
 
         // TODO:为什么不设置的话就无法显示？
-        Call call = new Call(this);
-
-        Table table = new Table(this);
+//        Call call = new Call(this);
+//        Table table = new Table(this);
 
         // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
         // TODO:玩家的位置应该是随机的
+        // 如何随机分配位置呢？给每个玩家随机分配一个数组position，玩家根据position决定其他
         AbstractPlayer playerS = new Player(this,0);
         playerS.setCards(cards.getCards(0));
-        playerS.setCall(call);
-        playerS.setTable(table);
         // TODO：在这里似乎不好？
         playerS.setStage(201);
 
         AbstractPlayer playerW = new Robot(this,1);
         playerW.setCards(cards.getCards(1));
-        playerW.setCall(call);
-        playerW.setTable(table);
         playerW.setStage(211);
 
         AbstractPlayer playerN = new Robot(this,2);
         playerN.setCards(cards.getCards(2));
-        playerN.setCall(call);
-        playerN.setTable(table);
         playerN.setStage(221);
 
         AbstractPlayer playerE = new Robot(this,3);
         playerE.setCards(cards.getCards(3));
-        playerE.setCall(call);
-        playerE.setTable(table);
         playerE.setStage(231);
 
         // 设置game元素
         // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右
         // TODO:游戏需要维持一个四个玩家的轮询结构，实现四个玩家轮流叫牌，出牌的过程
-        game.setCall(call);
-        game.setTable(table);
-        game.setPlayerW(playerW);
-        game.setPlayerN(playerN);
-        game.setPlayerE(playerE);
-        game.setPlayerS(playerS);
+        // 这里是设置位置的关键，setPlayer过程
+        game.setLeftPlayer(playerW);
+        game.setTopPlayer(playerN);
+        game.setRightPlayer(playerE);
         game.setLocalPlayer(playerS);
-
-        table.setPlayerTop(playerN);
-        table.setPlayerBottom(playerS);
+        game.setLocalPlayerNumber(0);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
     }
-
-    /**
-     * 加入局域网连接
-     */
-    public void JoinPVP() {
-        // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
-        Game game = new Game(this);
-
-        // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
-        Cards cards = new Cards(52);
-
-        // TODO:为什么不设置的话就无法显示？
-        Call call = new Call(this);
-
-        Table table = new Table(this);
-
-        // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
-        // TODO:玩家的位置应该是随机的
-        AbstractPlayer playerS = new Player(this,0);
-        playerS.setCards(cards.getCards(0));
-        playerS.setCall(call);
-        playerS.setTable(table);
-        // TODO：在这里似乎不好？
-        playerS.setStage(201);
-
-        AbstractPlayer playerW = new Robot(this,1);
-        playerW.setCards(cards.getCards(1));
-        playerW.setCall(call);
-        playerW.setTable(table);
-        playerW.setStage(211);
-
-        AbstractPlayer playerN = new Robot(this,2);
-        playerN.setCards(cards.getCards(2));
-        playerN.setCall(call);
-        playerN.setTable(table);
-        playerN.setStage(221);
-
-        AbstractPlayer playerE = new Robot(this,3);
-        playerE.setCards(cards.getCards(3));
-        playerE.setCall(call);
-        playerE.setTable(table);
-        playerE.setStage(231);
-
-        // 设置game元素
-        // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右
-        // TODO:游戏需要维持一个四个玩家的轮询结构，实现四个玩家轮流叫牌，出牌的过程
-        game.setCall(call);
-        game.setTable(table);
-        game.setPlayerW(playerW);
-        game.setPlayerN(playerN);
-        game.setPlayerE(playerE);
-        game.setPlayerS(playerS);
-        game.setLocalPlayer(playerS);
-
-        table.setPlayerTop(playerN);
-        table.setPlayerBottom(playerS);
-
-        GameView gameview = new GameView(this, game);
-        setContentView(gameview);
-    }
-
+    
     private void DiscoverPeers() {
         mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
             @Override
