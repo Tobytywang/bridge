@@ -3,6 +3,8 @@ package com.happylich.bridge.game.player;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.Random;
+
 /**
  * Created by lich on 2018/3/25.
  * 同样的机器人，根据初始化的时候位置的不同，担任不同的角色
@@ -48,7 +50,12 @@ public class Robot extends AbstractPlayer{
                         call.getCallHistory().get(call.getCallHistory().size() - 1) == 35) {
                     call.setCall(0, 35);
                 } else {
-                    call.setCall(0, ++last);
+                    int des = new Random().nextInt(4);
+                    if ((last + des + 1) >=35 ) {
+                        call.setCall(0, 35);
+                    } else {
+                        call.setCall(0, last + des + 1);
+                    }
                 }
                 break;
             case 1:
@@ -58,7 +65,12 @@ public class Robot extends AbstractPlayer{
                         call.getCallHistory().get(call.getCallHistory().size() - 1) == 35) {
                     call.setCall(1, 35);
                 } else {
-                    call.setCall(1, ++last);
+                    int des = new Random().nextInt(4);
+                    if ((last + des + 1) >=35 ) {
+                        call.setCall(1, 35);
+                    } else {
+                        call.setCall(1, last + des + 1);
+                    }
                 }
                 break;
             case 2:
@@ -68,7 +80,12 @@ public class Robot extends AbstractPlayer{
                         call.getCallHistory().get(call.getCallHistory().size() - 1) == 35) {
                     call.setCall(2, 35);
                 } else {
-                    call.setCall(2, ++last);
+                    int des = new Random().nextInt(4);
+                    if ((last + des + 1) >=35 ) {
+                        call.setCall(2, 35);
+                    } else {
+                        call.setCall(2, last + des + 1);
+                    }
                 }
                 break;
             case 3:
@@ -78,7 +95,12 @@ public class Robot extends AbstractPlayer{
                         call.getCallHistory().get(call.getCallHistory().size() - 1) == 35) {
                     call.setCall(3, 35);
                 } else {
-                    call.setCall(3, ++last);
+                    int des = new Random().nextInt(4);
+                    if ((last + des + 1) >=35 ) {
+                        call.setCall(3, 35);
+                    } else {
+                        call.setCall(3, last + des + 1);
+                    }
                 }
                 break;
         }
