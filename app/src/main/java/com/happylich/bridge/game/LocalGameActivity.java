@@ -71,40 +71,46 @@ public class LocalGameActivity extends AppCompatActivity {
 //        CardImage.getResource(context);
 
         // TODO:放在这里的缺点是没有办法在构造函数中获得宽高
+        // C:客户端负责（每个客户端由一个Game类）
         Game game = new Game(this);
 
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
+        // S:服务器负责（负责发牌一致）
         Cards cards = new Cards(52);
 
         // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
         // TODO:玩家的位置应该是随机的
+        // TODO:position代表东西南北
+        // TODO:本地主机会设置Left,Right,Top,Bottom等
+
+        // S:服务器负责（负责一致性）
         AbstractPlayer robot1 = new Robot(this,0);
         robot1.setCards(cards.getCards(0));
-        // TODO：在这里似乎不好？
-        robot1.setStage(201);
-
         AbstractPlayer robot2 = new Robot(this,1);
         robot2.setCards(cards.getCards(1));
-        robot2.setStage(211);
-
         AbstractPlayer robot3 = new Robot(this,2);
         robot3.setCards(cards.getCards(2));
-        robot3.setStage(221);
-
         AbstractPlayer robot4 = new Robot(this,3);
         robot4.setCards(cards.getCards(3));
-        robot4.setStage(231);
+
+        // C:客户端负责（与绘制有关）
+        // 除了本人之外，都设置为背面，到适合的时候在重新设置
+        robot1.setStage(1);
+        robot2.setStage(2);
+        robot3.setStage(2);
+        robot4.setStage(2);
 
         // 设置game元素
         // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右
         // TODO:游戏需要维持一个四个玩家的轮询结构，实现四个玩家轮流叫牌，出牌的过程
+        // C:客户端负责（与绘制有关）
+        game.setLocalPlayer(robot1);
         game.setLeftPlayer(robot2);
         game.setTopPlayer(robot3);
         game.setRightPlayer(robot4);
-        game.setLocalPlayer(robot1);
-        game.setLocalPlayerNumber(0);
 
-        // TODO:table为什么要持有这个引用
+        // C:与客户端负责
+        game.setLocalPlayerNumber(0);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
@@ -124,26 +130,23 @@ public class LocalGameActivity extends AppCompatActivity {
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
         Cards cards = new Cards(52);
 
-
         // TODO:应该对不同玩家的行为模式进行抽象(CallCard,DropCard)
         // TODO:玩家的位置应该是随机的
         // 如何随机分配位置呢？给每个玩家随机分配一个数组position，玩家根据position决定其他
         AbstractPlayer player = new Player(this,0);
         player.setCards(cards.getCards(0));
-        // TODO：在这里似乎不好？
-        player.setStage(201);
-
         AbstractPlayer robot1 = new Robot(this,1);
         robot1.setCards(cards.getCards(1));
-        robot1.setStage(211);
-
         AbstractPlayer robot2 = new Robot(this,2);
         robot2.setCards(cards.getCards(2));
-        robot2.setStage(221);
-
         AbstractPlayer robot3 = new Robot(this,3);
         robot3.setCards(cards.getCards(3));
-        robot3.setStage(231);
+
+        // C:客户端负责（与绘制有关）
+        player.setStage(1);
+        robot1.setStage(2);
+        robot2.setStage(2);
+        robot3.setStage(2);
 
         // 设置game元素
         // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右
@@ -153,6 +156,7 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setTopPlayer(robot2);
         game.setRightPlayer(robot3);
         game.setLocalPlayer(player);
+
         game.setLocalPlayerNumber(0);
 
         GameView gameview = new GameView(this, game);

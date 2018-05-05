@@ -46,6 +46,8 @@ public class Table extends AbstractScene {
     private int level = -1;
     private int suits = -1;
 
+    private AbstractPlayer playerLeft;
+    private AbstractPlayer playerRight;
     private AbstractPlayer playerTop;
     private AbstractPlayer playerBottom;
 
@@ -121,9 +123,10 @@ public class Table extends AbstractScene {
         // 如果不是第一把，leader是最大的
         if (player == -1) {
             if (dealer < 3) {
-                player = ++dealer;
+                player = dealer + 1;
                 return player;
             }
+            player = 0;
             return 0;
         }
         return player;
@@ -135,6 +138,22 @@ public class Table extends AbstractScene {
      */
     public void setPlayerTop(AbstractPlayer playerTop) {
         this.playerTop = playerTop;
+    }
+
+    /**
+     * 设置西家
+     * @param playerLeft
+     */
+    public void setPlayerLeft(AbstractPlayer playerLeft) {
+        this.playerLeft = playerLeft;
+    }
+
+    /**
+     * 设置东家
+     * @param playerRight
+     */
+    public void setPlayerRight(AbstractPlayer playerRight) {
+        this.playerRight = playerRight;
     }
 
     /**
@@ -159,6 +178,18 @@ public class Table extends AbstractScene {
      * @param card
      */
     public void dropCard(int player, int card) {
+        // 设置明手明牌
+        if (player == dealer + 2 || player == dealer - 2) {
+            if (player == 0) {
+                playerBottom.setStage(1);
+            } else if (player == 1) {
+                playerLeft.setStage(1);
+            } else if (player == 2) {
+                playerTop.setStage(1);
+            } else if (player == 3) {
+                playerRight.setStage(1);
+            }
+        }
         if (player == 0) {
             this.dropHistory.put(0, card);
             this.cardS = card;
@@ -311,6 +342,7 @@ public class Table extends AbstractScene {
         left = this.left + 240 * (this.modifier - 1);
         top = this.top + 360 + 180;
 
+        Log.v(this.getClass().getName(), "table当前玩家： " + String.valueOf(player));
         paint.setColor(Color.WHITE);
         if (player == 0) {
             path.reset();

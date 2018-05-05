@@ -119,6 +119,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         leftPlayer = player;
         leftPlayer.setCall(this.call);
         leftPlayer.setTable(this.table);
+        table.setPlayerLeft(player);
     }
 
     /**
@@ -129,6 +130,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         rightPlayer = player;
         rightPlayer.setCall(this.call);
         rightPlayer.setTable(this.table);
+        table.setPlayerRight(player);
     }
 
 
@@ -216,8 +218,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 break;
             case 5:
                 // 确定首攻：庄家的下家
+                // BUG:之后game:player就再也没变过了
                 player = table.getPlayer();
-//                Log.v(this.getClass().getName(),"首攻:"+String.valueOf(player));
+                Log.v(this.getClass().getName(),"首攻:"+String.valueOf(player));
                 stage = 6;
                 break;
             case 6:
@@ -232,6 +235,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 如果当前玩家时本地玩家——需要检测触摸事件
                 // 如果本地玩家是庄家并且当前玩家是本地玩家（庄家）的对家——需要检测触摸事件
                 Log.v(this.getClass().getName(), "需要检测触摸事件吗");
+                Log.v(this.getClass().getName(), "当前玩家：" + String.valueOf(player));
                 if ( localPlayer instanceof Player &&
                         (player == localPlayerNumber ||
                         (localPlayerNumber == call.getDealer() &&
@@ -321,11 +325,17 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 5:
                 // TODO:坐庄提示
                 // TODO:没有逻辑处理
+                table.setDealerAndContract(this.call.getDealer(),
+                        this.call.getLevel(), this.call.getSuits());
+                // 同步game-player和table-player;
+//                table.setPlayer();
                 break;
             case 6:
                 // TODO:出牌循环
                 // TODO:修改game的stage可以将游戏进程向前推进
                 // TODO:要设置table的位置（左，中，右）
+                Log.v(this.getClass().getName(), "game当前玩家： " + String.valueOf(player));
+                player = table.getPlayer();
                 if (table.isFinish()) {
                     // 跳转到结算画面
                     stage = 7;
@@ -422,8 +432,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // TODO:出牌循环
                 // 根据叫牌情况选择不同的绘制形态
                 table.setModifier(getModifier());
-                table.setDealerAndContract(this.call.getDealer(),
-                        this.call.getLevel(), this.call.getSuits());
                 table.draw(canvas, paint, des);
                 localPlayer.draw(canvas, paint, des);
                 if (this.call.getDealer() == 0 || this.call.getDealer() == 2) {

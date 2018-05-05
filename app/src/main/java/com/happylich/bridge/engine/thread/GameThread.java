@@ -100,19 +100,19 @@ public class GameThread extends Thread {
             Canvas canvas = null;
             if (!isPaused) {
                 game.process(canvas);
-                Log.v(this.getClass().getName(), "process " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
+//                Log.v(this.getClass().getName(), "process " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                 try {
                     canvas = surfaceHolder.lockCanvas(null);
                     synchronized (surfaceHolder) {
                         // 这段时间最好执行和绘图有关的操作，其他代码越少越好
                         game.draw(canvas);
                     }
-                    Log.v(this.getClass().getName(), "dddd    " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
+//                    Log.v(this.getClass().getName(), "dddd    " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                     if (((int)(System.currentTimeMillis() - startTime)) < DELAY_TIME) {
                         Thread.sleep(Math.max(0, DELAY_TIME - (int)(System.currentTimeMillis() - startTime)));
-                        Log.v(this.getClass().getName(), "draw    " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
+//                        Log.v(this.getClass().getName(), "draw    " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                     } else {
-                        Log.v(this.getClass().getName(), "draw----" + String.valueOf((float)(System.currentTimeMillis() - startTime)));
+//                        Log.v(this.getClass().getName(), "draw----" + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

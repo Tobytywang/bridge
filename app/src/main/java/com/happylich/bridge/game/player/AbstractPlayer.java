@@ -96,7 +96,31 @@ public abstract class AbstractPlayer {
      * @param stage
      */
     public void setStage(int stage) {
-        this.stage = stage;
+        if (this.position == 0) {
+            if (stage == 1) {
+                this.stage = 201;
+            } else if (stage == 2) {
+                this.stage = 202;
+            }
+        } else if (this.position == 1) {
+            if (stage == 1) {
+                this.stage = 211;
+            } else if (stage == 2) {
+                this.stage = 212;
+            }
+        } else if (this.position == 2) {
+            if (stage == 1) {
+                this.stage = 221;
+            } else if (stage == 2) {
+                this.stage = 222;
+            }
+        } else if (this.position == 3) {
+            if (stage == 1) {
+                this.stage = 231;
+            } else if (stage == 2) {
+                this.stage = 232;
+            }
+        }
     }
 
     /**
@@ -157,9 +181,6 @@ public abstract class AbstractPlayer {
      */
     public void draw(Canvas canvas, Paint paint,  Rect rect) {
         switch(stage) {
-            case 200:
-                // do-nothing
-                break;
             case 201:
                 paintBottomUp(canvas, paint, rect);
                 break;
@@ -169,6 +190,7 @@ public abstract class AbstractPlayer {
                 paintLeftUp(canvas, paint, rect);
                 break;
             case 212:
+                paintLeftDown(canvas, paint, rect);
                 break;
             case 221:
                 paintTopUp(canvas, paint, rect);
@@ -180,6 +202,7 @@ public abstract class AbstractPlayer {
                 paintRightUp(canvas, paint, rect);
                 break;
             case 232:
+                paintRightDown(canvas, paint, rect);
                 break;
                 // do-nothing
         }
@@ -392,7 +415,7 @@ public abstract class AbstractPlayer {
         for (int i=0; i<cards.size(); i++) {
 
 //            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[cards.get(i)], 180, 240);
-            Image = CardImage.cardBitmapImages.get(cards.get(i));
+            Image = CardImage.backBitmapImage;
 //            Image = BitmapFactory.decodeResource(context.getResources(), CardImage.backImage);
             des.set(left + i * 80, top, left + 180 + i * 80, top + 240);
             canvas.drawBitmap(Image,null, des, paint);
@@ -462,6 +485,62 @@ public abstract class AbstractPlayer {
         }
     }
 
+    private void paintLeftDown(Canvas canvas, Paint paint, Rect des) {
+
+        Bitmap Image;
+
+        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
+        int left = this.left;
+        int top = this.top;
+
+        int sflag = 0;
+        int hflag = 0;
+        int dflag = 0;
+        int cflag = 0;
+
+        int sFull = -1;
+        int hFull = -1;
+        int dFull = -1;
+        int cFull = -1;
+
+        for (int i=0; i<cards.size(); i++) {
+
+            Image = CardImage.backBitmapImage;
+            if (cards.get(i) >= 39 && cards.get(i) <= 51) {
+                sFull++;
+                sflag = 1;
+            } else if (cards.get(i) >= 26 && cards.get(i) <= 38) {
+                hFull++;
+                hflag = 1;
+            } else if (cards.get(i) >= 13 && cards.get(i) <= 25) {
+                dFull++;
+                dflag = 1;
+            } else if (cards.get(i) >= 0 && cards.get(i) <= 12) {
+                cFull++;
+                cflag = 1;
+            }
+
+            if (cards.get(i) >= 39 && cards.get(i) <= 51) {
+                des.set(left + 60 * sFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left + 180 + 60 * sFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+
+            } else if (cards.get(i) >= 26 && cards.get(i) <= 38) {
+                des.set(left + 60 * hFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left + 180 + 60 * hFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+
+            } else if (cards.get(i) >= 13 && cards.get(i) <= 25) {
+                des.set(left + 60 * dFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left + 180 + 60 * dFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+
+            } else if (cards.get(i) >= 0 && cards.get(i) <= 12) {
+                des.set(left + 60 * cFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left + 180 + 60 * cFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+
+            }
+            canvas.drawBitmap(Image,null, des, paint);
+            Image = null;
+        }
+    }
     /**
      * 东家绘制（明）
      * @param canvas
@@ -531,6 +610,69 @@ public abstract class AbstractPlayer {
         }
     }
 
+    private void paintRightDown(Canvas canvas, Paint paint, Rect des) {
+
+        Bitmap Image;
+
+        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
+        int left = this.left;
+        int top = this.top;
+
+        int sflag = 0;
+        int hflag = 0;
+        int dflag = 0;
+        int cflag = 0;
+
+        int sFull = -1;
+        int hFull = -1;
+        int dFull = -1;
+        int cFull = -1;
+
+        for (int i=0; i<cards.size(); i++) {
+            if (cards.get(i) >= 39 && cards.get(i) <= 51) {
+                sFull++;
+            } else if (cards.get(i) >= 26 && cards.get(i) <= 38) {
+                hFull++;
+            } else if (cards.get(i) >= 13 && cards.get(i) <= 25) {
+                dFull++;
+            } else if (cards.get(i) >= 0 && cards.get(i) <= 12) {
+                cFull++;
+            }
+        }
+
+        for (int i=0; i<cards.size(); i++) {
+            if (cards.get(i) >= 39 && cards.get(i) <= 51) {
+                sflag = 1;
+            } else if (cards.get(i) >= 26 && cards.get(i) <= 38) {
+                hflag = 1;
+            } else if (cards.get(i) >= 13 && cards.get(i) <= 25) {
+                dflag = 1;
+            } else if (cards.get(i) >= 0 && cards.get(i) <= 12) {
+                cflag = 1;
+            }
+
+            Image = CardImage.backBitmapImage;
+            if (cards.get(i) >= 39 && cards.get(i) <= 51) {
+                des.set(left - 180 - 60 * sFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left - 60 * sFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+                sFull--;
+            } else if (cards.get(i) >= 26 && cards.get(i) <= 38) {
+                des.set(left - 180 - 60 * hFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left - 60 * hFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+                hFull--;
+            } else if (cards.get(i) >= 13 && cards.get(i) <= 25) {
+                des.set(left - 180 - 60 * dFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left - 60 * dFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+                dFull--;
+            } else if (cards.get(i) >= 0 && cards.get(i) <= 12) {
+                des.set(left - 180 - 60 * cFull, top + (sflag + hflag + dflag + cflag) * 180,
+                        left - 60 * cFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
+                cFull--;
+            }
+            canvas.drawBitmap(Image,null, des, paint);
+            Image = null;
+        }
+    }
 
     /**
      * 获得大牌点
