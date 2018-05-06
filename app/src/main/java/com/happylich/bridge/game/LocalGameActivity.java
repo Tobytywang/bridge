@@ -109,6 +109,8 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setTopPlayer(robot3);
         game.setRightPlayer(robot4);
 
+        game.setGameType(0);
+
         // C:与客户端负责
         game.setLocalPlayerNumber(0);
 
@@ -158,6 +160,10 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setLocalPlayer(player);
 
         game.setLocalPlayerNumber(0);
+
+
+
+        game.setGameType(1);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);

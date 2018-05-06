@@ -342,7 +342,6 @@ public class Table extends AbstractScene {
         left = this.left + 240 * (this.modifier - 1);
         top = this.top + 360 + 180;
 
-        Log.v(this.getClass().getName(), "table当前玩家： " + String.valueOf(player));
         paint.setColor(Color.WHITE);
         if (player == 0) {
             path.reset();

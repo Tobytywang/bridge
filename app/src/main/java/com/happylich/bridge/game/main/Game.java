@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 import com.happylich.bridge.game.scene.Call;
 import com.happylich.bridge.game.scene.Table;
@@ -26,7 +27,17 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
     // stage和player一起推动游戏进程向前进行
     protected int stage = 2;
+    // 玩家的position是系统间同步的
+    // 本地的game维持了一个localPlayerNumber
+    // 以这个字段为基准，确定了position和本地绘制顺序的关系
+    // position是绘制无关的
+    // localPlayerNumber是绘制相关的
+    // player也是与绘制有关的，相对于localPlayerNumber进行位移
     protected int player = 0;
+    protected int dealer = -1;
+    private int localPlayerNumber;
+
+    protected int gameType = -1;
 
     // 叫牌
     private Call call;
@@ -38,8 +49,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     private AbstractPlayer leftPlayer;
     private AbstractPlayer rightPlayer;
     private AbstractPlayer localPlayer;
-
-    private int localPlayerNumber;
 
     // 赢墩（界面上显示当前玩家的）
     private int nsContract = -1;
@@ -69,24 +78,16 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         // TODO:但是宽高是在setWidthHeight之后才执行的操作
     }
 
-    /**
-     * 设置叫牌矩阵
-     * @param call
-     */
-    public void setCall(Call call) {
-        this.call = call;
+    public void setGameType(int gameType) {
+        this.gameType = gameType;
+    }
+
+    public void setLocalPlayerNumber(int number) {
+        localPlayerNumber = number;
     }
 
     /**
-     * 设置牌桌
-     * @param table
-     */
-    public void setTable(Table table) {
-        this.table = table;
-    }
-
-    /**
-     * 设置本地玩家
+     * 设置本地（下方）玩家
      * @param player
      */
     public void setLocalPlayer(AbstractPlayer player) {
@@ -96,12 +97,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         table.setPlayerBottom(localPlayer);
     }
 
-    public void setLocalPlayerNumber(int number) {
-        localPlayerNumber = number;
-    }
-
     /**
-     * 设置玩家N
+     * 设置上方玩家
      * @param player
      */
     public void setTopPlayer(AbstractPlayer player) {
@@ -112,7 +109,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     }
 
     /**
-     * 设置玩家W
+     * 设置左边玩家
      * @param player
      */
     public void setLeftPlayer(AbstractPlayer player) {
@@ -123,7 +120,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     }
 
     /**
-     * 设置玩家E
+     * 设置右边玩家
      * @param player
      */
     public void setRightPlayer(AbstractPlayer player) {
@@ -150,6 +147,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 已准备界面
                 break;
             case 2:
+                // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
                 if (localPlayer instanceof Player && player == localPlayerNumber)
                 {
                     switch (call.onTouch(x, y)) {
@@ -171,6 +169,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 3:
+                // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
                 if (localPlayer instanceof Player && player == localPlayerNumber)
                 {
                     switch (call.onTouch(x, y)) {
@@ -195,6 +194,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 4:
+                // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
                 if (localPlayer instanceof Player && player == localPlayerNumber)
                 {
                     switch (call.onTouch(x, y)) {
@@ -219,8 +219,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 5:
                 // 确定首攻：庄家的下家
                 // BUG:之后game:player就再也没变过了
+                // 这里要重新设置player的值为首攻玩家
                 player = table.getPlayer();
-                Log.v(this.getClass().getName(),"首攻:"+String.valueOf(player));
                 stage = 6;
                 break;
             case 6:
@@ -234,29 +234,37 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // TODO:还需要检测玩家的类型是否是机器人
                 // 如果当前玩家时本地玩家——需要检测触摸事件
                 // 如果本地玩家是庄家并且当前玩家是本地玩家（庄家）的对家——需要检测触摸事件
-                Log.v(this.getClass().getName(), "需要检测触摸事件吗");
-                Log.v(this.getClass().getName(), "当前玩家：" + String.valueOf(player));
-                if ( localPlayer instanceof Player &&
-                        (player == localPlayerNumber ||
-                        (localPlayerNumber == call.getDealer() &&
-                                (player == (localPlayerNumber + 2) || (player == (localPlayerNumber - 2)))))) {
-                    switch (table.onTouch(x, y)) {
-                        case 0:
-                            // 触摸无效部分
-                            Log.v(this.getClass().getName(), "无效触摸事件");
-//                            stage = 6;
-                            break;
-                        case 1:
-                            // 选中牌的状态
-                            Log.v(this.getClass().getName(), "选中牌事件");
-//                            stage = 6;
-                            break;
-                        case 2:
-                            // 出牌的状态
-                            Log.v(this.getClass().getName(), "出牌事件");
-//                            player++;
-//                            stage = 6;
-                            break;
+
+                // 如果本地玩家是人类玩家
+                //     轮到本地玩家时需要检测触摸事件
+                // 如果本地玩家是人类玩家
+                //     本地玩家或者对家是庄家
+                //     轮到本地玩家时需要检测触摸事件
+                if (localPlayer instanceof Player) {
+                    // 如果本地玩家是人类玩家
+                    dealer = call.getDealer();
+                    if ( ( player == localPlayerNumber || (player == (localPlayerNumber + 2) || player == (localPlayerNumber - 2) ) &&
+                            ( localPlayerNumber == dealer || (localPlayerNumber + 2) == dealer || (localPlayerNumber - 2) == dealer) ) ) {
+                        // 如果轮到本地玩家
+                        // 如果轮到对家 并且 本地玩家或对家是是庄家
+                        switch (table.onTouch(x, y)) {
+                            case 0:
+                                // 触摸无效部分
+                                Log.v(this.getClass().getName(), "无效触摸事件");
+    //                            stage = 6;
+                                break;
+                            case 1:
+                                // 选中牌的状态
+                                Log.v(this.getClass().getName(), "选中牌事件");
+    //                            stage = 6;
+                                break;
+                            case 2:
+                                // 出牌的状态
+                                Log.v(this.getClass().getName(), "出牌事件");
+    //                            player++;
+    //                            stage = 6;
+                                break;
+                        }
                     }
                 }
                 Log.v(this.getClass().getName(), "不需要");
@@ -297,27 +305,34 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 if (call.isFinish()) {
                     stage = 5;
                 } else {
-//                    Log.v(this.getClass().getName(), "player:" + String.valueOf(player));
+                    // 出牌是与绘制无关的，但也要用player
                     switch (player) {
                         case 0:
                             // TODO:怎么获得人类玩家的叫牌值
                             // TODO:怎么在获得机器人玩家的叫牌值得同时，不阻碍界面绘制
                             // TODO:不够抽象？
+                            // 这个逻辑仅仅适用于人机模式
+                            // 机器人玩家在（自己是人类玩家的对面 并且 自己或者人类玩家是庄家） 的情况下，需要将出牌和叫牌的权利移交给人类玩家
+                            // 具体操作是：
+                            //     如果localPlayer是机器人
                             if (localPlayer.callCard()) {
                                 player = 1;
                             }
                             break;
                         case 1:
-                            leftPlayer.callCard();
-                            player = 2;
+                            if (leftPlayer.callCard()) {
+                                player = 2;
+                            }
                             break;
                         case 2:
-                            topPlayer.callCard();
-                            player = 3;
+                            if (topPlayer.callCard()) {
+                                player = 3;
+                            }
                             break;
                         case 3:
-                            rightPlayer.callCard();
-                            player = 0;
+                            if (rightPlayer.callCard()) {
+                                player = 0;
+                            }
                             break;
                     }
                 }
@@ -334,7 +349,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // TODO:出牌循环
                 // TODO:修改game的stage可以将游戏进程向前推进
                 // TODO:要设置table的位置（左，中，右）
-                Log.v(this.getClass().getName(), "game当前玩家： " + String.valueOf(player));
                 player = table.getPlayer();
                 if (table.isFinish()) {
                     // 跳转到结算画面

@@ -113,11 +113,7 @@ public class Robot extends AbstractPlayer{
      */
     @Override
     public boolean dropCard() {
-        // 随机出一张牌
-        // TODO:关键要获取自己是本轮的第几顺
-
-//        Log.v(this.getClass().getName(), String.valueOf(this.position));
-//        Log.v(this.getClass().getName(), String.valueOf(this.cards));
+        // 人机模式下，如果需要被人类接管，则不调用这个函数
         switch(position) {
             case 0:
                 if (table.isFinish()) {
