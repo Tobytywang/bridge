@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import com.happylich.bridge.engine.util.Position;
+import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.res.CardImage;
 
 import java.util.ArrayList;
@@ -29,8 +30,8 @@ import java.util.ArrayList;
  *    call和玩家要有交互（将call的touch结果通知给player）
  *    call的触摸事件只需要和人类玩家交互
  *    call的状态需要和所有玩家交互
- *    1. call.setPlayerE(player) playerE.setLastCall:人类玩家 playerE.getLastCall
- *    2. player.setCall(call) call.getLastCall
+ *    1. call.setPlayerE(playerNumber) playerE.setLastCall:人类玩家 playerE.getLastCall
+ *    2. playerNumber.setCall(call) call.getLastCall
  */
 
 public class Call extends AbstractScene {
@@ -44,6 +45,8 @@ public class Call extends AbstractScene {
 
     // 庄家
     private int dealer = -1;
+    private AbstractPlayer dealerPlayer = null;
+
     // 领牌人（本轮首次出牌的）
     private int lead = -1;
     // 定约阶
@@ -54,6 +57,18 @@ public class Call extends AbstractScene {
     private int selectFlag = -1;
     private int selectFlagX = -1;
     private int selectFlagY = -1;
+
+
+    private AbstractPlayer playerLeft;
+    private AbstractPlayer playerRight;
+    private AbstractPlayer playerTop;
+    private AbstractPlayer playerBottom;
+
+    private AbstractPlayer playerSouth;
+    private AbstractPlayer playerWest;
+    private AbstractPlayer playerNorth;
+    private AbstractPlayer playerEast;
+
 
     // 叫牌历史
     private int lastCallCard = -1;
@@ -107,12 +122,13 @@ public class Call extends AbstractScene {
      * 返回庄家
      * @return
      */
-    public int getDealer() {
-        if (this.dealer == 0 || this.dealer == 1 ||
-                this.dealer == 2 || this.dealer == 3) {
-            return this.dealer;
-        }
-        return -1;
+    public AbstractPlayer getDealer() {
+//        if (this.dealer == 0 || this.dealer == 1 ||
+//                this.dealer == 2 || this.dealer == 3) {
+//            return this.dealer;
+//        }
+//        return -1;
+        return dealerPlayer;
     }
 
     /**
@@ -154,43 +170,73 @@ public class Call extends AbstractScene {
         return lastCallCard;
     }
 
+    /**
+     * 通用的玩家设置函数
+     * 需要设置上下左右和东南西北
+     * @param player
+     */
+    public void setPlayer(AbstractPlayer player) {
+        if (player.drawPosition == 0) {
+            playerBottom = player;
+        } else if (player.drawPosition == 1) {
+            playerLeft = player;
+        } else if (player.drawPosition == 2) {
+            playerTop = player;
+        } else if (player.drawPosition == 3) {
+            playerRight = player;
+        }
+
+        if (player.direction == 0) {
+            playerSouth = player;
+        } else if (player.direction == 1) {
+            playerWest = player;
+        } else if (player.direction == 2) {
+            playerNorth = player;
+        } else if (player.direction == 3) {
+            playerEast = player;
+        }
+    }
 
     /**
      * 设置叫牌值
-     * @param player
+     * @param playerDirection
      * @param callCard
      */
-    public void setCall(int player, int callCard) {
+    public void setCall(int drawPosition, int callCard) {
         if (callCard < 35) {
             this.lastCallCard = callCard;
             this.suits = callCard % 5;
             this.level = callCard / 5;
         }
         this.callHistory.add(callCard);
-        switch (player) {
+        Log.v(this.getClass().getName(), "玩家 " + String.valueOf(drawPosition) + " 叫牌");
+        switch (drawPosition) {
             case 0:
                 this.callHistoryS.add(callCard);
                 if (callCard < 35) {
-                    Log.v(this.getClass().getName(), String.valueOf(callCard));
-                    this.dealer = 0;
+                    this.dealer = drawPosition;
+                    this.dealerPlayer = playerBottom;
                 }
                 break;
             case 1:
                 this.callHistoryW.add(callCard);
                 if (callCard < 35) {
-                    this.dealer = 1;
+                    this.dealer = drawPosition;
+                    this.dealerPlayer = playerLeft;
                 }
                 break;
             case 2:
                 this.callHistoryN.add(callCard);
                 if (callCard < 35) {
-                    this.dealer = 2;
+                    this.dealer = drawPosition;
+                    this.dealerPlayer = playerTop;
                 }
                 break;
             case 3:
                 this.callHistoryE.add(callCard);
                 if (callCard < 35) {
-                    this.dealer = 3;
+                    this.dealer = drawPosition;
+                    this.dealerPlayer = playerRight;
                 }
                 break;
         }
@@ -207,14 +253,17 @@ public class Call extends AbstractScene {
     public int onTouch(int x, int y) {
         int touch;
         switch(callStage) {
-            case 0:
+            case 00:
+            case 10:
                 touch = touchSmall(x, y);
                 if (touch == 1) {
                     return 1;
                 } else {
                     return 0;
                 }
-            case 1:
+            case 11:
+                return 0;
+            case 20:
                 touch = touchBig(x, y);
                 if (touch == 2) {
                     return 2;
@@ -223,7 +272,7 @@ public class Call extends AbstractScene {
                 } else {
                     return 0;
                 }
-            case 2:
+            case 30:
                 touch = touchBigSelected(x, y);
                 if (touch == 0) {
                     return 0;
@@ -378,24 +427,32 @@ public class Call extends AbstractScene {
 
     /**
      * 绘制叫牌矩阵
+     * 当轮到非本地玩家是时，画灰色
      * @param canvas
      */
     public void draw(Canvas canvas, Paint paint, Rect rect) {
 //        drawTest(canvas);
         switch (callStage) {
             case 0:
+            case 10:
                 drawSmall(canvas, paint, rect);
                 drawHistory(canvas, paint, rect);
                 break;
-            case 1:
+            case 11:
+                drawSmall(canvas, paint, rect);
+                drawHistory(canvas, paint, rect);
+                drawCover(canvas, paint, rect);
+                break;
+            case 20:
                 drawBig(canvas, paint, rect);
                 break;
-            case 2:
+            case 30:
                 drawBigSelected(canvas, paint, rect);
                 break;
             default:
                 drawSmall(canvas, paint, rect);
                 drawHistory(canvas, paint, rect);
+                break;
         }
     }
 
@@ -452,10 +509,28 @@ public class Call extends AbstractScene {
         paint.setTextSize(80);
         paint.setColor(Color.BLACK);
         paint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("北", left + 50, top + 80, paint);
-        canvas.drawText("东", left + 720 + 50, top + 180, paint);
-        canvas.drawText("南", left + 680, top + 1160 + 200 - 35, paint);
-        canvas.drawText("西", left + 0 - 50, top + 1160 + 70, paint);
+
+        if (playerTop.direction == 0) {
+            canvas.drawText("南", left + 50, top + 80, paint);
+            canvas.drawText("西", left + 720 + 50, top + 180, paint);
+            canvas.drawText("北", left + 680, top + 1160 + 200 - 35, paint);
+            canvas.drawText("东", left + 0 - 50, top + 1160 + 70, paint);
+        } else if (playerTop.direction == 1) {
+            canvas.drawText("西", left + 50, top + 80, paint);
+            canvas.drawText("北", left + 720 + 50, top + 180, paint);
+            canvas.drawText("东", left + 680, top + 1160 + 200 - 35, paint);
+            canvas.drawText("南", left + 0 - 50, top + 1160 + 70, paint);
+        } else if (playerTop.direction == 2) {
+            canvas.drawText("北", left + 50, top + 80, paint);
+            canvas.drawText("东", left + 720 + 50, top + 180, paint);
+            canvas.drawText("南", left + 680, top + 1160 + 200 - 35, paint);
+            canvas.drawText("西", left + 0 - 50, top + 1160 + 70, paint);
+        } else if (playerTop.direction == 3) {
+            canvas.drawText("东", left + 50, top + 80, paint);
+            canvas.drawText("南", left + 720 + 50, top + 180, paint);
+            canvas.drawText("西", left + 680, top + 1160 + 200 - 35, paint);
+            canvas.drawText("北", left + 0 - 50, top + 1160 + 70, paint);
+        }
 
         // 重新设置left和top
         left = this.left;
@@ -691,4 +766,17 @@ public class Call extends AbstractScene {
         }
     }
 
+    /**
+     * 绘制遮盖
+     * @param canvas
+     */
+    public void drawCover(Canvas canvas, Paint paint, Rect des) {
+
+        int left = this.left;
+        int top = this.top;
+
+        paint.setColor(Color.parseColor("#44000000"));
+
+        canvas.drawRect(left, top + 100, left + 720, top + 100 + 1144, paint);
+    }
 }

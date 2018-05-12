@@ -38,6 +38,8 @@ public class Table extends AbstractScene {
 
     // 庄家
     private int dealer = -1;
+    private AbstractPlayer dealerPlayer = null;
+
     // 领牌人（本轮首次出牌的）
     private int player = -1;
 //    private int leader = -1;
@@ -54,10 +56,10 @@ public class Table extends AbstractScene {
     // ?
     private int full = 0;
     private int tricks = 0;
-    private int cardS;
-    private int cardW;
-    private int cardN;
-    private int cardE;
+    private int cardBottom;
+    private int cardLeft;
+    private int cardTop;
+    private int cardRight;
 //    private ArrayList<Integer> dropHistory;
     private Map<Integer, Integer> dropHistory = new LinkedHashMap();
     private int tmpPlayer;
@@ -100,8 +102,8 @@ public class Table extends AbstractScene {
      * 设置庄家
      * @param dealer
      */
-    public void setDealerAndContract(int dealer, int level, int suits) {
-        this.dealer = dealer;
+    public void setDealerAndContract(AbstractPlayer dealer, int level, int suits) {
+        this.dealerPlayer = dealer;
         this.level = level;
         this.suits = suits;
     }
@@ -133,35 +135,20 @@ public class Table extends AbstractScene {
     }
 
     /**
-     * 设置北家
-     * @param playerTop
+     * 通用的玩家设置函数
+     * 需要设置上下左右和东南西北
+     * @param player
      */
-    public void setPlayerTop(AbstractPlayer playerTop) {
-        this.playerTop = playerTop;
-    }
-
-    /**
-     * 设置西家
-     * @param playerLeft
-     */
-    public void setPlayerLeft(AbstractPlayer playerLeft) {
-        this.playerLeft = playerLeft;
-    }
-
-    /**
-     * 设置东家
-     * @param playerRight
-     */
-    public void setPlayerRight(AbstractPlayer playerRight) {
-        this.playerRight = playerRight;
-    }
-
-    /**
-     * 设置南家
-     * @param playerBottom
-     */
-    public void setPlayerBottom(AbstractPlayer playerBottom) {
-        this.playerBottom = playerBottom;
+    public void setPlayer(AbstractPlayer player) {
+        if (player.drawPosition == 0) {
+            playerBottom = player;
+        } else if (player.drawPosition == 1) {
+            playerLeft = player;
+        } else if (player.drawPosition == 2) {
+            playerTop = player;
+        } else if (player.drawPosition == 3) {
+            playerRight = player;
+        }
     }
 
     /**
@@ -174,68 +161,80 @@ public class Table extends AbstractScene {
 
     /**
      * 出牌函数，被AbstractPlayer子类调用
-     * @param player
+     * @param drawPosition
      * @param card
      */
-    public void dropCard(int player, int card) {
+    public void setDrop(int drawPosition, int card) {
+
+        Log.v(this.getClass().getName(), "Player 是< " + String.valueOf(player));
         // 设置明手明牌
-        if (player == dealer + 2 || player == dealer - 2) {
-            if (player == 0) {
+        // TODO:应该根据类型而不是位置决定出牌方法
+        if (drawPosition == dealer + 2 || player == dealer - 2) {
+            if (drawPosition == 0) {
                 playerBottom.setStage(1);
-            } else if (player == 1) {
+            } else if (drawPosition == 1) {
                 playerLeft.setStage(1);
-            } else if (player == 2) {
+            } else if (drawPosition == 2) {
                 playerTop.setStage(1);
-            } else if (player == 3) {
+            } else if (drawPosition == 3) {
                 playerRight.setStage(1);
             }
         }
-        if (player == 0) {
-            this.dropHistory.put(0, card);
-            this.cardS = card;
-            this.tmpPlayer = 0;
-            this.tmpCard = card;
-        } else if (player == 1) {
-            this.dropHistory.put(1, card);
-            this.cardW = card;
-            this.tmpPlayer = 1;
-            this.tmpCard = card;
-        } else if (player == 2) {
-            this.dropHistory.put(2, card);
-            this.cardN = card;
-            this.tmpPlayer = 2;
-            this.tmpCard = card;
-        } else if (player == 3) {
-            this.dropHistory.put(3, card);
-            this.cardE = card;
-            this.tmpPlayer = 3;
-            this.tmpCard = card;
+        switch (drawPosition) {
+            case 0:
+                this.dropHistory.put(0, card);
+                this.cardBottom = card;
+                this.tmpPlayer = 0;
+                this.tmpCard = card;
+                break;
+            case 1:
+                this.dropHistory.put(1, card);
+                this.cardLeft = card;
+                this.tmpPlayer = 1;
+                this.tmpCard = card;
+                break;
+            case 2:
+                this.dropHistory.put(2, card);
+                this.cardTop = card;
+                this.tmpPlayer = 2;
+                this.tmpCard = card;
+                break;
+            case 3:
+                this.dropHistory.put(3, card);
+                this.cardRight = card;
+                this.tmpPlayer = 3;
+                this.tmpCard = card;
+                break;
         }
-        // TODO:player递加
-        this.player++;
-        if (this.player == 4) {
-            this.player = 0;
-        }
+//        if (++player > 3) {
+//            player = 0;
+//        }
+
         if (this.dropHistory.size() == 4) {
-            this.player = sortCards(cardS, cardW, cardN, cardE);
-            cardS = -1;
-            cardW = -1;
-            cardN = -1;
-            cardE = -1;
+            this.player = sortCards(cardBottom, cardLeft, cardTop, cardRight);
+            cardBottom = -1;
+            cardLeft = -1;
+            cardTop = -1;
+            cardRight = -1;
             this.tricks++;
             if (tricks == 13) {
                 finish();
             }
             this.dropHistory.clear();
+        } else {
+            if ((++player) > 3) {
+                player = 0;
+            }
         }
+        Log.v(this.getClass().getName(), "Player 是> " + String.valueOf(player));
     }
 
-    private int sortCards(int cardS, int cardW, int cardN, int cardE) {
-        if (cardS > cardW && cardS > cardN && cardS > cardE) {
+    private int sortCards(int card1, int card2, int card3, int card4) {
+        if (card1 > card2 && card1 > card3 && card1 > card4) {
             return 0;
-        } else if (cardW > cardS && cardW > cardN && cardW > cardE) {
+        } else if (card2 > card1 && card2 > card3 && card2 > card4) {
             return 1;
-        } else if (cardN > cardS && cardN > cardN && cardN > cardE) {
+        } else if (card3 > card1 && card3 > card3 && card3 > card4) {
             return 2;
         }
         return 3;
@@ -312,30 +311,131 @@ public class Table extends AbstractScene {
         paint.setColor(Color.BLACK);
         paint.setTextSize(80);
         paint.setTextAlign(Paint.Align.CENTER);
-        if (dealer == 0) {
-            des.set(left + 300, top + 580, left + 300 + 120, top + 700);
-            canvas.drawBitmap(Image, null, des, paint);
-            canvas.drawText("西", left + 80, top + 400, paint);
-            canvas.drawText("北", left + 360, top + 100, paint);
-            canvas.drawText("东", left + 640, top + 400, paint);
-        } else if (dealer == 1) {
-            canvas.drawText("南", left + 360, top + 680, paint);
-            des.set(left + 20, top + 300, left + 20 + 120, top + 420);
-            canvas.drawBitmap(Image, null, des, paint);
-            canvas.drawText("北", left + 360, top + 100, paint);
-            canvas.drawText("东", left + 640, top + 400, paint);
-        } else if (dealer == 2) {
-            canvas.drawText("南", left + 360, top + 680, paint);
-            canvas.drawText("西", left + 80, top + 400, paint);
-            des.set(left + 300, top + 20, left + 300 + 120, top + 140);
-            canvas.drawBitmap(Image, null, des, paint);
-            canvas.drawText("东", left + 640, top + 400, paint);
-        } else if (dealer == 3) {
-            canvas.drawText("南", left + 360, top + 680, paint);
-            canvas.drawText("西", left + 80, top + 400, paint);
-            canvas.drawText("北", left + 360, top + 100, paint);
-            des.set(left + 580, top + 300, left + 700, top + 420);
-            canvas.drawBitmap(Image, null, des, paint);
+
+        if (dealerPlayer.drawPosition == 0) {
+            if (dealerPlayer.direction == 0) {
+                des.set(left + 300, top + 580, left + 300 + 120, top + 700);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("西", left + 80, top + 400, paint);
+                canvas.drawText("北", left + 360, top + 100, paint);
+                canvas.drawText("东", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 1) {
+                des.set(left + 300, top + 580, left + 300 + 120, top + 700);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("北", left + 80, top + 400, paint);
+                canvas.drawText("东", left + 360, top + 100, paint);
+                canvas.drawText("南", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 2) {
+                des.set(left + 300, top + 580, left + 300 + 120, top + 700);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("东", left + 80, top + 400, paint);
+                canvas.drawText("南", left + 360, top + 100, paint);
+                canvas.drawText("西", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 3) {
+                des.set(left + 300, top + 580, left + 300 + 120, top + 700);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("南", left + 80, top + 400, paint);
+                canvas.drawText("西", left + 360, top + 100, paint);
+                canvas.drawText("北", left + 640, top + 400, paint);
+            }
+//            des.set(left + 300, top + 580, left + 300 + 120, top + 700);
+//            canvas.drawBitmap(Image, null, des, paint);
+//            canvas.drawText("西", left + 80, top + 400, paint);
+//            canvas.drawText("北", left + 360, top + 100, paint);
+//            canvas.drawText("东", left + 640, top + 400, paint);
+        } else if (dealerPlayer.drawPosition == 1) {
+            if (dealerPlayer.direction == 0) {
+                canvas.drawText("东", left + 360, top + 680, paint);
+                des.set(left + 20, top + 300, left + 20 + 120, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("西", left + 360, top + 100, paint);
+                canvas.drawText("北", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 1) {
+                canvas.drawText("南", left + 360, top + 680, paint);
+                des.set(left + 20, top + 300, left + 20 + 120, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("北", left + 360, top + 100, paint);
+                canvas.drawText("东", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 2) {
+                canvas.drawText("西", left + 360, top + 680, paint);
+                des.set(left + 20, top + 300, left + 20 + 120, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("东", left + 360, top + 100, paint);
+                canvas.drawText("南", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 3) {
+                canvas.drawText("北", left + 360, top + 680, paint);
+                des.set(left + 20, top + 300, left + 20 + 120, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("南", left + 360, top + 100, paint);
+                canvas.drawText("西", left + 640, top + 400, paint);
+            }
+//            canvas.drawText("南", left + 360, top + 680, paint);
+//            des.set(left + 20, top + 300, left + 20 + 120, top + 420);
+//            canvas.drawBitmap(Image, null, des, paint);
+//            canvas.drawText("北", left + 360, top + 100, paint);
+//            canvas.drawText("东", left + 640, top + 400, paint);
+        } else if (dealerPlayer.drawPosition == 2) {
+            if (dealerPlayer.direction == 0) {
+                canvas.drawText("北", left + 360, top + 680, paint);
+                canvas.drawText("东", left + 80, top + 400, paint);
+                des.set(left + 300, top + 20, left + 300 + 120, top + 140);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("西", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 1) {
+                canvas.drawText("东", left + 360, top + 680, paint);
+                canvas.drawText("南", left + 80, top + 400, paint);
+                des.set(left + 300, top + 20, left + 300 + 120, top + 140);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("北", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 2) {
+                canvas.drawText("南", left + 360, top + 680, paint);
+                canvas.drawText("西", left + 80, top + 400, paint);
+                des.set(left + 300, top + 20, left + 300 + 120, top + 140);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("东", left + 640, top + 400, paint);
+            } else if (dealerPlayer.direction == 3) {
+                canvas.drawText("西", left + 360, top + 680, paint);
+                canvas.drawText("北", left + 80, top + 400, paint);
+                des.set(left + 300, top + 20, left + 300 + 120, top + 140);
+                canvas.drawBitmap(Image, null, des, paint);
+                canvas.drawText("南", left + 640, top + 400, paint);
+            }
+//            canvas.drawText("南", left + 360, top + 680, paint);
+//            canvas.drawText("西", left + 80, top + 400, paint);
+//            des.set(left + 300, top + 20, left + 300 + 120, top + 140);
+//            canvas.drawBitmap(Image, null, des, paint);
+//            canvas.drawText("东", left + 640, top + 400, paint);
+        } else if (dealerPlayer.drawPosition == 3) {
+            if (dealerPlayer.drawPosition == 0) {
+                canvas.drawText("西", left + 360, top + 680, paint);
+                canvas.drawText("北", left + 80, top + 400, paint);
+                canvas.drawText("东", left + 360, top + 100, paint);
+                des.set(left + 580, top + 300, left + 700, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+            } else if (dealerPlayer.drawPosition == 1) {
+                canvas.drawText("北", left + 360, top + 680, paint);
+                canvas.drawText("东", left + 80, top + 400, paint);
+                canvas.drawText("南", left + 360, top + 100, paint);
+                des.set(left + 580, top + 300, left + 700, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+            } else if (dealerPlayer.drawPosition == 2) {
+                canvas.drawText("东", left + 360, top + 680, paint);
+                canvas.drawText("南", left + 80, top + 400, paint);
+                canvas.drawText("西", left + 360, top + 100, paint);
+                des.set(left + 580, top + 300, left + 700, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+            } else if (dealerPlayer.drawPosition == 3) {
+                canvas.drawText("南", left + 360, top + 680, paint);
+                canvas.drawText("西", left + 80, top + 400, paint);
+                canvas.drawText("北", left + 360, top + 100, paint);
+                des.set(left + 580, top + 300, left + 700, top + 420);
+                canvas.drawBitmap(Image, null, des, paint);
+            }
+//            canvas.drawText("南", left + 360, top + 680, paint);
+//            canvas.drawText("西", left + 80, top + 400, paint);
+//            canvas.drawText("北", left + 360, top + 100, paint);
+//            des.set(left + 580, top + 300, left + 700, top + 420);
+//            canvas.drawBitmap(Image, null, des, paint);
         }
 
         // 绘制应该出牌玩家的标志
@@ -343,6 +443,7 @@ public class Table extends AbstractScene {
         top = this.top + 360 + 180;
 
         paint.setColor(Color.WHITE);
+        Log.v(this.getClass().getName(), "轮到玩家 " + String.valueOf(player) + "出牌");
         if (player == 0) {
             path.reset();
             path.moveTo(left + 360, top + 820);

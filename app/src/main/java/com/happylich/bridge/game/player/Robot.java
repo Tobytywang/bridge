@@ -17,11 +17,10 @@ public class Robot extends AbstractPlayer{
     /**c
      * 构造函数
      * @param context
-     * @param position
      */
-    public Robot(Context context, int position) {
+    public Robot(Context context) {
         this.context = context;
-        this.position = position;
+        this.direction = -1;
     }
 
     /**
@@ -33,16 +32,15 @@ public class Robot extends AbstractPlayer{
     @Override
     public boolean callCard() {
 
+        // 机器人叫牌后，改变标志位，将叫牌权利转移给下一个玩家
+
         // 机器人要叫牌，需要根据
         // 1. 手里的牌力(打牌点，控制张，止张，关键张）
         // 2. 叫牌历史
         // 3. 对队友的叫牌的响应和对对手干扰的排除
-
-        // 首先实现
-
-        // 现在只要根据之前的叫牌历史，叫大一号的就好
         int last = call.getLastCallCard();
-        switch(this.position) {
+        // TODO:机器人叫牌是根据自己的direction进行判断的，是否有缺陷？
+        switch(this.drawPosition) {
             case 0:
                 if (call.isFinish()) {
                     call.finish();
@@ -114,12 +112,12 @@ public class Robot extends AbstractPlayer{
     @Override
     public boolean dropCard() {
         // 人机模式下，如果需要被人类接管，则不调用这个函数
-        switch(position) {
+        switch(drawPosition) {
             case 0:
                 if (table.isFinish()) {
                     table.finish();
                 } else if (cards.size() > 0) {
-                    table.dropCard(0, cards.remove(0));
+                    table.setDrop(0, cards.remove(0));
                 } else if (cards.size() <= 0) {
                     table.finish();
                 }
@@ -128,7 +126,7 @@ public class Robot extends AbstractPlayer{
                 if (table.isFinish()) {
                     table.finish();
                 } else if (cards.size() > 0) {
-                    table.dropCard(1, cards.remove(0));
+                    table.setDrop(1, cards.remove(0));
                 } else if (cards.size() <= 0) {
                     table.finish();
                 }
@@ -137,7 +135,7 @@ public class Robot extends AbstractPlayer{
                 if (table.isFinish()) {
                     table.finish();
                 } else if (cards.size() > 0) {
-                    table.dropCard(2, cards.remove(0));
+                    table.setDrop(2, cards.remove(0));
                 } else if (cards.size() <= 0) {
                     table.finish();
                 }
@@ -146,7 +144,7 @@ public class Robot extends AbstractPlayer{
                 if (table.isFinish()) {
                     table.finish();
                 } else if (cards.size() > 0) {
-                    table.dropCard(3, cards.remove(0));
+                    table.setDrop(3, cards.remove(0));
                 } else if (cards.size() <= 0) {
                     table.finish();
                 }

@@ -96,12 +96,12 @@ public class MenuFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // 处理按钮点击事件（切换到机-机模式）
         Button button1 = (Button) getActivity().findViewById(R.id.button1);
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Do Nothings
+                // 处理按钮点击事件（切换到机-机模式）
                 Intent intent = new Intent(
                         getActivity().getApplicationContext(),
                         LocalGameActivity.class);
@@ -110,11 +110,11 @@ public class MenuFragment extends Fragment {
             }
         });
 
-        // 处理按钮点击事件（切换到人-机模式）
         Button button2 = (Button) getActivity().findViewById(R.id.button2);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // 处理按钮点击事件（切换到人-机模式）
                 Intent intent = new Intent(
                         getActivity().getApplicationContext(),
                         LocalGameActivity.class);
@@ -123,23 +123,13 @@ public class MenuFragment extends Fragment {
             }
         });
 
-        // 处理按钮点击事件（切换到蓝牙联机模式）
-//        Button button3 = (Button) this.findViewById(R.id.button3);
-//        button3.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Do Nothing
-//            }
-//        });
 
-
-        // 处理按钮点击事件（创建Wifi对战——创建并进入房间）
         Button button5 = (Button) getActivity().findViewById(R.id.button5);
         button5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Do Nothing
-                // 创建并且进入房间
+                // 处理按钮点击事件（创建Wifi对战——创建并进入房间）
                 Intent intent = new Intent(
                         getActivity().getApplicationContext(),
                         WifiHotspotGameActivity.class);
@@ -147,13 +137,13 @@ public class MenuFragment extends Fragment {
             }
         });
 
-        // 处理按钮点击事件（切换到Wifi对战——选择房间并进入）
+
         Button button6 = (Button) getActivity().findViewById(R.id.button6);
         button6.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Do Nothing
-                // 进入选择房间Activity
+                // 处理按钮点击事件（切换到Wifi对战——选择房间并进入）
                 Intent intent = new Intent(
                         getActivity().getApplicationContext(),
                         SelectHotspotRoomActivity.class);

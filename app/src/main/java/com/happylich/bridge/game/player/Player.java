@@ -22,11 +22,10 @@ public class Player extends AbstractPlayer {
     /**
      * 构造函数
      * @param context
-     * @param position
      */
-    public Player(Context context, int position) {
+    public Player(Context context) {
         this.context = context;
-        this.position = position;
+        this.direction = -1;
     }
 
     /**

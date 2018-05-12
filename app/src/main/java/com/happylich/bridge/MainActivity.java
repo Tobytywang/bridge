@@ -41,14 +41,10 @@ public class MainActivity extends AppCompatActivity
             FragmentTransaction ft = fm.beginTransaction();
             switch (item.getItemId()) {
                 case R.id.navigation_menu:
-                    ft.replace(R.id.fragment_content,
-                            MenuFragment.newInstance("arg", "menuFragment")).commit();
+                    ft.replace(R.id.fragment_content, menuFragment).commit();
                     return true;
-//                    mTextMessage.setText(R.string.title_home);
-//                    return true;
                 case R.id.navigation_history:
-                    ft.replace(R.id.fragment_content,
-                            HistoryFragment.newInstance(0)).commit();
+                    ft.replace(R.id.fragment_content, historyFragment).commit();
                     return true;
             }
             return false;
@@ -60,83 +56,14 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        // 底部导航栏
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        // Fragment管理机制
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.fragment_content, menuFragment);
         ft.commit();
-        // 四种游戏模式下，游戏界面（也就是Game）是通用的
-        // 机-机和人-机游戏暂不考虑
-        // 蓝牙和WiFi模式下，需要先建立C/S关系才能运行游戏
-        // 考虑如何建立这个C/S关系，以及如何对机-机和人-机对战方式进行抽象
-
-
-        // 处理按钮点击事件（切换到机-机模式）
-//        Button button1 = (Button) this.findViewById(R.id.button1);
-//        button1.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Do Nothings
-//                Intent intent = new Intent(
-//                        MainActivity.this,
-//                        LocalGameActivity.class);
-//                intent.putExtra("type", "EVE");
-//                startActivity(intent);
-//            }
-//        });
-//
-//        // 处理按钮点击事件（切换到人-机模式）
-//        Button button2 = (Button) this.findViewById(R.id.button2);
-//        button2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(
-//                        MainActivity.this,
-//                        LocalGameActivity.class);
-//                intent.putExtra("type", "PVE");
-//                startActivity(intent);
-//            }
-//        });
-//
-//        // 处理按钮点击事件（切换到蓝牙联机模式）
-////        Button button3 = (Button) this.findViewById(R.id.button3);
-////        button3.setOnClickListener(new View.OnClickListener() {
-////            @Override
-////            public void onClick(View view) {
-////                // Do Nothing
-////            }
-////        });
-//
-//
-//        // 处理按钮点击事件（创建Wifi对战——创建并进入房间）
-//        Button button5 = (Button) this.findViewById(R.id.button5);
-//        button5.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Do Nothing
-//                // 创建并且进入房间
-//                Intent intent = new Intent(
-//                MainActivity.this,
-//                        WifiHotspotGameActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-//
-//        // 处理按钮点击事件（切换到Wifi对战——选择房间并进入）
-//        Button button6 = (Button) this.findViewById(R.id.button6);
-//        button6.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Do Nothing
-//                // 进入选择房间Activity
-//                Intent intent = new Intent(
-//                        MainActivity.this,
-//                        SelectHotspotRoomActivity.class);
-//                startActivity(intent);
-//            }
-//        });
     }
 
     public void onFragmentInteraction(Uri uri) {

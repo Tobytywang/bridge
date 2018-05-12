@@ -35,7 +35,8 @@ public abstract class AbstractPlayer {
     protected int stage;
 
     // 储存玩家的座位0-S 1-W 2-N 3-E
-    public int position;
+    public int direction;
+    public int drawPosition;
 
     // 储存玩家绘制信息
     protected int width, height;
@@ -93,28 +94,29 @@ public abstract class AbstractPlayer {
 
     /**
      * 设置绘图模式
+     * 现在position表示玩家的逻辑
      * @param stage
      */
     public void setStage(int stage) {
-        if (this.position == 0) {
+        if (this.drawPosition == 0) {
             if (stage == 1) {
                 this.stage = 201;
             } else if (stage == 2) {
                 this.stage = 202;
             }
-        } else if (this.position == 1) {
+        } else if (this.drawPosition == 1) {
             if (stage == 1) {
                 this.stage = 211;
             } else if (stage == 2) {
                 this.stage = 212;
             }
-        } else if (this.position == 2) {
+        } else if (this.drawPosition == 2) {
             if (stage == 1) {
                 this.stage = 221;
             } else if (stage == 2) {
                 this.stage = 222;
             }
-        } else if (this.position == 3) {
+        } else if (this.drawPosition == 3) {
             if (stage == 1) {
                 this.stage = 231;
             } else if (stage == 2) {
@@ -145,6 +147,22 @@ public abstract class AbstractPlayer {
      */
     public void setCards(ArrayList<Integer> cards) {
         this.cards = cards;
+    }
+
+    /**
+     * 玩家初始化座次
+     * @param direction
+     */
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    /**
+     * 玩家初始化座次
+     * @param drawPosition
+     */
+    public void setDrawPosition(int drawPosition) {
+        this.drawPosition = drawPosition;
     }
 
     /**
@@ -185,6 +203,7 @@ public abstract class AbstractPlayer {
                 paintBottomUp(canvas, paint, rect);
                 break;
             case 202:
+                paintBottomDown(canvas, paint, rect);
                 break;
             case 211:
                 paintLeftUp(canvas, paint, rect);
@@ -252,19 +271,16 @@ public abstract class AbstractPlayer {
 
                 if (Position.inPosition(x, y, positionSelected1) || Position.inPosition(x, y, positionSelected2)) {
                     // 出牌
-                    Log.v(this.getClass().getName(), "出牌");
-                    table.dropCard(this.position, cards.remove(selectCardIndex));
+                    table.setDrop(this.drawPosition, cards.remove(selectCardIndex));
                     selectCardIndex = -1;
                     selectCard = -1;
                     return 2;
                 } else if (Position.inPosition(x, y, position1)) {
                     // 换牌
-                    Log.v(this.getClass().getName(), "换牌");
                     selectCardIndex = i;
                     selectCard = cards.get(i);
                     return 1;
                 }
-                Log.v(this.getClass().getName(), "既不出牌也不换牌");
             } else {
                 // 如果没有选中牌，则选牌
                 if (i < cards.size() - 1) {
@@ -277,14 +293,12 @@ public abstract class AbstractPlayer {
                 position1.resieze((float)this.width / (float)1440);
                 if (Position.inPosition(x, y, position1)) {
                     // 选中牌
-                    Log.v(this.getClass().getName(), "选中牌");
                     selectCardIndex = i;
                     selectCard = cards.get(i);
                     return 1;
                 }
             }
         }
-        Log.v(this.getClass().getName(), "什么都不做");
         return 0;
     }
 
@@ -300,9 +314,6 @@ public abstract class AbstractPlayer {
         int left = (1440 - (cards.size() - 1) * 80 - 180) / 2;
         int top = this.top;
 
-        Log.v(this.getClass().getName(), "touch-top:" + String.valueOf(this.top));
-        Log.v(this.getClass().getName(), "touch-width:" + String.valueOf(this.width));
-
         // 绘制纸牌（底部玩家）
         for (int i=0; i<cards.size(); i++) {
             if (selectCard != -1) {
@@ -311,7 +322,6 @@ public abstract class AbstractPlayer {
                 position1.resieze((float)this.width / (float)1440);
                 if (Position.inPosition(x, y, position1)) {
                     // 出牌
-                    Log.v(this.getClass().getName(), "出牌");
                     return 2;
                 }
             } else {
@@ -320,13 +330,11 @@ public abstract class AbstractPlayer {
                 position1.resieze((float)this.width / (float)1440);
                 if (Position.inPosition(x, y, position1)) {
                     // 选中牌
-                    Log.v(this.getClass().getName(), "选中牌");
                     selectCard = i;
                     return 1;
                 }
             }
         }
-        Log.v(this.getClass().getName(), "什么都不做");
         return 0;
     }
 
@@ -361,6 +369,25 @@ public abstract class AbstractPlayer {
             }
             canvas.drawBitmap(Image,null, des, paint);
 //            Log.v(this.getClass().getName(), "绘制图片  " + String.valueOf((new Date().getTime() - d.getTime())));
+            Image = null;
+        }
+    }
+
+    /**
+     * 南家绘制
+     * @param canvas
+     */
+    private void paintBottomDown(Canvas canvas, Paint paint, Rect des) {
+        Bitmap Image;
+        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
+        int left = (1440 - (cards.size() - 1) * 90 - 180) / 2;
+        int top = this.top;
+
+        // 绘制纸牌（底部玩家）
+        for (int i=0; i<cards.size(); i++) {
+            Image = CardImage.backBitmapImage;
+            des.set(left + i * 90, top, left + 180 + i * 90, top + 240);
+            canvas.drawBitmap(Image,null, des, paint);
             Image = null;
         }
     }
@@ -413,10 +440,7 @@ public abstract class AbstractPlayer {
 
         // 绘制纸牌（底部玩家）
         for (int i=0; i<cards.size(); i++) {
-
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[cards.get(i)], 180, 240);
             Image = CardImage.backBitmapImage;
-//            Image = BitmapFactory.decodeResource(context.getResources(), CardImage.backImage);
             des.set(left + i * 80, top, left + 180 + i * 80, top + 240);
             canvas.drawBitmap(Image,null, des, paint);
             Image = null;

@@ -69,10 +69,8 @@ public class GameView extends SurfaceView
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 // TODO:
-                Log.v(this.getClass().getName(), "按下事件");
                 game.onTouch((int)event.getX(), (int)event.getY());
             default:
-//                Log.v(this.getClass().getName(), "其他事件");
         }
         return true;
     }
@@ -88,6 +86,7 @@ public class GameView extends SurfaceView
             }
         });
         gameThread.setRunning(true);
+        gameThread.setGame(game);
         gameThread.start();
     }
 
@@ -97,6 +96,7 @@ public class GameView extends SurfaceView
 
         // 在这里创建游戏
         // TODO:把新建游戏的过程延迟到这里执行，就可以解决宽高的问题
+        // TODO:这里报game为null的BUG
         game.setWidthHeight(this.getWidth(), this.getHeight());
         Log.v(this.getClass().getName(), "修改宽高");
         gameThread.setGame(game);
