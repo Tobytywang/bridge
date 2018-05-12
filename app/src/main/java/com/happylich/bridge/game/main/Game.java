@@ -430,7 +430,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         }
                     } else if (playerNumber == playerTop.drawPosition) {
                         table.setDropStage(1);
-                        if (playerTop instanceof Robot) {
+                        if (playerTop instanceof Robot && playerBottom instanceof Player) {
                             // 将出牌权交给触摸事件
                             // 条件是，top是庄家或者明手
                             if (playerTop.drawPosition == dealerPlayer.drawPosition ||
@@ -444,6 +444,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                                 if (playerTop.dropCard()) {
                                     playerNumber = playerRight.drawPosition;
                                 }
+                            }
+                        } else {
+                            if (playerTop.dropCard()) {
+                                playerNumber = playerRight.drawPosition;
                             }
                         }
                     } else if (playerNumber == playerRight.drawPosition) {
