@@ -117,10 +117,7 @@ public class LocalGameActivity extends AppCompatActivity {
 
         // C:客户端负责（与绘制有关）
         // 除了本人之外，都设置为背面，到适合的时候在重新设置
-        robot1.setStage(2);
-        robot2.setStage(2);
-        robot3.setStage(2);
-        robot4.setStage(2);
+
 
 
 
@@ -180,10 +177,7 @@ public class LocalGameActivity extends AppCompatActivity {
         // 对于其他玩家的direction进行计算得到其他玩家（代理玩家或者机器人玩家）的drawDirection
 
         // C:客户端负责（与绘制有关）
-        player.setStage(1);
-        robot1.setStage(2);
-        robot2.setStage(2);
-        robot3.setStage(2);
+
 
         // 设置game元素
         // TODO:这里已经设置了玩家的座位，但是在绘制过程中，各个客户端要根据自己的角色绘制上下左右

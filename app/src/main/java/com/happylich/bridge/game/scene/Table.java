@@ -124,8 +124,8 @@ public class Table extends AbstractScene {
         // 如果是第一把，leader是dealer++
         // 如果不是第一把，leader是最大的
         if (player == -1) {
-            if (dealer < 3) {
-                player = dealer + 1;
+            if (dealerPlayer.drawPosition < 3) {
+                player = dealerPlayer.drawPosition + 1;
                 return player;
             }
             player = 0;
@@ -166,20 +166,8 @@ public class Table extends AbstractScene {
      */
     public void setDrop(int drawPosition, int card) {
 
-        Log.v(this.getClass().getName(), "Player 是< " + String.valueOf(player));
-        // 设置明手明牌
         // TODO:应该根据类型而不是位置决定出牌方法
-        if (drawPosition == dealer + 2 || player == dealer - 2) {
-            if (drawPosition == 0) {
-                playerBottom.setStage(1);
-            } else if (drawPosition == 1) {
-                playerLeft.setStage(1);
-            } else if (drawPosition == 2) {
-                playerTop.setStage(1);
-            } else if (drawPosition == 3) {
-                playerRight.setStage(1);
-            }
-        }
+
         switch (drawPosition) {
             case 0:
                 this.dropHistory.put(0, card);
@@ -206,9 +194,6 @@ public class Table extends AbstractScene {
                 this.tmpCard = card;
                 break;
         }
-//        if (++player > 3) {
-//            player = 0;
-//        }
 
         if (this.dropHistory.size() == 4) {
             this.player = sortCards(cardBottom, cardLeft, cardTop, cardRight);
@@ -226,7 +211,6 @@ public class Table extends AbstractScene {
                 player = 0;
             }
         }
-        Log.v(this.getClass().getName(), "Player 是> " + String.valueOf(player));
     }
 
     private int sortCards(int card1, int card2, int card3, int card4) {
@@ -248,7 +232,7 @@ public class Table extends AbstractScene {
      */
     public int onTouch(int x, int y) {
         int touch;
-        Log.v(this.getClass().getName(), "table:dropStage" + String.valueOf(dropStage));
+        Log.v(this.getClass().getName(), "轮到 " + String.valueOf(dropStage));
 
         switch(dropStage) {
             case 0:
@@ -260,7 +244,6 @@ public class Table extends AbstractScene {
                     // 出牌
                     // TODO:这个出牌的玩家需要修改
                     // TODO:出牌的玩家手动出牌，而不是出第一张
-//                    dropCard(0, playerBottom.removeCard(0));
                     return 2;
                 }
                 return 0;
@@ -270,7 +253,6 @@ public class Table extends AbstractScene {
                     // 选中牌
                     return 1;
                 } else if (touch == 2) {
-//                    dropCard(2, playerTop.removeCard(0));
                     return 2;
                 }
                 return 0;
@@ -443,7 +425,6 @@ public class Table extends AbstractScene {
         top = this.top + 360 + 180;
 
         paint.setColor(Color.WHITE);
-        Log.v(this.getClass().getName(), "轮到玩家 " + String.valueOf(player) + "出牌");
         if (player == 0) {
             path.reset();
             path.moveTo(left + 360, top + 820);

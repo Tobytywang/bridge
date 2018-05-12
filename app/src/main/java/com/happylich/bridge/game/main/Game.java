@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 import com.happylich.bridge.game.scene.Call;
 import com.happylich.bridge.game.scene.Table;
@@ -112,6 +113,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 || player.direction == localPlayerNumber - 1) {
             player.drawPosition = 3;
             playerRight = player;
+        }
+
+        if (player.drawPosition == 0) {
+            player.setStage(1);
+        } else {
+            player.setStage(2);
         }
 
         table.setPlayer(player);
@@ -253,6 +260,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 确定首攻：庄家的下家
                 // BUG:之后game:player就再也没变过了
                 // 这里要重新设置player的值为首攻玩家
+                dealerPlayer = call.getDealer();
                 playerNumber = table.getPlayer();
                 stage = 6;
                 break;
@@ -263,37 +271,39 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 2表示出牌
                 // 应该有一个标志位表示本地玩家是哪个？
 
-//                Log.v(this.getClass().getName(), "Player: " + String.valueOf(playerNumber));
-                // TODO:还需要检测玩家的类型是否是机器人
-                // 如果当前玩家时本地玩家——需要检测触摸事件
-                // 如果本地玩家是庄家并且当前玩家是本地玩家（庄家）的对家——需要检测触摸事件
+                // 当本地玩家是人类玩家是，无论如何都需要检测
+                // 当本地玩家时人类玩家，且xxxxx，也需要检测对面
 
-                // 如果本地玩家是人类玩家
-                //     轮到本地玩家时需要检测触摸事件
-                // 如果本地玩家是人类玩家
-                //     本地玩家或者对家是庄家
-                //     轮到本地玩家时需要检测触摸事件
+                // 本地玩家是人类
                 if (playerBottom instanceof Player) {
-                    // 如果本地玩家是人类玩家
-                    dealerPlayer = call.getDealer();
-                    if ((playerNumber == playerBottom.drawPosition || (playerNumber == (playerBottom.drawPosition + 2) || playerNumber == (playerBottom.drawPosition - 2) ) &&
-                            (playerBottom.drawPosition == dealerPlayer.drawPosition || (playerBottom.drawPosition + 2) == dealerPlayer.drawPosition || (playerBottom.drawPosition - 2) == dealerPlayer.drawPosition))) {
-                        // 如果轮到本地玩家
-                        // 如果轮到对家 并且 本地玩家或对家是是庄家
+                    Log.v(this.getClass().getName(), "本地玩家是人类玩家");
+
+                    if (playerNumber == playerBottom.drawPosition) {
+                        Log.v(this.getClass().getName(), "轮到本地玩家出牌");
                         switch (table.onTouch(x, y)) {
                             case 0:
-                                // 触摸无效部分
-    //                            stage = 6;
                                 break;
                             case 1:
-                                // 选中牌的状态
-    //                            stage = 6;
                                 break;
                             case 2:
-                                // 出牌的状态
                                 playerNumber++;
-//                                stage = 6;
                                 break;
+                        }
+                    } else if(playerNumber == playerTop.drawPosition && playerTop instanceof Robot){
+                        Log.v(this.getClass().getName(), "轮到本地玩家对面出牌");
+                        // 允许接收事件了，还要屏蔽robot的自动出牌机制
+                        // 并且本地玩家或者本地玩家的对面是庄家
+                        if ((playerBottom.drawPosition == dealerPlayer.drawPosition || playerTop.drawPosition == dealerPlayer.drawPosition)) {
+                            Log.v(this.getClass().getName(), "刚好本地玩家或者对面玩家是庄家，就可以让人类玩家代替出牌了");
+                            switch (table.onTouch(x, y)) {
+                                case 0:
+                                    break;
+                                case 1:
+                                    break;
+                                case 2:
+                                    playerNumber++;
+                                    break;
+                            }
                         }
                     }
                 }
@@ -392,8 +402,23 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 } else {
                     // 有更新playerNumber的必要
                     playerNumber = table.getPlayer();
+
+                    // 设置明手
+                    if (playerNumber == dealerPlayer.drawPosition + 2 || playerNumber == dealerPlayer.drawPosition - 2) {
+                        // 如果出牌的是明手（庄家的对面）
+                        if (playerNumber == 0) {
+                            playerBottom.setStage(1);
+                        } else if (playerNumber == 1) {
+                            playerLeft.setStage(1);
+                        } else if (playerNumber == 2) {
+                            playerTop.setStage(1);
+                        } else if (playerNumber == 3) {
+                            playerRight.setStage(1);
+                        }
+                    }
+
                     if (playerNumber == playerBottom.drawPosition) {
-                        // TODO: 这里是什么意思
+                        // TODO: 这里是什么意思——监听下方玩家
                         table.setDropStage(0);
                         if (playerBottom.dropCard()) {
                             playerNumber = playerLeft.drawPosition;
@@ -404,8 +429,22 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                             playerNumber = playerTop.drawPosition;
                         }
                     } else if (playerNumber == playerTop.drawPosition) {
-                        if (playerTop.dropCard()) {
-                            playerNumber = playerRight.drawPosition;
+                        table.setDropStage(1);
+                        if (playerTop instanceof Robot) {
+                            // 将出牌权交给触摸事件
+                            // 条件是，top是庄家或者明手
+                            if (playerTop.drawPosition == dealerPlayer.drawPosition ||
+                                    playerTop.drawPosition == (dealerPlayer.drawPosition + 2) || playerTop.drawPosition == (dealerPlayer.drawPosition - 2)) {
+//                                Log.v(this.getClass().getName(), "什么也不做，等待触摸事件");
+                                // dropCard还要承担设置明手的作用（setDrop调用
+                                // 设置明手的工作应该在出牌之前
+
+                            } else {
+                                // 机器人出牌
+                                if (playerTop.dropCard()) {
+                                    playerNumber = playerRight.drawPosition;
+                                }
+                            }
                         }
                     } else if (playerNumber == playerRight.drawPosition) {
                         if (playerRight.dropCard()) {
@@ -437,10 +476,11 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 break;
             case 2:
                 playerBottom.draw(canvas, paint, des);
-                if (playerNumber != playerBottom.drawPosition) {
-                    call.setCallStage(11);
-                } else {
+                // 当下面的玩家是人类玩家并且轮到这个玩家时，点亮叫牌区域
+                if (playerNumber == playerBottom.drawPosition && playerBottom instanceof Player) {
                     call.setCallStage(10);
+                } else {
+                    call.setCallStage(11);
                 }
                 call.draw(canvas, paint, des);
                 break;

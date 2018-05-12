@@ -209,7 +209,6 @@ public class Call extends AbstractScene {
             this.level = callCard / 5;
         }
         this.callHistory.add(callCard);
-        Log.v(this.getClass().getName(), "玩家 " + String.valueOf(drawPosition) + " 叫牌");
         switch (drawPosition) {
             case 0:
                 this.callHistoryS.add(callCard);
