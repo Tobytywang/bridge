@@ -115,12 +115,13 @@ public class CardImage {
 
     public static int backImage = R.drawable.lord_card_back;
     public static int passImage = R.drawable.pass;
+    public static int buttonImage = R.drawable.button;
 
     public static ArrayList<Bitmap> cardBitmapImages = new ArrayList<>();
     public static ArrayList<Bitmap> callBitmapImages = new ArrayList<>();
     public static Bitmap backBitmapImage;
     public static Bitmap passBitmapImage;
-
+    public static Bitmap buttonBitmapImage;
 
     /**
      * 将所有Image加载到内存中
@@ -130,8 +131,6 @@ public class CardImage {
 
         Bitmap image;
         for (int i = 0; i < callImages.length; i++) {
-//            image = (Bitmap) context.getResources().getDrawable(callImages[i]);
-//            Bitmap bitmap = bitmapDrawable.getBitmap();
             image = decodeSampledBitmapFromResource(context.getResources(), callImages[i], 180, 240);
             callBitmapImages.add(image);
         }
@@ -141,6 +140,7 @@ public class CardImage {
         }
         backBitmapImage = decodeSampledBitmapFromResource(context.getResources(), backImage, 180, 180);
         passBitmapImage = decodeSampledBitmapFromResource(context.getResources(), passImage, 720, 134);
+        buttonBitmapImage = decodeSampledBitmapFromResource(context.getResources(), buttonImage, 235, 76);
     }
 
     /**
@@ -151,8 +151,8 @@ public class CardImage {
         cardBitmapImages.clear();
         backBitmapImage = null;
         passBitmapImage = null;
+        buttonBitmapImage = null;
     }
-
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {

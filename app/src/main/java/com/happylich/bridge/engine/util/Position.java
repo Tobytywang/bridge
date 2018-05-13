@@ -1,5 +1,7 @@
 package com.happylich.bridge.engine.util;
 
+import android.util.Log;
+
 /**
  * 这个类方便判断位置
  * Created by lich on 2018/3/25.

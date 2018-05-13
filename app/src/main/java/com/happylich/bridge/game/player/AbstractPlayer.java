@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.happylich.bridge.engine.util.Position;
 import com.happylich.bridge.game.scene.Call;
+import com.happylich.bridge.game.scene.Ready;
 import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.res.CardImage;
 
@@ -42,6 +43,7 @@ public abstract class AbstractPlayer {
     protected int width, height;
     protected int top, left;
 
+    public Ready ready;
     // 本地玩家用来获取叫牌值
     public Call call;
     // 本地玩家用来获取出牌值
@@ -74,6 +76,14 @@ public abstract class AbstractPlayer {
      * 构造函数
      */
     public AbstractPlayer() {
+    }
+
+    /**
+     * 设置玩家持有的Ready副本
+     * @param ready
+     */
+    public void setReady(Ready ready) {
+        this.ready = ready;
     }
 
     /**

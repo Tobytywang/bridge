@@ -64,11 +64,6 @@ public class Call extends AbstractScene {
     private AbstractPlayer playerTop;
     private AbstractPlayer playerBottom;
 
-    private AbstractPlayer playerSouth;
-    private AbstractPlayer playerWest;
-    private AbstractPlayer playerNorth;
-    private AbstractPlayer playerEast;
-
 
     // 叫牌历史
     private int lastCallCard = -1;
@@ -184,16 +179,6 @@ public class Call extends AbstractScene {
             playerTop = player;
         } else if (player.drawPosition == 3) {
             playerRight = player;
-        }
-
-        if (player.direction == 0) {
-            playerSouth = player;
-        } else if (player.direction == 1) {
-            playerWest = player;
-        } else if (player.direction == 2) {
-            playerNorth = player;
-        } else if (player.direction == 3) {
-            playerEast = player;
         }
     }
 
@@ -466,10 +451,6 @@ public class Call extends AbstractScene {
         int top = this.top;
 
         paint.setColor(Color.WHITE);
-//        canvas.drawLine(0, 0, 1440, 0, paint);
-//        canvas.drawLine(0, 360, 1440, 360, paint);
-//        canvas.drawLine(0, 1800, 1440, 1800, paint);
-//        canvas.drawLine(0, 2160, 1440, 2160, paint);
 
         // 绘制底版
         paint.setColor(Color.GREEN);
@@ -539,10 +520,7 @@ public class Call extends AbstractScene {
         for(int j=0; j<7; j++) {
             for (int i=0; i<5; i++) {
                 if ((j*5+i)>lastCallCard) {
-//                    Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[j * 5 + i], 180, 240);
                     Image = CardImage.callBitmapImages.get(j * 5 + i);
-//                    Image = BitmapFactory.decodeResource(context.getResources(),
-//                            CardImage.callImages[j * 5 + i]);
                     des.set(left + 9 + 134 * i + 8 * i,
                             top + 8 + 134 * j + 8 * j,
                             left + 9 + 134 * (i + 1) + 8 * i,
@@ -555,10 +533,7 @@ public class Call extends AbstractScene {
 
         // 绘制PASS按钮
         // 134*7 + 8*6 + 16 = 1002
-
-//        Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), R.drawable.pass, 180, 240);
         Image = CardImage.passBitmapImage;
-//        Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
         des.set(left + 9, top + 8 + 8 + 986,
                 left + 720 - 9, top + 8 + 8 + 986 + 134);
         canvas.drawBitmap(Image, null, des, paint);
@@ -574,12 +549,6 @@ public class Call extends AbstractScene {
         int left = this.left;
         int top = this.top;
 
-//        paint.setColor(Color.WHITE);
-//        canvas.drawLine(0, 0, 1440, 0, paint);
-//        canvas.drawLine(0, 360, 1440, 360, paint);
-//        canvas.drawLine(0, 1800, 1440, 1800, paint);
-//        canvas.drawLine(0, 2160, 1440, 2160, paint);
-
         // 绘制底版
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(5);
@@ -599,11 +568,7 @@ public class Call extends AbstractScene {
         for(int j=0; j<7; j++) {
             for (int i=0; i<5; i++) {
                 if ((j * 5 + i)>lastCallCard) {
-
-//                    Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[j * 5 + i], 180, 240);
                     Image = CardImage.callBitmapImages.get(j * 5 + i);
-//                    Image = BitmapFactory.decodeResource(context.getResources(),
-//                            CardImage.callImages[j * 5 + i]);
                     des.set(left + 1 + 170 * i + 17 * i,
                             top + 5 + 165 * j + 2 * j,
                             left + 1 + 170 * (i + 1) + 17 * i,
@@ -615,10 +580,7 @@ public class Call extends AbstractScene {
         }
 
         // 绘制pass
-
-//        Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), R.drawable.pass, 180, 240);
         Image = CardImage.passBitmapImage;
-//        Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
         des.set(left + 1, top + 1177, left + 1 + 920, top + 1177 + 163);
         canvas.drawBitmap(Image, null, des, paint);
     }
@@ -633,12 +595,6 @@ public class Call extends AbstractScene {
         int left = this.left;
         int top = this.top;
 
-//        paint.setColor(Color.WHITE);
-//        canvas.drawLine(0, 0, 1440, 0, paint);
-//        canvas.drawLine(0, 360, 1440, 360, paint);
-//        canvas.drawLine(0, 1800, 1440, 1800, paint);
-//        canvas.drawLine(0, 2160, 1440, 2160, paint);
-
         // 绘制底版
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(5);
@@ -658,11 +614,7 @@ public class Call extends AbstractScene {
         for(int j=0; j<7; j++) {
             for (int i=0; i<5; i++) {
                 if ((j * 5 + i)>lastCallCard) {
-
-//                    Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[j * 5 + i], 180, 240);
                     Image = CardImage.callBitmapImages.get(j * 5 + i);
-//                    Image = BitmapFactory.decodeResource(context.getResources(),
-//                            CardImage.callImages[j * 5 + i]);
                     des.set(left + 1 + 170 * i + 17 * i,
                             top + 5 + 165 * j + 2 * j,
                             left + 1 + 170 * (i + 1) + 17 * i,
@@ -674,22 +626,13 @@ public class Call extends AbstractScene {
         }
 
         // 绘制pass
-
-//        Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), R.drawable.pass, 180, 240);
         Image = CardImage.passBitmapImage;
-//        Image = BitmapFactory.decodeResource(context.getResources(), R.drawable.pass);
         des.set(left + 1, top + 1177, left + 1 + 920, top + 1177 + 163);
         canvas.drawBitmap(Image, null, des, paint);
 
         // 绘制大卡片
-        // TODO:这里肯定是要修改的，但在修改这里之前，必须先确认之前的触摸逻辑没有错误。
-        // TODO:解决了，是touchBig没有做lastCallCard的校验引起的
         if ((selectFlagX!=-1 && selectFlagY!=-1)) {
-
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[selectFlagY * 5 + selectFlagX], 180, 240);
             Image = CardImage.callBitmapImages.get(selectFlagY * 5 + selectFlagX);
-//            Image = BitmapFactory.decodeResource(context.getResources(),
-//                    CardImage.callImages[selectFlagY * 5 + selectFlagX]);
             des.set(left + 1 + 170 * selectFlagX + 17 * selectFlagX - 15,
                     top + 5 + 165 * selectFlagY + 2 * selectFlagY - 15,
                     left + 1 + 170 * (selectFlagX + 1) + 17 * selectFlagX + 15,
@@ -709,19 +652,8 @@ public class Call extends AbstractScene {
         int left = this.left;
         int top = this.top;
 
-
-//        Log.v(this.getClass().getName(), String.valueOf(callHistory));
-//        Log.v(this.getClass().getName(), String.valueOf(callHistoryS));
-//        Log.v(this.getClass().getName(), String.valueOf(callHistoryW));
-//        Log.v(this.getClass().getName(), String.valueOf(callHistoryN));
-//        Log.v(this.getClass().getName(), String.valueOf(callHistoryE));
-
         for (int i = 0; i < callHistoryS.size(); i++) {
-
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[callHistoryS.get(i)], 180, 240);
             Image = CardImage.callBitmapImages.get(callHistoryS.get(i));
-//            Image = BitmapFactory.decodeResource(context.getResources(),
-//                    CardImage.callImages[callHistoryS.get(i)]);
             des.set(left + 610 - 100 * (i + 1),
                     top + 1144 + 100,
                     left + 610 - 100 * (i + 1) + 100,
@@ -729,11 +661,7 @@ public class Call extends AbstractScene {
             canvas.drawBitmap(Image, null, des, paint);
         }
         for (int i = 0; i < callHistoryW.size(); i++) {
-
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[callHistoryW.get(i)], 180, 240);
             Image = CardImage.callBitmapImages.get(callHistoryW.get(i));
-//            Image = BitmapFactory.decodeResource(context.getResources(),
-//                    CardImage.callImages[callHistoryW.get(i)]);
             des.set(left - 110,
                     top + 1144 - 100 * (i + 1),
                     left - 110 + 100,
@@ -741,11 +669,7 @@ public class Call extends AbstractScene {
             canvas.drawBitmap(Image, null, des, paint);
         }
         for (int i = 0; i < callHistoryN.size(); i++) {
-
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[callHistoryN.get(i)], 180, 240);
             Image = CardImage.callBitmapImages.get(callHistoryN.get(i));
-//            Image = BitmapFactory.decodeResource(context.getResources(),
-//                    CardImage.callImages[callHistoryN.get(i)]);
             des.set(left + 110 + 100 * i,
                     top,
                     left + 110 + 100 * (i + 1),
@@ -753,10 +677,7 @@ public class Call extends AbstractScene {
             canvas.drawBitmap(Image, null, des, paint);
         }
         for (int i = 0; i < callHistoryE.size(); i++) {
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[callHistoryE.get(i)], 180, 240);
             Image = CardImage.callBitmapImages.get(callHistoryE.get(i));
-//            Image = BitmapFactory.decodeResource(context.getResources(),
-//                    CardImage.callImages[callHistoryE.get(i)]);
             des.set(left + 730,
                     top + 220 + 100 * i,
                     left + 730 + 100,
@@ -775,7 +696,6 @@ public class Call extends AbstractScene {
         int top = this.top;
 
         paint.setColor(Color.parseColor("#44000000"));
-
         canvas.drawRect(left, top + 100, left + 720, top + 100 + 1144, paint);
     }
 }

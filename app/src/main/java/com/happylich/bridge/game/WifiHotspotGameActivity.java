@@ -9,9 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 import com.happylich.bridge.R;
 import com.happylich.bridge.engine.view.GameView;
 import com.happylich.bridge.game.main.Cards;
+import com.happylich.bridge.game.main.Direction;
 import com.happylich.bridge.game.main.Game;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.player.Robot;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -74,43 +76,29 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         }
     }
 
+    /**
+     * 用来建立游戏的函数
+     */
     public void createLanGame() {
         setContentView(R.layout.game_loading);
 
-        // 向局域网发送广播服务器状态（等待加入，已满还是游戏中）
-        // 当游戏处于等待加入状态时，监听局域网
-        // 当有玩家请求加入时，更新玩家列表和游戏状态
-        // 所有玩家都准备就绪后，开始游戏，切换游戏状态为游戏中
-
         Game game = new Game(this);
+        game.setGameType(2);
+
+        // cards和direction需要分配给连接到服务器的玩家
+        Direction direction = new Direction();
         Cards cards = new Cards(52);
 
-        // 这里只能建立本地玩家，更多的玩家需要通过网络建立或者添加人机
-        // 先实现添加人机
+        // 建立一个本地玩家
+        // 其他玩家可以选择
+        //  1. 使用机器人填充：Robot
+        //  2. 等待其他玩家接入：Proxy
         AbstractPlayer player = new Player(this);
+        player.setDirection(direction.getDirections());
         player.setCards(cards.getCards(0));
-//        AbstractPlayer robot1 = new Robot(this,1);
-//        robot1.setCards(cards.getCards(1));
-//        AbstractPlayer robot2 = new Robot(this,2);
-//        robot2.setCards(cards.getCards(2));
-//        AbstractPlayer robot3 = new Robot(this,3);
-//        robot3.setCards(cards.getCards(3));
 
-        player.setStage(1);
-//        robot1.setStage(2);
-//        robot2.setStage(2);
-//        robot3.setStage(2);
-
-
+        game.setLocalPlayerNumber(player.direction);
         game.setGamePlayer(player);
-//        game.setLeftPlayer(robot1);
-//        game.setTopPlayer(robot2);
-//        game.setRightPlayer(robot3);
-
-        // 这里的localPlayerNumber就是分配的东西南北
-//        game.setLocalPlayerNumber(0);
-
-        game.setGameType(1);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
