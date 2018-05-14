@@ -280,9 +280,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 6:
                 // 本地玩家是人类
                 if (playerBottom instanceof Player) {
-                    Log.v(this.getClass().getName(), "本地玩家是人类玩家");
                     if (playerNumber == playerBottom.drawPosition) {
-                        Log.v(this.getClass().getName(), "轮到本地玩家出牌");
                         switch (table.onTouch(x, y)) {
                             case 0:
                                 break;
@@ -292,10 +290,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                                 playerNumber++;
                                 break;
                         }
-                    } else if(playerNumber == playerTop.drawPosition && playerTop instanceof Robot){
-                        Log.v(this.getClass().getName(), "轮到本地玩家对面出牌");
+                    } else if(playerNumber == playerTop.drawPosition &&
+                            playerTop instanceof ProxyPlayer &&
+                            ((ProxyPlayer) playerTop).getRealPlayer() instanceof Robot){
                         if ((playerBottom.drawPosition == dealerPlayer.drawPosition || playerTop.drawPosition == dealerPlayer.drawPosition)) {
-                            Log.v(this.getClass().getName(), "刚好本地玩家或者对面玩家是庄家，就可以让人类玩家代替出牌了");
                             switch (table.onTouch(x, y)) {
                                 case 0:
                                     break;
@@ -440,7 +438,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         }
                     } else if (playerNumber == playerTop.drawPosition) {
                         table.setDropStage(1);
-                        if (playerTop instanceof Robot && playerBottom instanceof Player) {
+                        if (playerTop instanceof ProxyPlayer &&
+                                ((ProxyPlayer) playerTop).getRealPlayer() instanceof Robot &&
+                                playerBottom instanceof Player) {
                             // 将出牌权交给触摸事件
                             // 条件是，top是庄家或者明手
                             if (playerTop.drawPosition == dealerPlayer.drawPosition ||
