@@ -16,6 +16,9 @@ import android.util.Log;
 import com.happylich.bridge.R;
 import com.happylich.bridge.engine.util.Position;
 import com.happylich.bridge.game.player.AbstractPlayer;
+import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.player.ProxyPlayer;
+import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 
 /**
@@ -27,30 +30,58 @@ public class Ready extends AbstractScene {
 
     private boolean finish = false;
 
-    private AbstractPlayer playerLeft;
-    private AbstractPlayer playerRight;
-    private AbstractPlayer playerTop;
-    private AbstractPlayer playerBottom;
-
     private int a;
     private int b;
     private int c;
     private int d;
 
 
+    /**
+     * 构造函数
+     * @param context
+     */
     public Ready(Context context) {
-
+        this.context = context;
     }
 
     /**
      * 检测所有玩家是否就绪
      */
     public boolean isFinish() {
-        if (a == 1 && b == 1 && c == 1 && d == 1) {
+//        if (a == 1 && b == 1 && c == 1 && d == 1) {
+//            return true;
+//        }
+        if (playerTop.isInOrder() &&
+                playerLeft.isInOrder() &&
+                playerRight.isInOrder() &&
+                playerBottom.isInOrder()) {
             return true;
         }
         return false;
     }
+
+    // 默认为ProxyPlayer，如果没有就绪（没有被代理的玩家）
+    // 有几种类型
+    // 1. 对于电脑玩家
+    //   1. 在主机端，显示为"电脑"
+    //   2. 在其他端，显示为"电脑就绪"
+    // 2. 对于主机玩家
+    //   1. 还没有就绪的
+    //     1. 在主机端，显示为"准备"
+    //     2. 在其他段，显示为"主机未就绪"
+    //   2. 已经就绪的
+    //     1. 在主机端，显示为"就绪"
+    //     1. 在主机端，显示为"主机就绪"
+    // 3. 对于非主机玩家
+    //   1. 还没有就绪的
+    //     1. 在主机端，显示为"玩家未就绪"
+    //     2. 在其他段，显示为"玩家未就绪"
+    //   2. 已经就绪的
+    //     1. 在主机端，显示为"玩家就绪"
+    //     2. 在其他段，显示为"玩家就绪"
+    // 4. 对于空玩家
+    //   1. 在主机端，显示为"玩家"
+    //   2. 在其他段，显示为"空玩家"
 
     /**
      * 检测按键（这个只有本地玩家有）
@@ -78,11 +109,10 @@ public class Ready extends AbstractScene {
                         break;
                     case 9:
                         Log.v(this.getClass().getName(), "按下9");
-                        // 设置localPlayer为就绪状态
-                        if (d == 0) {
-                            d = 1;
-                        } else if (d == 1) {
-                            d = 0;
+                        if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
+                            ((Player) playerBottom).setInOrder(true);
+                        } else {
+                            ((Player) playerBottom).setInOrder(false);
                         }
                         break;
                     default:
@@ -106,6 +136,9 @@ public class Ready extends AbstractScene {
                         Log.v(this.getClass().getName(), "按下2");
                         // 设置上边位置为Robot
                         a = 1;
+                        if (playerTop instanceof ProxyPlayer) {
+                            ((ProxyPlayer) playerTop).setRealPlayer(new Robot(context));
+                        }
                         readyStage = 0;
                         break;
                     case 3:
@@ -118,11 +151,11 @@ public class Ready extends AbstractScene {
                         break;
                     case 9:
                         Log.v(this.getClass().getName(), "按下9");
-                        // 设置localPlayer为就绪状态
-                        if (d == 0) {
-                            d = 1;
-                        } else if (d == 1) {
-                            d = 0;
+                        Log.v(this.getClass().getName(), "按下9");
+                        if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
+                            ((Player) playerBottom).setInOrder(true);
+                        } else {
+                            ((Player) playerBottom).setInOrder(false);
                         }
                         break;
                     default:
@@ -152,6 +185,9 @@ public class Ready extends AbstractScene {
                         // 设置左边位置为Robot
                         b = 1;
                         readyStage = 0;
+                        if (playerLeft instanceof ProxyPlayer) {
+                            ((ProxyPlayer) playerLeft).setRealPlayer(new Robot(context));
+                        }
                         break;
                     case 6:
                         Log.v(this.getClass().getName(), "按下6");
@@ -159,11 +195,10 @@ public class Ready extends AbstractScene {
                         break;
                     case 9:
                         Log.v(this.getClass().getName(), "按下9");
-                        // 设置localPlayer为就绪状态
-                        if (d == 0) {
-                            d = 1;
-                        } else if (d == 1) {
-                            d = 0;
+                        if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
+                            ((Player) playerBottom).setInOrder(true);
+                        } else {
+                            ((Player) playerBottom).setInOrder(false);
                         }
                         break;
                     default:
@@ -197,14 +232,16 @@ public class Ready extends AbstractScene {
                         // 设置右边位置为Robot
                         c = 1;
                         readyStage = 0;
+                        if (playerRight instanceof ProxyPlayer) {
+                            ((ProxyPlayer) playerRight).setRealPlayer(new Robot(context));
+                        }
                         break;
                     case 9:
                         Log.v(this.getClass().getName(), "按下9");
-                        // 设置localPlayer为就绪状态
-                        if (d == 0) {
-                            d = 1;
-                        } else if (d == 1) {
-                            d = 0;
+                        if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
+                            ((Player) playerBottom).setInOrder(true);
+                        } else {
+                            ((Player) playerBottom).setInOrder(false);
                         }
                         break;
                     default:
@@ -377,10 +414,10 @@ public class Ready extends AbstractScene {
         paint.setTextSize(100);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        if (d == 0) {
-            canvas.drawText("准备", left + 150, top + 100, paint);
-        } else {
+        if (playerBottom.isInOrder()) {
             canvas.drawText("就绪", left + 150, top + 100, paint);
+        } else {
+            canvas.drawText("准备", left + 150, top + 100, paint);
         }
 
         // 左边的按钮

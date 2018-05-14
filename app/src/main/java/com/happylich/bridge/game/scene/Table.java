@@ -23,7 +23,6 @@ import java.util.Map;
  */
 
 public class Table extends AbstractScene {
-    private Context context;
      Path path = new Path();
     RectF round = new RectF();
 
@@ -47,11 +46,6 @@ public class Table extends AbstractScene {
     // 定约阶
     private int level = -1;
     private int suits = -1;
-
-    private AbstractPlayer playerLeft;
-    private AbstractPlayer playerRight;
-    private AbstractPlayer playerTop;
-    private AbstractPlayer playerBottom;
 
     // ?
     private int full = 0;
@@ -132,23 +126,6 @@ public class Table extends AbstractScene {
             return 0;
         }
         return player;
-    }
-
-    /**
-     * 通用的玩家设置函数
-     * 需要设置上下左右和东南西北
-     * @param player
-     */
-    public void setPlayer(AbstractPlayer player) {
-        if (player.drawPosition == 0) {
-            playerBottom = player;
-        } else if (player.drawPosition == 1) {
-            playerLeft = player;
-        } else if (player.drawPosition == 2) {
-            playerTop = player;
-        } else if (player.drawPosition == 3) {
-            playerRight = player;
-        }
     }
 
     /**

@@ -13,6 +13,7 @@ import com.happylich.bridge.game.scene.Ready;
 import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.res.CardImage;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -26,6 +27,7 @@ import java.util.Date;
 public abstract class AbstractPlayer {
 
     protected Context context;
+
     Rect des = new Rect();
     protected Position position1 = new Position();
     protected Position positionSelected1 = new Position();
@@ -76,6 +78,15 @@ public abstract class AbstractPlayer {
      * 构造函数
      */
     public AbstractPlayer() {
+    }
+
+    /**
+     *
+     */
+    public boolean isInOrder() {
+        // 默认的行为，如果需要特殊待遇，在Proxy里覆盖
+        // 玩家并不总是默认就绪的，只有机器人是模式就绪的
+        return true;
     }
 
     /**

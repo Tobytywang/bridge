@@ -19,6 +19,8 @@ import com.happylich.bridge.engine.util.Position;
  */
 public class Player extends AbstractPlayer {
 
+    private boolean inOrder;
+
     /**
      * 构造函数
      * @param context
@@ -26,6 +28,25 @@ public class Player extends AbstractPlayer {
     public Player(Context context) {
         this.context = context;
         this.direction = -1;
+    }
+
+    /**
+     * 玩家是否就绪
+     * @return
+     */
+    @Override
+    public boolean isInOrder() {
+        // 对于人类玩家，需要手动设置ready状态
+        return inOrder;
+    }
+
+    /**
+     * 切换就绪状态
+     * @param inOrder
+     * @return
+     */
+    public void setInOrder(boolean inOrder) {
+        this.inOrder = inOrder;
     }
 
     /**

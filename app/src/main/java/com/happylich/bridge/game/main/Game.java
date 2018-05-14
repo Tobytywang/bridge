@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 import com.happylich.bridge.game.scene.Call;
@@ -82,9 +83,13 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     public Game(Context context) {
         this.context = context;
         CardImage.getResource(context);
+        this.ready = new Ready(context);
         this.call = new Call(context);
         this.table = new Table(context);
-        this.ready = new Ready(context);
+
+        this.ready.setGame(this);
+        this.call.setGame(this);
+        this.table.setGame(this);
         // TODO:关键在初始化玩家的时候没有将宽高进行正确的初始化
         // TODO:但是宽高是在setWidthHeight之后才执行的操作
     }
@@ -97,13 +102,17 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         this.localPlayerNumber = localPlayerNumber;
     }
 
+    public void setGameStage(int gameStage) {
+        this.stage = gameStage;
+    }
+
     /**
      * 设置玩家逻辑座位
      */
     public void setGamePlayer(AbstractPlayer player) {
+        player.setReady(this.ready);
         player.setTable(this.table);
         player.setCall(this.call);
-        player.setReady(this.ready);
 
         if (player.direction == localPlayerNumber) {
             player.drawPosition = 0;
@@ -196,6 +205,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 ready.onTouch(x, y);
                 break;
             case 2:
+                Log.v(this.getClass().getName(), " ------------------------ ");
+                Log.v(this.getClass().getName(), "PlayerBottom " + String.valueOf(playerBottom));
+                // TODO:问题在于新加入的这几个玩家类也需要持有call,table的引用！
+                Log.v(this.getClass().getName(), "PlayerLeft   " + String.valueOf(((ProxyPlayer) playerLeft).getRealPlayer()));
+                Log.v(this.getClass().getName(), "PlayerRight  " + String.valueOf(((ProxyPlayer) playerRight).getRealPlayer()));
+                Log.v(this.getClass().getName(), "PlayerTop    " + String.valueOf(((ProxyPlayer) playerTop).getRealPlayer()));
                 // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
                 if (playerBottom instanceof Player && playerNumber == playerBottom.drawPosition)
                 {
@@ -593,7 +608,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     }
 
     /**
-     * 初始化宽高
+     * 初始化宽高（这个函数中涉及到玩家的宽高设置，但是在真正的玩家确定之前，宽高是无法确定的
+     * 可以这样，先设置所有的玩家（可以除了本地玩家）都是ProxyPlayer，ProxyPlayer可以绘制，但无法确定进行出牌等
+     * 抽象操作，需要借助真正的机器人玩家或者远程玩家完成出牌操作
      * @param width 宽度
      * @param height 高度
      */
@@ -638,10 +655,18 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      * 设置玩家位置
      */
     public void setWidgetPosition() {
-        playerTop.setPosition(playerPositionTop);
-        playerLeft.setPosition(playerPositionLeft);
-        playerRight.setPosition(playerPositionRight);
-        playerBottom.setPosition(playerPositionBottom);
+        if (playerTop != null) {
+            playerTop.setPosition(playerPositionTop);
+        }
+        if (playerLeft != null) {
+            playerLeft.setPosition(playerPositionLeft);
+        }
+        if (playerRight != null) {
+            playerRight.setPosition(playerPositionRight);
+        }
+        if (playerBottom != null) {
+            playerBottom.setPosition(playerPositionBottom);
+        }
 
         ready.setPosition(readyPosition);
         call.setPosition(callPosition);

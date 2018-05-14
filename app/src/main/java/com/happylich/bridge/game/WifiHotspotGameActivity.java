@@ -13,6 +13,7 @@ import com.happylich.bridge.game.main.Direction;
 import com.happylich.bridge.game.main.Game;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
 
 import java.io.IOException;
@@ -97,11 +98,26 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         player.setDirection(direction.getDirections());
         player.setCards(cards.getCards(0));
 
+        AbstractPlayer proxy1 = new ProxyPlayer(this);
+        proxy1.setDirection(direction.getDirections());
+        proxy1.setCards(cards.getCards(1));
+
+        AbstractPlayer proxy2 = new ProxyPlayer(this);
+        proxy2.setDirection(direction.getDirections());
+        proxy2.setCards(cards.getCards(2));
+
+        AbstractPlayer proxy3 = new ProxyPlayer(this);
+        proxy3.setDirection(direction.getDirections());
+        proxy3.setCards(cards.getCards(2));
+
         game.setLocalPlayerNumber(player.direction);
         game.setGamePlayer(player);
+        game.setGamePlayer(proxy1);
+        game.setGamePlayer(proxy2);
+        game.setGamePlayer(proxy3);
+        game.setGameStage(1);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
     }
-
 }

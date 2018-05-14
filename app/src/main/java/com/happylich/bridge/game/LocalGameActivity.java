@@ -95,11 +95,11 @@ public class LocalGameActivity extends AppCompatActivity {
 
         // 这一段可以进行隐藏
         game.setLocalPlayerNumber(robot1.direction);
-
         game.setGamePlayer(robot1);
         game.setGamePlayer(robot2);
         game.setGamePlayer(robot3);
         game.setGamePlayer(robot4);
+        game.setGameStage(2);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
@@ -144,6 +144,7 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGamePlayer(robot2);
         game.setGamePlayer(robot3);
         game.setGamePlayer(player);
+        game.setGameStage(1);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);

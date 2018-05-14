@@ -35,8 +35,6 @@ import java.util.ArrayList;
  */
 
 public class Call extends AbstractScene {
-    private Context context;
-
     // 叫牌阶段标志位
     private int callStage;
 
@@ -57,13 +55,6 @@ public class Call extends AbstractScene {
     private int selectFlag = -1;
     private int selectFlagX = -1;
     private int selectFlagY = -1;
-
-
-    private AbstractPlayer playerLeft;
-    private AbstractPlayer playerRight;
-    private AbstractPlayer playerTop;
-    private AbstractPlayer playerBottom;
-
 
     // 叫牌历史
     private int lastCallCard = -1;
@@ -166,25 +157,8 @@ public class Call extends AbstractScene {
     }
 
     /**
-     * 通用的玩家设置函数
-     * 需要设置上下左右和东南西北
-     * @param player
-     */
-    public void setPlayer(AbstractPlayer player) {
-        if (player.drawPosition == 0) {
-            playerBottom = player;
-        } else if (player.drawPosition == 1) {
-            playerLeft = player;
-        } else if (player.drawPosition == 2) {
-            playerTop = player;
-        } else if (player.drawPosition == 3) {
-            playerRight = player;
-        }
-    }
-
-    /**
      * 设置叫牌值
-     * @param playerDirection
+     * @param drawPosition
      * @param callCard
      */
     public void setCall(int drawPosition, int callCard) {
