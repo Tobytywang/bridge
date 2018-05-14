@@ -205,12 +205,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 ready.onTouch(x, y);
                 break;
             case 2:
-                Log.v(this.getClass().getName(), " ------------------------ ");
-                Log.v(this.getClass().getName(), "PlayerBottom " + String.valueOf(playerBottom));
                 // TODO:问题在于新加入的这几个玩家类也需要持有call,table的引用！
-                Log.v(this.getClass().getName(), "PlayerLeft   " + String.valueOf(((ProxyPlayer) playerLeft).getRealPlayer()));
-                Log.v(this.getClass().getName(), "PlayerRight  " + String.valueOf(((ProxyPlayer) playerRight).getRealPlayer()));
-                Log.v(this.getClass().getName(), "PlayerTop    " + String.valueOf(((ProxyPlayer) playerTop).getRealPlayer()));
                 // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
                 if (playerBottom instanceof Player && playerNumber == playerBottom.drawPosition)
                 {
@@ -354,6 +349,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 if (call.isFinish()) {
                     stage = 5;
                 } else {
+                    Log.v(this.getClass().getName(), "要报错了");
+                    Log.v(this.getClass().getName(), String.valueOf(((ProxyPlayer) playerTop).getRealPlayer().getClass().getName()));
+                    Log.v(this.getClass().getName(), String.valueOf(((ProxyPlayer) playerLeft).getRealPlayer().getClass().getName()));
+                    Log.v(this.getClass().getName(), String.valueOf(((ProxyPlayer) playerRight).getRealPlayer().getClass().getName()));
                     if (playerNumber == playerBottom.drawPosition) {
 //                        Log.v(this.getClass().getName(), "Bottom叫牌");
                         // TODO:怎么获得人类玩家的叫牌值

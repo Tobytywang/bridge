@@ -17,6 +17,7 @@ import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.main.Game;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
+import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 
@@ -77,29 +78,42 @@ public class LocalGameActivity extends AppCompatActivity {
         Cards cards = new Cards(52);
 
         // S:服务器负责（负责一致性）
-        AbstractPlayer robot1 = new Robot(this);
-        robot1.setDirection(direction.getDirections());
-        robot1.setCards(cards.getCards(0));
+        ProxyPlayer proxy1 = new ProxyPlayer(this);
+        ProxyPlayer proxy2 = new ProxyPlayer(this);
+        ProxyPlayer proxy3 = new ProxyPlayer(this);
+        ProxyPlayer proxy4 = new ProxyPlayer(this);
 
-        AbstractPlayer robot2 = new Robot(this);
-        robot2.setDirection(direction.getDirections());
-        robot2.setCards(cards.getCards(1));
 
-        AbstractPlayer robot3 = new Robot(this);
-        robot3.setDirection(direction.getDirections());
-        robot3.setCards(cards.getCards(2));
+        proxy1.setDirection(direction.getDirections());
+        proxy1.setCards(cards.getCards(0));
 
-        AbstractPlayer robot4 = new Robot(this);
-        robot4.setDirection(direction.getDirections());
-        robot4.setCards(cards.getCards(3));
+        proxy2.setDirection(direction.getDirections());
+        proxy2.setCards(cards.getCards(1));
+
+        proxy3.setDirection(direction.getDirections());
+        proxy3.setCards(cards.getCards(2));
+
+        proxy4.setDirection(direction.getDirections());
+        proxy4.setCards(cards.getCards(3));
 
         // 这一段可以进行隐藏
-        game.setLocalPlayerNumber(robot1.direction);
-        game.setGamePlayer(robot1);
-        game.setGamePlayer(robot2);
-        game.setGamePlayer(robot3);
-        game.setGamePlayer(robot4);
+        game.setLocalPlayerNumber(proxy1.direction);
+        game.setGamePlayer(proxy1);
+        game.setGamePlayer(proxy2);
+        game.setGamePlayer(proxy3);
+        game.setGamePlayer(proxy4);
         game.setGameStage(2);
+
+
+        AbstractPlayer robot1 = new Robot(this);
+        AbstractPlayer robot2 = new Robot(this);
+        AbstractPlayer robot3 = new Robot(this);
+        AbstractPlayer robot4 = new Robot(this);
+
+        proxy1.setRealPlayer(robot1);
+        proxy2.setRealPlayer(robot2);
+        proxy3.setRealPlayer(robot3);
+        proxy4.setRealPlayer(robot4);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
@@ -126,25 +140,35 @@ public class LocalGameActivity extends AppCompatActivity {
         player.setDirection(direction.getDirections());
         player.setCards(cards.getCards(0));
 
-        AbstractPlayer robot1 = new Robot(this);
-        robot1.setDirection(direction.getDirections());
-        robot1.setCards(cards.getCards(1));
+        ProxyPlayer proxy1 = new ProxyPlayer(this);
+        ProxyPlayer proxy2 = new ProxyPlayer(this);
+        ProxyPlayer proxy3 = new ProxyPlayer(this);
 
-        AbstractPlayer robot2 = new Robot(this);
-        robot2.setDirection(direction.getDirections());
-        robot2.setCards(cards.getCards(2));
+        proxy1.setDirection(direction.getDirections());
+        proxy1.setCards(cards.getCards(1));
 
-        AbstractPlayer robot3 = new Robot(this);
-        robot3.setDirection(direction.getDirections());
-        robot3.setCards(cards.getCards(3));
+        proxy2.setDirection(direction.getDirections());
+        proxy2.setCards(cards.getCards(2));
+
+        proxy3.setDirection(direction.getDirections());
+        proxy3.setCards(cards.getCards(3));
+
 
         //
         game.setLocalPlayerNumber(player.direction);
-        game.setGamePlayer(robot1);
-        game.setGamePlayer(robot2);
-        game.setGamePlayer(robot3);
+        game.setGamePlayer(proxy1);
+        game.setGamePlayer(proxy2);
+        game.setGamePlayer(proxy3);
         game.setGamePlayer(player);
-        game.setGameStage(1);
+        game.setGameStage(2);
+
+
+        AbstractPlayer robot1 = new Robot(this);
+        AbstractPlayer robot2 = new Robot(this);
+        AbstractPlayer robot3 = new Robot(this);
+        proxy1.setRealPlayer(robot1);
+        proxy2.setRealPlayer(robot2);
+        proxy3.setRealPlayer(robot3);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
