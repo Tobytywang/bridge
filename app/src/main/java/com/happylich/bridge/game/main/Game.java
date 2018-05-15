@@ -346,10 +346,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 if (call.isFinish()) {
                     stage = 5;
                 } else {
-                    Log.v(this.getClass().getName(), "要报错了");
-                    Log.v(this.getClass().getName(), String.valueOf(((ProxyPlayer) playerTop).getRealPlayer().getClass().getName()));
-                    Log.v(this.getClass().getName(), String.valueOf(((ProxyPlayer) playerLeft).getRealPlayer().getClass().getName()));
-                    Log.v(this.getClass().getName(), String.valueOf(((ProxyPlayer) playerRight).getRealPlayer().getClass().getName()));
                     if (playerNumber == playerBottom.position) {
 //                        Log.v(this.getClass().getName(), "Bottom叫牌");
                         // TODO:怎么获得人类玩家的叫牌值
@@ -520,13 +516,14 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 table.draw(canvas, paint, des);
                 playerBottom.draw(canvas, paint, des);
                 if (this.call.getDealer().position == 0 || this.call.getDealer().position == 2) {
+                    playerTop.setPlayerStage(1);
                     playerTop.draw(canvas, paint, des);
                 } else if (this.call.getDealer().position == 1) {
-                    playerTop.setPlayerStage(222);
+                    playerTop.setPlayerStage(2);
                     playerTop.draw(canvas, paint, des);
                     playerRight.draw(canvas, paint, des);
                 } else if (this.call.getDealer().position == 3) {
-                    playerTop.setPlayerStage(222);
+                    playerTop.setPlayerStage(2);
                     playerTop.draw(canvas, paint, des);
                     playerLeft.draw(canvas, paint, des);
                 }

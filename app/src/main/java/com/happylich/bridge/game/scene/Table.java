@@ -55,17 +55,11 @@ public class Table extends AbstractScene {
     private int cardLeft;
     private int cardTop;
     private int cardRight;
-//    private ArrayList<Integer> dropHistory;
+
     private LinkedHashMap<Integer, Integer> dropHistory = new LinkedHashMap();
-    private int tmpPlayer;
-    private int tmpCard;
 
-
-//    private ArrayList<Integer> callHistory  = new ArrayList<>();
-//    private ArrayList<Integer> callHistoryN = new ArrayList<>();
-//    private ArrayList<Integer> callHistoryE = new ArrayList<>();
-//    private ArrayList<Integer> callHistoryS = new ArrayList<>();
-//    private ArrayList<Integer> callHistoryW = new ArrayList<>();
+    private int tmpPlayer = -1;
+    private int tmpCard = -1;
 
     /**
      * 构造函数
@@ -216,7 +210,6 @@ public class Table extends AbstractScene {
         // suits从小到大依次是CDHSNT
         // 只需要取最大就行了
         // 选择一个依次去比，
-
         // 以this.suits和card0/13作为比较依据
         int cardTmp = -1;
         int cardTmpPlayer = -1;
@@ -249,28 +242,17 @@ public class Table extends AbstractScene {
 
         tmp = sortTwoCardBySuits(card0, cardTmp, card4);
         if (tmp == 0) {
-            // 说明cardFirstPlayer比较大
             cardTmp = card0;
             cardTmpPlayer = cardFirstPlayer;
         } else if (tmp == 1) {
             cardTmp = cardTmp;
             cardTmpPlayer = cardTmpPlayer;
         } else if (tmp == 2) {
-            cardTmp = card2;
+            cardTmp = card4;
             cardTmpPlayer = 3;
         }
 
-        switch (cardTmpPlayer) {
-            case 0:
-                return 0;
-            case 1:
-                return 1;
-            case 2:
-                return 2;
-            case 3:
-                return 3;
-        }
-        return 5;
+        return cardTmpPlayer;
     }
 
     /**
@@ -315,7 +297,6 @@ public class Table extends AbstractScene {
      */
     public int onTouch(int x, int y) {
         int touch;
-        Log.v(this.getClass().getName(), "轮到 " + String.valueOf(dropStage));
 
         switch(dropStage) {
             case 0:
