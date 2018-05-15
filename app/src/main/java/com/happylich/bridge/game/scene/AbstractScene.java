@@ -60,13 +60,13 @@ public abstract class AbstractScene {
      * @param player
      */
     public void setPlayer(AbstractPlayer player) {
-        if (player.drawPosition == 0) {
+        if (player.position == 0) {
             playerBottom = player;
-        } else if (player.drawPosition == 1) {
+        } else if (player.position == 1) {
             playerLeft = player;
-        } else if (player.drawPosition == 2) {
+        } else if (player.position == 2) {
             playerTop = player;
-        } else if (player.drawPosition == 3) {
+        } else if (player.position == 3) {
             playerRight = player;
         }
     }

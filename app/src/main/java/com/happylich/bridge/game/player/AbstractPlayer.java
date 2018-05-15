@@ -13,12 +13,25 @@ import com.happylich.bridge.game.scene.Ready;
 import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.res.CardImage;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by wangt on 2017/11/16.
+ *
+ * 玩家状态（根据状态采取不同的绘制策略）
+ * 000表示叫牌阶段：玩家+叫牌
+ * 100表示调整座位：
+ * 200：玩家+桌面
+ * 200：不绘制
+ * 201：下方，向上
+ * 202：下方，向下
+ * 211：上方，向上
+ * 212：上方，向下
+ * 221：左方，向上
+ * 222：左方，向下
+ * 231：右方，向上
+ * 232：右方，向下
+ * 3表示结算：结算
  */
 
 /**
@@ -28,67 +41,83 @@ public abstract class AbstractPlayer {
 
     protected Context context;
 
-    Rect des = new Rect();
-    protected Position position1 = new Position();
-    protected Position positionSelected1 = new Position();
-    protected Position positionSelected2 = new Position();
-
-
-    // 储存游戏的阶段
-    protected int stage;
-
-    // 储存玩家的座位0-S 1-W 2-N 3-E
-    public int direction;
-    public int drawPosition;
-
-    // 储存玩家绘制信息
-    protected int width, height;
-    protected int top, left;
-
-    public Ready ready;
-    // 本地玩家用来获取叫牌值
-    public Call call;
-    // 本地玩家用来获取出牌值
-    public Table table;
-
-    // 玩家持有的牌
-    protected ArrayList<Integer> cards;
-
-    // 当前选中的牌(table)
-    protected int selectCardIndex = -1;
-    protected int selectCard = -1;
-
-
-    // 玩家状态（根据状态采取不同的绘制策略）
-    // 000表示叫牌阶段：玩家+叫牌
-    // 100表示调整座位：
-    // 200：玩家+桌面
-    // 200：不绘制
-    // 201：下方，向上
-    // 202：下方，向下
-    // 211：上方，向上
-    // 212：上方，向下
-    // 221：左方，向上
-    // 222：左方，向下
-    // 231：右方，向上
-    // 232：右方，向下
-    // 3表示结算：结算
-
     /**
      * 构造函数
      */
     public AbstractPlayer() {
     }
 
+    // 绘图工具
+    Rect des = new Rect();
+    protected Position position1 = new Position();
+    protected Position positionSelected1 = new Position();
+    protected Position positionSelected2 = new Position();
+
+
+
+
+
+    // 储存游戏的阶段
+    protected int playerStage;
     /**
-     *
+     * 设置绘图模式
+     * 现在position表示玩家的逻辑
+     * @param playerStage
      */
-    public boolean isInOrder() {
-        // 默认的行为，如果需要特殊待遇，在Proxy里覆盖
-        // 玩家并不总是默认就绪的，只有机器人是模式就绪的
-        return true;
+    public void setPlayerStage(int playerStage) {
+        if (this.position == 0) {
+            if (playerStage == 1) {
+                this.playerStage = 201;
+            } else if (playerStage == 2) {
+                this.playerStage = 202;
+            }
+        } else if (this.position == 1) {
+            if (playerStage == 1) {
+                this.playerStage = 211;
+            } else if (playerStage == 2) {
+                this.playerStage = 212;
+            }
+        } else if (this.position == 2) {
+            if (playerStage == 1) {
+                this.playerStage = 221;
+            } else if (playerStage == 2) {
+                this.playerStage = 222;
+            }
+        } else if (this.position == 3) {
+            if (playerStage == 1) {
+                this.playerStage = 231;
+            } else if (playerStage == 2) {
+                this.playerStage = 232;
+            }
+        }
     }
 
+    // direction表示玩家的逻辑座位（东南西北）
+    public int direction;
+    // position表示玩家的绘图位置（上下左右）
+    public int position;
+
+    /**
+     * 玩家初始化座次
+     * @param direction
+     */
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    /**
+     * 玩家初始化座次
+     * @param position
+     */
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+
+
+    public Ready ready;
+    public Call call;
+    public Table table;
     /**
      * 设置玩家持有的Ready副本
      * @param ready
@@ -113,39 +142,54 @@ public abstract class AbstractPlayer {
         this.table = table;
     }
 
+
+
+
+    // 玩家持有的牌
+    protected ArrayList<Integer> cards;
+
     /**
-     * 设置绘图模式
-     * 现在position表示玩家的逻辑
-     * @param stage
+     * 获得玩家手牌
+     * @return
      */
-    public void setStage(int stage) {
-        if (this.drawPosition == 0) {
-            if (stage == 1) {
-                this.stage = 201;
-            } else if (stage == 2) {
-                this.stage = 202;
-            }
-        } else if (this.drawPosition == 1) {
-            if (stage == 1) {
-                this.stage = 211;
-            } else if (stage == 2) {
-                this.stage = 212;
-            }
-        } else if (this.drawPosition == 2) {
-            if (stage == 1) {
-                this.stage = 221;
-            } else if (stage == 2) {
-                this.stage = 222;
-            }
-        } else if (this.drawPosition == 3) {
-            if (stage == 1) {
-                this.stage = 231;
-            } else if (stage == 2) {
-                this.stage = 232;
-            }
-        }
+    public ArrayList getCards() {
+        return cards;
     }
 
+    /**
+     * 玩家初始化手牌
+     */
+    public void setCards(ArrayList<Integer> cards) {
+        this.cards = cards;
+    }
+
+    /**
+     * 玩家出牌
+     * @param cardNumber
+     */
+    public int removeCard(int cardNumber) {
+        return this.cards.remove(cardNumber);
+    }
+
+
+
+    // 当前选中的牌(table)
+    protected int selectCardIndex = -1;
+    protected int selectCard = -1;
+
+
+    /**
+     * 表示玩家是否处于就绪状态
+     */
+    public boolean isInOrder() {
+        return true;
+    }
+
+
+
+    // 储存玩家绘制信息
+    protected int width, height;
+    protected int top, left;
     /**
      * 设置绘图基准点
      * @param position
@@ -163,44 +207,7 @@ public abstract class AbstractPlayer {
         this.height = height;
     }
 
-    /**
-     * 玩家初始化手牌
-     */
-    public void setCards(ArrayList<Integer> cards) {
-        this.cards = cards;
-    }
 
-    /**
-     * 玩家初始化座次
-     * @param direction
-     */
-    public void setDirection(int direction) {
-        this.direction = direction;
-    }
-
-    /**
-     * 玩家初始化座次
-     * @param drawPosition
-     */
-    public void setDrawPosition(int drawPosition) {
-        this.drawPosition = drawPosition;
-    }
-
-    /**
-     * 玩家出牌
-     * @param cardNumber
-     */
-    public int removeCard(int cardNumber) {
-        return this.cards.remove(cardNumber);
-    }
-
-    /**
-     * 获得玩家手牌
-     * @return
-     */
-    public ArrayList getCards() {
-        return cards;
-    }
 
 
     /**
@@ -219,8 +226,7 @@ public abstract class AbstractPlayer {
      * @param canvas
      */
     public void draw(Canvas canvas, Paint paint,  Rect rect) {
-//        Log.v(this.getClass().getName(), "玩家绘制 stage = " + String.valueOf(stage));
-        switch(stage) {
+        switch(playerStage) {
             case 201:
                 paintBottomUp(canvas, paint, rect);
                 break;
@@ -261,17 +267,13 @@ public abstract class AbstractPlayer {
         int left = (1440 - (cards.size() - 1) * 90 - 180) / 2;
         int top = this.top;
 
-        Log.v(this.getClass().getName(), "playerBottom接收到了触摸指令");
         for (int i=0; i<cards.size(); i++) {
 
             if (selectCard != -1) {
-                // 如果已经选中牌了，则出牌或者重新选牌
                 if (i < cards.size() - 1) {
-                    // 不是最后一张牌
                     position1.set(top, left + i * 90,
                             top + 240, left + 90 + i * 90);
                 } else {
-                    // 是最后一张牌
                     position1.set(top, left + i * 90,
                             top + 240, left + 180 + i * 90);
                 }
@@ -281,7 +283,6 @@ public abstract class AbstractPlayer {
                         top, left + 180 + selectCardIndex * 90);
                 positionSelected1.resieze((float)this.width / (float)1440);
 
-                // 如果选中的牌是最后一张
                 if (selectCardIndex == cards.size() - 1) {
                     positionSelected2.set(top, left + selectCardIndex * 90,
                             top + 120, left + 180 + selectCardIndex * 90);
@@ -293,19 +294,16 @@ public abstract class AbstractPlayer {
                 }
 
                 if (Position.inPosition(x, y, positionSelected1) || Position.inPosition(x, y, positionSelected2)) {
-                    // 出牌
-                    table.setDrop(this.drawPosition, cards.remove(selectCardIndex));
+                    table.setDrop(this.position, cards.remove(selectCardIndex));
                     selectCardIndex = -1;
                     selectCard = -1;
                     return 2;
                 } else if (Position.inPosition(x, y, position1)) {
-                    // 换牌
                     selectCardIndex = i;
                     selectCard = cards.get(i);
                     return 1;
                 }
             } else {
-                // 如果没有选中牌，则选牌
                 if (i < cards.size() - 1) {
                     position1.set(top, left + i * 90,
                             top + 240, left + 90 + i * 90);
@@ -337,28 +335,22 @@ public abstract class AbstractPlayer {
         int left = (1440 - (cards.size() - 1) * 80 - 180) / 2;
         int top = this.top;
 
-        Log.v(this.getClass().getName(), "playerTop接收到了触摸指令");
         for (int i=0; i < cards.size(); i++) {
 
             if (selectCard != -1) {
-                // 没有选中的牌的检测区域
                 if (i < cards.size() - 1) {
-                    // 不是最后一张牌
                     position1.set(top, left + i * 80,
                             top + 240, left + 90 + i * 80);
                 } else {
-                    // 是最后一张牌
                     position1.set(top, left + i * 80,
                             top + 240, left + 180 + i * 80);
                 }
                 position1.resieze((float)this.width / (float)1440);
 
-                // 已经选中的牌的检测区域
                 positionSelected1.set(top + 240, left + selectCardIndex * 80,
                         top + 360, left + 180 + selectCardIndex * 80);
                 positionSelected1.resieze((float)this.width / (float)1440);
 
-                // 如果选中的牌是最后一张，则监测区域不一样
                 if (selectCardIndex == cards.size() - 1) {
                     positionSelected2.set(top + 120, left + selectCardIndex * 80,
                             top + 240, left + 180 + selectCardIndex * 80);
@@ -370,19 +362,16 @@ public abstract class AbstractPlayer {
                 }
 
                 if (Position.inPosition(x, y, positionSelected1) || Position.inPosition(x, y, positionSelected2)) {
-                    // 出牌
-                    table.setDrop(this.drawPosition, cards.remove(selectCardIndex));
+                    table.setDrop(this.position, cards.remove(selectCardIndex));
                     selectCardIndex = -1;
                     selectCard = -1;
                     return 2;
                 } else if (Position.inPosition(x, y, position1)) {
-                    // 换牌
                     selectCardIndex = i;
                     selectCard = cards.get(i);
                     return 1;
                 }
             } else {
-                // 如果没有选中牌，则选牌
                 if (i < cards.size() - 1) {
                     position1.set(top, left + i * 80,
                             top + 240, left + 90 + i * 80);
@@ -392,7 +381,6 @@ public abstract class AbstractPlayer {
                 }
                 position1.resieze((float)this.width / (float)1440);
                 if (Position.inPosition(x, y, position1)) {
-                    // 选中牌
                     selectCardIndex = i;
                     selectCard = cards.get(i);
                     return 1;
@@ -409,11 +397,9 @@ public abstract class AbstractPlayer {
      */
     private void paintBottomUp(Canvas canvas, Paint paint, Rect des) {
         Bitmap Image;
-        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = (1440 - (cards.size() - 1) * 90 - 180) / 2;
         int top = this.top;
 
-        // 绘制纸牌（底部玩家）
         for (int i=0; i<cards.size(); i++) {
             Image = CardImage.cardBitmapImages.get(cards.get(i));
             if ((selectCard != -1) && (cards.get(i) == selectCard)) {
@@ -432,11 +418,9 @@ public abstract class AbstractPlayer {
      */
     private void paintBottomDown(Canvas canvas, Paint paint, Rect des) {
         Bitmap Image;
-        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = (1440 - (cards.size() - 1) * 90 - 180) / 2;
         int top = this.top;
 
-        // 绘制纸牌（底部玩家）
         for (int i=0; i<cards.size(); i++) {
             Image = CardImage.backBitmapImage;
             des.set(left + i * 90, top, left + 180 + i * 90, top + 240);
@@ -452,20 +436,15 @@ public abstract class AbstractPlayer {
     private void paintTopUp(Canvas canvas, Paint paint, Rect des) {
         Bitmap Image;
 
-        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = (1440 - (cards.size() - 1) * 80 - 180) / 2;
         int top = this.top;
 
         // 绘制纸牌（底部玩家）
         for (int i=0; i<cards.size(); i++) {
-            Log.v(this.getClass().getName(), "SelectedCard " + String.valueOf(selectCard));
-            Log.v(this.getClass().getName(), "cards.get(i) " + String.valueOf(cards.get(i)));
             Image = CardImage.cardBitmapImages.get(cards.get(i));
             if ((selectCard != -1) && (cards.get(i) == selectCard)) {
-                Log.v(this.getClass().getName(), "需要画这张牌");
                 des.set(left + i * 80, top + 120, left + 180 + i * 80, top + 360);
             } else {
-                Log.v(this.getClass().getName(), "搞错了搞错了");
                 des.set(left + i * 80, top, left + 180 + i * 80, top + 240);
             }
             canvas.drawBitmap(Image,null, des, paint);
@@ -480,10 +459,8 @@ public abstract class AbstractPlayer {
     private void paintTopDown(Canvas canvas, Paint paint, Rect des) {
         Bitmap Image;
 
-        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = (1440 - (cards.size() - 1) * 80 - 180) / 2;
 
-        // 绘制纸牌（底部玩家）
         for (int i=0; i<cards.size(); i++) {
             Image = CardImage.backBitmapImage;
             des.set(left + i * 80, top, left + 180 + i * 80, top + 240);
@@ -515,9 +492,7 @@ public abstract class AbstractPlayer {
 
         for (int i=0; i<cards.size(); i++) {
 
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[cards.get(i)], 180, 240);
             Image = CardImage.cardBitmapImages.get(cards.get(i));
-//            Image = BitmapFactory.decodeResource(context.getResources(), CardImage.cardImages[cards.get(i)]);
             if (cards.get(i) >= 39 && cards.get(i) <= 51) {
                 sFull++;
                 sflag = 1;
@@ -558,7 +533,6 @@ public abstract class AbstractPlayer {
 
         Bitmap Image;
 
-        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = this.left;
         int top = this.top;
 
@@ -617,7 +591,6 @@ public abstract class AbstractPlayer {
     private void paintRightUp(Canvas canvas, Paint paint, Rect des) {
         Bitmap Image;
 
-        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = this.left;
         int top = this.top;
 
@@ -654,9 +627,7 @@ public abstract class AbstractPlayer {
                 cflag = 1;
             }
 
-//            Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[cards.get(i)], 180, 240);
             Image = CardImage.cardBitmapImages.get(cards.get(i));
-//            Image = BitmapFactory.decodeResource(context.getResources(), CardImage.cardImages[cards.get(i)]);
             if (cards.get(i) >= 39 && cards.get(i) <= 51) {
                 des.set(left - 180 - 60 * sFull, top + (sflag + hflag + dflag + cflag) * 180,
                         left - 60 * sFull, top + 240 + (sflag + hflag + dflag + cflag) * 180);
@@ -683,7 +654,6 @@ public abstract class AbstractPlayer {
 
         Bitmap Image;
 
-        // 虽然规定了left，但是并不采用，实际情况下还是根据width重新绘制
         int left = this.left;
         int top = this.top;
 

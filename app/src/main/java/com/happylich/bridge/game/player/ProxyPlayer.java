@@ -69,18 +69,18 @@ public class ProxyPlayer extends AbstractPlayer{
 
         // 参照setGamePlayer
         // 是否要设置ready
-//        player.setReady(this.ready);
+        // player.setReady(this.ready);
         player.setCall(this.call);
         player.setTable(this.table);
 
         player.setDirection(this.direction);
-        player.drawPosition = this.drawPosition;
+        player.position = this.position;
         player.setCards(this.cards);
-        player.setStage(this.stage);
+        player.setPlayerStage(this.playerStage);
 
-//        ready.setPlayer(player);
-//        call.setPlayer(player);
-//        table.setPlayer(player);
+        // ready.setPlayer(player);
+        // call.setPlayer(player);
+        // table.setPlayer(player);
 
         this.realPlayer = player;
     }
@@ -102,18 +102,15 @@ public class ProxyPlayer extends AbstractPlayer{
     public boolean callCard() {
         // getCall执行完，就进入下一个回合
         // 建立远程连接，从远程连接处获得
-//        call.setFinish(false);
+        // call.setFinish(false);
         return realPlayer.callCard();
     }
 
     /**
      * 获得出牌值
-     * 人类玩家的出牌值要调用触摸函数得到
      */
     @Override
     public boolean dropCard() {
-        // 参考叫牌函数的实现
-        // 建立远程连接，从远程连接处获得
         return realPlayer.dropCard();
     }
 }

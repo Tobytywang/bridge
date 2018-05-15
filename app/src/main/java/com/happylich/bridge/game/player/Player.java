@@ -36,7 +36,6 @@ public class Player extends AbstractPlayer {
      */
     @Override
     public boolean isInOrder() {
-        // 对于人类玩家，需要手动设置ready状态
         return inOrder;
     }
 
@@ -54,18 +53,14 @@ public class Player extends AbstractPlayer {
      */
     @Override
     public boolean callCard() {
-        // getCall执行完，就进入下一个回合
-//        call.setFinish(false);
         return call.isFinish();
     }
 
     /**
      * 获得出牌值
-     * 人类玩家的出牌值要调用触摸函数得到
      */
     @Override
     public boolean dropCard() {
-        // 参考叫牌函数的实现
         return table.isFinish();
     }
 

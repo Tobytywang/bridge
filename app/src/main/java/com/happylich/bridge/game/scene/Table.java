@@ -36,7 +36,6 @@ public class Table extends AbstractScene {
     private int modifier;
 
     // 庄家
-    private int dealer = -1;
     private AbstractPlayer dealerPlayer = null;
 
     // 领牌人（本轮首次出牌的）
@@ -50,12 +49,14 @@ public class Table extends AbstractScene {
     // ?
     private int full = 0;
     private int tricks = 0;
+    private int cardFirstPlayer = -1;
+    private int cardFirst = -1;
     private int cardBottom;
     private int cardLeft;
     private int cardTop;
     private int cardRight;
 //    private ArrayList<Integer> dropHistory;
-    private Map<Integer, Integer> dropHistory = new LinkedHashMap();
+    private LinkedHashMap<Integer, Integer> dropHistory = new LinkedHashMap();
     private int tmpPlayer;
     private int tmpCard;
 
@@ -94,10 +95,10 @@ public class Table extends AbstractScene {
 
     /**
      * 设置庄家
-     * @param dealer
+     * @param dealerPlayer
      */
-    public void setDealerAndContract(AbstractPlayer dealer, int level, int suits) {
-        this.dealerPlayer = dealer;
+    public void setDealerAndContract(AbstractPlayer dealerPlayer, int level, int suits) {
+        this.dealerPlayer = dealerPlayer;
         this.level = level;
         this.suits = suits;
     }
@@ -118,8 +119,8 @@ public class Table extends AbstractScene {
         // 如果是第一把，leader是dealer++
         // 如果不是第一把，leader是最大的
         if (player == -1) {
-            if (dealerPlayer.drawPosition < 3) {
-                player = dealerPlayer.drawPosition + 1;
+            if (dealerPlayer.position < 3) {
+                player = dealerPlayer.position + 1;
                 return player;
             }
             player = 0;
@@ -147,24 +148,40 @@ public class Table extends AbstractScene {
 
         switch (drawPosition) {
             case 0:
+                if (cardFirst == -1) {
+                    cardFirst = card;
+                    cardFirstPlayer = 0;
+                }
                 this.dropHistory.put(0, card);
                 this.cardBottom = card;
                 this.tmpPlayer = 0;
                 this.tmpCard = card;
                 break;
             case 1:
+                if (cardFirst == -1) {
+                    cardFirst = card;
+                    cardFirstPlayer = 1;
+                }
                 this.dropHistory.put(1, card);
                 this.cardLeft = card;
                 this.tmpPlayer = 1;
                 this.tmpCard = card;
                 break;
             case 2:
+                if (cardFirst == -1) {
+                    cardFirst = card;
+                    cardFirstPlayer = 2;
+                }
                 this.dropHistory.put(2, card);
                 this.cardTop = card;
                 this.tmpPlayer = 2;
                 this.tmpCard = card;
                 break;
             case 3:
+                if (cardFirst == -1) {
+                    cardFirst = card;
+                    cardFirstPlayer = 3;
+                }
                 this.dropHistory.put(3, card);
                 this.cardRight = card;
                 this.tmpPlayer = 3;
@@ -173,7 +190,11 @@ public class Table extends AbstractScene {
         }
 
         if (this.dropHistory.size() == 4) {
-            this.player = sortCards(cardBottom, cardLeft, cardTop, cardRight);
+            this.player = sortCards(cardFirst, cardBottom, cardLeft, cardTop, cardRight);
+
+            cardFirst = -1;
+            cardFirstPlayer = -1;
+
             cardBottom = -1;
             cardLeft = -1;
             cardTop = -1;
@@ -190,15 +211,100 @@ public class Table extends AbstractScene {
         }
     }
 
-    private int sortCards(int card1, int card2, int card3, int card4) {
-        if (card1 > card2 && card1 > card3 && card1 > card4) {
-            return 0;
-        } else if (card2 > card1 && card2 > card3 && card2 > card4) {
+    private int sortCards(int card0, int card1, int card2, int card3, int card4) {
+        // 比较四张牌的大小
+        // suits从小到大依次是CDHSNT
+        // 只需要取最大就行了
+        // 选择一个依次去比，
+
+        // 以this.suits和card0/13作为比较依据
+        int cardTmp = -1;
+        int cardTmpPlayer = -1;
+
+        int tmp = sortTwoCardBySuits(card0, card1, card2);
+        if (tmp == 0) {
+            // 说明cardFirstPlayer比较大
+            cardTmp = card0;
+            cardTmpPlayer = cardFirstPlayer;
+        } else if (tmp == 1) {
+            cardTmp = card1;
+            cardTmpPlayer = 0;
+        } else if (tmp == 2) {
+            cardTmp = card2;
+            cardTmpPlayer = 1;
+        }
+
+        tmp = sortTwoCardBySuits(card0, cardTmp, card3);
+        if (tmp == 0) {
+            // 说明cardFirstPlayer比较大
+            cardTmp = card0;
+            cardTmpPlayer = cardFirstPlayer;
+        } else if (tmp == 1) {
+            cardTmp = cardTmp;
+            cardTmpPlayer = cardTmpPlayer;
+        } else if (tmp == 2) {
+            cardTmp = card3;
+            cardTmpPlayer = 2;
+        }
+
+        tmp = sortTwoCardBySuits(card0, cardTmp, card4);
+        if (tmp == 0) {
+            // 说明cardFirstPlayer比较大
+            cardTmp = card0;
+            cardTmpPlayer = cardFirstPlayer;
+        } else if (tmp == 1) {
+            cardTmp = cardTmp;
+            cardTmpPlayer = cardTmpPlayer;
+        } else if (tmp == 2) {
+            cardTmp = card2;
+            cardTmpPlayer = 3;
+        }
+
+        switch (cardTmpPlayer) {
+            case 0:
+                return 0;
+            case 1:
+                return 1;
+            case 2:
+                return 2;
+            case 3:
+                return 3;
+        }
+        return 5;
+    }
+
+    /**
+     * 比较两个牌的大小(有将牌的情况下-无将牌的时候适用)
+     * @param card
+     * @param cardOne
+     * @param cardTwo
+     * @return
+     */
+    private int sortTwoCardBySuits(int card, int cardOne, int cardTwo) {
+        if (cardOne/13 == this.suits && cardTwo/13 != this.suits) {
             return 1;
-        } else if (card3 > card1 && card3 > card3 && card3 > card4) {
+        } else if (cardOne/13 != this.suits && cardTwo/13 == this.suits) {
+            return 2;
+        } else if (cardOne/13 == this.suits && cardTwo/13 == this.suits) {
+            if (cardOne > cardTwo) {
+                return 1;
+            }
             return 2;
         }
-        return 3;
+
+        if (cardOne/13 == card/13 && cardTwo/13 != card/13) {
+            return 1;
+        } else if (cardOne/13 != card/13 && cardTwo == card/13) {
+            return 2;
+        } else if (cardOne/13 == card/13 && cardTwo == card/13) {
+            if (cardOne > cardTwo) {
+                return 1;
+            }
+            return 2;
+        }
+
+        // 这种情况说明card0比较大
+        return 0;
     }
 
     /**
@@ -271,7 +377,7 @@ public class Table extends AbstractScene {
         paint.setTextSize(80);
         paint.setTextAlign(Paint.Align.CENTER);
 
-        if (dealerPlayer.drawPosition == 0) {
+        if (dealerPlayer.position == 0) {
             if (dealerPlayer.direction == 0) {
                 des.set(left + 300, top + 580, left + 300 + 120, top + 700);
                 canvas.drawBitmap(Image, null, des, paint);
@@ -302,7 +408,7 @@ public class Table extends AbstractScene {
 //            canvas.drawText("西", left + 80, top + 400, paint);
 //            canvas.drawText("北", left + 360, top + 100, paint);
 //            canvas.drawText("东", left + 640, top + 400, paint);
-        } else if (dealerPlayer.drawPosition == 1) {
+        } else if (dealerPlayer.position == 1) {
             if (dealerPlayer.direction == 0) {
                 canvas.drawText("东", left + 360, top + 680, paint);
                 des.set(left + 20, top + 300, left + 20 + 120, top + 420);
@@ -333,7 +439,7 @@ public class Table extends AbstractScene {
 //            canvas.drawBitmap(Image, null, des, paint);
 //            canvas.drawText("北", left + 360, top + 100, paint);
 //            canvas.drawText("东", left + 640, top + 400, paint);
-        } else if (dealerPlayer.drawPosition == 2) {
+        } else if (dealerPlayer.position == 2) {
             if (dealerPlayer.direction == 0) {
                 canvas.drawText("北", left + 360, top + 680, paint);
                 canvas.drawText("东", left + 80, top + 400, paint);
@@ -364,26 +470,26 @@ public class Table extends AbstractScene {
 //            des.set(left + 300, top + 20, left + 300 + 120, top + 140);
 //            canvas.drawBitmap(Image, null, des, paint);
 //            canvas.drawText("东", left + 640, top + 400, paint);
-        } else if (dealerPlayer.drawPosition == 3) {
-            if (dealerPlayer.drawPosition == 0) {
+        } else if (dealerPlayer.position == 3) {
+            if (dealerPlayer.position == 0) {
                 canvas.drawText("西", left + 360, top + 680, paint);
                 canvas.drawText("北", left + 80, top + 400, paint);
                 canvas.drawText("东", left + 360, top + 100, paint);
                 des.set(left + 580, top + 300, left + 700, top + 420);
                 canvas.drawBitmap(Image, null, des, paint);
-            } else if (dealerPlayer.drawPosition == 1) {
+            } else if (dealerPlayer.position == 1) {
                 canvas.drawText("北", left + 360, top + 680, paint);
                 canvas.drawText("东", left + 80, top + 400, paint);
                 canvas.drawText("南", left + 360, top + 100, paint);
                 des.set(left + 580, top + 300, left + 700, top + 420);
                 canvas.drawBitmap(Image, null, des, paint);
-            } else if (dealerPlayer.drawPosition == 2) {
+            } else if (dealerPlayer.position == 2) {
                 canvas.drawText("东", left + 360, top + 680, paint);
                 canvas.drawText("南", left + 80, top + 400, paint);
                 canvas.drawText("西", left + 360, top + 100, paint);
                 des.set(left + 580, top + 300, left + 700, top + 420);
                 canvas.drawBitmap(Image, null, des, paint);
-            } else if (dealerPlayer.drawPosition == 3) {
+            } else if (dealerPlayer.position == 3) {
                 canvas.drawText("南", left + 360, top + 680, paint);
                 canvas.drawText("西", left + 80, top + 400, paint);
                 canvas.drawText("北", left + 360, top + 100, paint);

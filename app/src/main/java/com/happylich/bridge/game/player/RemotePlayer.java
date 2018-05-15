@@ -20,7 +20,6 @@ public class RemotePlayer extends AbstractPlayer {
      */
     @Override
     public boolean isInOrder() {
-        // 对于人类玩家，需要手动设置ready状态
         return inOrder;
     }
 

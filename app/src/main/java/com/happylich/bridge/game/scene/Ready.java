@@ -10,10 +10,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.Log;
 
-import com.happylich.bridge.R;
 import com.happylich.bridge.engine.util.Position;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
@@ -256,13 +254,13 @@ public class Ready extends AbstractScene {
     }
 
     public void setPlayer(AbstractPlayer player) {
-        if (player.drawPosition == 0) {
+        if (player.position == 0) {
             playerBottom = player;
-        } else if (player.drawPosition == 1) {
+        } else if (player.position == 1) {
             playerLeft = player;
-        } else if (player.drawPosition == 2) {
+        } else if (player.position == 2) {
             playerTop = player;
-        } else if (player.drawPosition == 3) {
+        } else if (player.position == 3) {
             playerRight = player;
         }
     }

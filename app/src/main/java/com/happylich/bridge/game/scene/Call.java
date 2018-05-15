@@ -42,7 +42,6 @@ public class Call extends AbstractScene {
     private boolean finish;
 
     // 庄家
-    private int dealer = -1;
     private AbstractPlayer dealerPlayer = null;
 
     // 领牌人（本轮首次出牌的）
@@ -109,11 +108,6 @@ public class Call extends AbstractScene {
      * @return
      */
     public AbstractPlayer getDealer() {
-//        if (this.dealer == 0 || this.dealer == 1 ||
-//                this.dealer == 2 || this.dealer == 3) {
-//            return this.dealer;
-//        }
-//        return -1;
         return dealerPlayer;
     }
 
@@ -172,28 +166,24 @@ public class Call extends AbstractScene {
             case 0:
                 this.callHistoryS.add(callCard);
                 if (callCard < 35) {
-                    this.dealer = drawPosition;
                     this.dealerPlayer = playerBottom;
                 }
                 break;
             case 1:
                 this.callHistoryW.add(callCard);
                 if (callCard < 35) {
-                    this.dealer = drawPosition;
                     this.dealerPlayer = playerLeft;
                 }
                 break;
             case 2:
                 this.callHistoryN.add(callCard);
                 if (callCard < 35) {
-                    this.dealer = drawPosition;
                     this.dealerPlayer = playerTop;
                 }
                 break;
             case 3:
                 this.callHistoryE.add(callCard);
                 if (callCard < 35) {
-                    this.dealer = drawPosition;
                     this.dealerPlayer = playerRight;
                 }
                 break;
