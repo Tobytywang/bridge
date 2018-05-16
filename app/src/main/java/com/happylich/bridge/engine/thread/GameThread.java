@@ -24,7 +24,7 @@ public class GameThread extends Thread {
     public Date d = null;
 
     // 游戏线程每执行一次需要睡眠的时间
-    private final static int DELAY_TIME = 33;
+    private final static int DELAY_TIME = 16;
     // 上下文，方便获取到应用的各项资源，如图片、音乐和字符串等
     private Context context;
 

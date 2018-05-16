@@ -16,6 +16,7 @@ import com.happylich.bridge.game.main.Direction;
 import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.main.Game;
 import com.happylich.bridge.game.player.AbstractPlayer;
+import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
@@ -97,10 +98,10 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGameStage(1);
 
 
-        AbstractPlayer robot1 = new Robot(this);
-        AbstractPlayer robot2 = new Robot(this);
-        AbstractPlayer robot3 = new Robot(this);
-        AbstractPlayer robot4 = new Robot(this);
+        Robot robot1 = new Robot(this);
+        Robot robot2 = new Robot(this);
+        Robot robot3 = new Robot(this);
+        Robot robot4 = new Robot(this);
 
         proxy1.setRealPlayer(robot1);
         proxy2.setRealPlayer(robot2);
@@ -127,14 +128,14 @@ public class LocalGameActivity extends AppCompatActivity {
         Direction direction = new Direction();
 
         // 建立玩家
-        AbstractPlayer player = new Player(this);
+        Player player = new Player(this);
         ProxyPlayer proxy1 = new ProxyPlayer(this);
         ProxyPlayer proxy2 = new ProxyPlayer(this);
         ProxyPlayer proxy3 = new ProxyPlayer(this);
 
 
         player.setDirection(direction.getDirections());
-        ((Player) player).setInOrder(true);
+        player.setInOrder(true);
         proxy1.setDirection(direction.getDirections());
         proxy2.setDirection(direction.getDirections());
         proxy3.setDirection(direction.getDirections());

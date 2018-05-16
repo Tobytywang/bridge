@@ -15,6 +15,7 @@ import android.util.Log;
 import com.happylich.bridge.engine.util.Position;
 import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.player.AbstractPlayer;
+import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
@@ -47,19 +48,11 @@ public class Ready extends AbstractScene {
      * 检测所有玩家是否就绪
      */
     public boolean isFinish() {
-//        if (a == 1 && b == 1 && c == 1 && d == 1) {
-//            return true;
-//        }
-        Log.v(this.getClass().getName(), "playertop: " + String.valueOf(playerTop.isInOrder()));
-        Log.v(this.getClass().getName(), "playerleft: " + String.valueOf(playerLeft.isInOrder()));
-        Log.v(this.getClass().getName(), "playerright: " + String.valueOf(playerRight.isInOrder()));
-        Log.v(this.getClass().getName(), "playerbottom: " + String.valueOf(playerBottom.isInOrder()));
         if (playerTop.isInOrder() &&
                 playerLeft.isInOrder() &&
                 playerRight.isInOrder() &&
                 playerBottom.isInOrder()) {
             // 在这里执行发牌操作？
-            Log.v(this.getClass().getName(), "发牌了。。。。");
             Cards cards = new Cards(52);
             playerLeft.setCards(cards.getCards(0));
             playerRight.setCards(cards.getCards(1));
@@ -106,19 +99,15 @@ public class Ready extends AbstractScene {
                 // 监听所有四个按钮
                 switch (touchReady(x, y)) {
                     case 0:
-                        Log.v(this.getClass().getName(), "按下0");
                         readyStage = 1;
                         break;
                     case 3:
-                        Log.v(this.getClass().getName(), "按下3");
                         readyStage = 2;
                         break;
                     case 6:
-                        Log.v(this.getClass().getName(), "按下6");
                         readyStage = 3;
                         break;
                     case 9:
-                        Log.v(this.getClass().getName(), "按下9");
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
                         } else {
@@ -133,17 +122,14 @@ public class Ready extends AbstractScene {
             case 1:
                 switch (touchReady(x, y)) {
                     case 0:
-                        Log.v(this.getClass().getName(), "按下0");
                         readyStage = 0;
                         break;
                     case 1:
-                        Log.v(this.getClass().getName(), "按下1");
                         // 设置上边位置为ProxyPlayer
                         a = 0;
                         readyStage = 0;
                         break;
                     case 2:
-                        Log.v(this.getClass().getName(), "按下2");
                         // 设置上边位置为Robot
                         a = 1;
                         if (playerTop instanceof ProxyPlayer) {
@@ -152,16 +138,12 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         break;
                     case 3:
-                        Log.v(this.getClass().getName(), "按下3");
                         readyStage = 2;
                         break;
                     case 6:
-                        Log.v(this.getClass().getName(), "按下6");
                         readyStage = 3;
                         break;
                     case 9:
-                        Log.v(this.getClass().getName(), "按下9");
-                        Log.v(this.getClass().getName(), "按下9");
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
                         } else {
@@ -177,21 +159,17 @@ public class Ready extends AbstractScene {
             case 2:
                 switch (touchReady(x, y)) {
                     case 0:
-                        Log.v(this.getClass().getName(), "按下0");
                         readyStage = 1;
                         break;
                     case 3:
-                        Log.v(this.getClass().getName(), "按下3");
                         readyStage = 0;
                         break;
                     case 4:
-                        Log.v(this.getClass().getName(), "按下4");
                         // 设置左边位置为ProxyPlayer
                         b = 0;
                         readyStage = 0;
                         break;
                     case 5:
-                        Log.v(this.getClass().getName(), "按下5");
                         // 设置左边位置为Robot
                         b = 1;
                         readyStage = 0;
@@ -200,11 +178,9 @@ public class Ready extends AbstractScene {
                         }
                         break;
                     case 6:
-                        Log.v(this.getClass().getName(), "按下6");
                         readyStage = 3;
                         break;
                     case 9:
-                        Log.v(this.getClass().getName(), "按下9");
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
                         } else {
@@ -220,25 +196,20 @@ public class Ready extends AbstractScene {
             case 3:
                 switch (touchReady(x, y)) {
                     case 0:
-                        Log.v(this.getClass().getName(), "按下0");
                         readyStage = 1;
                         break;
                     case 3:
-                        Log.v(this.getClass().getName(), "按下3");
                         readyStage = 2;
                         break;
                     case 6:
-                        Log.v(this.getClass().getName(), "按下6");
                         readyStage = 0;
                         break;
                     case 7:
-                        Log.v(this.getClass().getName(), "按下7");
                         // 设置右边位置为PorxyPlayer
                         c = 0;
                         readyStage = 0;
                         break;
                     case 8:
-                        Log.v(this.getClass().getName(), "按下8");
                         // 设置右边位置为Robot
                         c = 1;
                         readyStage = 0;
@@ -247,7 +218,6 @@ public class Ready extends AbstractScene {
                         }
                         break;
                     case 9:
-                        Log.v(this.getClass().getName(), "按下9");
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
                         } else {
@@ -265,7 +235,7 @@ public class Ready extends AbstractScene {
         }
     }
 
-    public void setPlayer(AbstractPlayer player) {
+    public void setPlayer(AbstractPlayerWithDraw player) {
         if (player.position == 0) {
             playerBottom = player;
         } else if (player.position == 1) {

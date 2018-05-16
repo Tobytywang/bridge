@@ -7,6 +7,7 @@ import android.graphics.Rect;
 
 import com.happylich.bridge.game.main.Game;
 import com.happylich.bridge.game.player.AbstractPlayer;
+import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
 
 /**
  * Created by lich on 2018/4/24.
@@ -41,10 +42,10 @@ public abstract class AbstractScene {
     protected Game game;
 
     // 既然所有的局限都需要玩家
-    protected AbstractPlayer playerLeft;
-    protected AbstractPlayer playerRight;
-    protected AbstractPlayer playerTop;
-    protected AbstractPlayer playerBottom;
+    protected AbstractPlayerWithDraw playerLeft;
+    protected AbstractPlayerWithDraw playerRight;
+    protected AbstractPlayerWithDraw playerTop;
+    protected AbstractPlayerWithDraw playerBottom;
 
     /**
      * 设置game引用
@@ -59,7 +60,7 @@ public abstract class AbstractScene {
      * 需要设置上下左右和东南西北
      * @param player
      */
-    public void setPlayer(AbstractPlayer player) {
+    public void setPlayer(AbstractPlayerWithDraw player) {
         if (player.position == 0) {
             playerBottom = player;
         } else if (player.position == 1) {

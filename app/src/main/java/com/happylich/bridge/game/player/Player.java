@@ -17,7 +17,7 @@ import com.happylich.bridge.engine.util.Position;
  * 这个玩家的操作会被本地解析，同时也会被远程代理？
  * 如果一个Player被Remote代理了，应该会有标志表示这个类需要向远程传递消息
  */
-public class Player extends AbstractPlayer {
+public class Player extends AbstractPlayerWithDraw {
 
     private boolean inOrder;
 

@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * 被代理的玩家在引入之前不存在
  * 代理玩家需要在真正的玩家出现之前负责界面绘制
  */
-public class ProxyPlayer extends AbstractPlayer{
+public class ProxyPlayer extends AbstractPlayerWithDraw {
 
     // 被代理的玩家
     private AbstractPlayer realPlayer;

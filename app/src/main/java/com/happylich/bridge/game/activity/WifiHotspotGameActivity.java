@@ -37,12 +37,23 @@ import java.net.SocketException;
  * 4. 所有玩家就绪之后开始游戏
  * 5. 游戏就绪之后结算游戏
  */
+/**
+ * 工作原理
+ *
+ * 1. 获得wifiManager
+ * 2. 检测WiFi是否可用
+ * 3. 获得wifiInfo
+ * 4. 获得IP
+ * 5. 新建multicastSocket等
+ * 6. 发送消息
+ */
 public class WifiHotspotGameActivity extends AppCompatActivity{
 
-    private WifiManager wifiManager;
-    private WifiInfo wifiInfo;
+    private WifiManager mWifiManager;
+    private WifiInfo mWifiInfo;
+    private String ip;
 
-    private MulticastSocket ms;
+    private MulticastSocket mMulticastSocket;
 
     /**
      * Activity的onCreate函数
@@ -54,20 +65,26 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
         // 向局域网广播消息要在建立game类之后
         // 玩家加入
-        wifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiInfo = wifiManager.getConnectionInfo();
+        mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+
+        // 开一个线程不停的广播
+        // 在Activity结束之后停止广播
 
         // 设置一个网络类
         // 这个网络类建立之后，不停的向局域网发送广播，声明主机的状态
         // 其他主机回复之后，这个类负责调用game建立remoteplayer类，并且要是不是的发送心跳检测，检测目标主机是否还在线
         // remoteplayer建立之后，保存一个socket引用，当需要发送消息时，直接调用remoteplayer的方法发送
-        // 除了remoteplayer之外，还应该有个类，负责全局消息的发送，比如玩家在加入房间之后
+        // 除了remoteplayer之外，还应该有个类，负责全局消息的发送，比如玩家在加入房间之后，需要确定这个玩家在哪个位置（direction）
+        // 发牌的
         createLanGame();
     }
 
+
+
     public void init() {
         try {
-            ms = new MulticastSocket();
+            mMulticastSocket = new MulticastSocket();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,11 +92,11 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
     // 发送广播消息
     public void send() {
-        int ip = wifiInfo.getIpAddress();
+        int ip = mWifiInfo.getIpAddress();
         int broadCastIP = ip | 0xFF000000;
         DatagramPacket datagramPacket = null;
         try {
-            ms.setTimeToLive(4);
+            mMulticastSocket.setTimeToLive(4);
 
             byte[] data = "192.168.1.101".getBytes();
 
@@ -88,8 +105,8 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
             datagramPacket = new DatagramPacket(data, data.length, address, 8003);
 
-            ms.send(datagramPacket);
-            ms.close();
+            mMulticastSocket.send(datagramPacket);
+            mMulticastSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,22 +147,18 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
         Direction direction = new Direction();
 
-        AbstractPlayer player = new Player(this);
+        Player player = new Player(this);
         player.setDirection(direction.getDirections());
 
-        AbstractPlayer proxy1 = new ProxyPlayer(this);
+        ProxyPlayer proxy1 = new ProxyPlayer(this);
         proxy1.setDirection(direction.getDirections());
 
-        AbstractPlayer proxy2 = new ProxyPlayer(this);
+        ProxyPlayer proxy2 = new ProxyPlayer(this);
         proxy2.setDirection(direction.getDirections());
 
-        AbstractPlayer proxy3 = new ProxyPlayer(this);
+        ProxyPlayer proxy3 = new ProxyPlayer(this);
         proxy3.setDirection(direction.getDirections());
-//        Cards cards = new Cards(52);
-//        player.setCards(cards.getCards(0));
-//        proxy1.setCards(cards.getCards(1));
-//        proxy2.setCards(cards.getCards(2));
-//        proxy3.setCards(cards.getCards(2));
+
 
         game.setLocalPlayerNumber(player.direction);
         game.setGamePlayer(player);

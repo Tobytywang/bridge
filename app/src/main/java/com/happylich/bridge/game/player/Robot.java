@@ -110,7 +110,6 @@ public class Robot extends AbstractPlayer{
      */
     @Override
     public boolean dropCard() {
-        Log.v(this.getClass().getName(), "我持有的牌是 " + String.valueOf(cards));
         switch(position) {
             case 0:
                 if (table.isFinish()) {

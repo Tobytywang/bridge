@@ -5,8 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 
+import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
@@ -28,16 +28,27 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
     private Context context;
 
-    // 游戏进程标志
-    protected int stage = 1;
-    public void setGameStage(int gameStage) {
-        this.stage = gameStage;
-    }
-
     // 游戏类型标志
     protected int gameType = -1;
     public void setGameType(int gameType) {
         this.gameType = gameType;
+    }
+
+    // 游戏进程标志
+    // 0 玩家未就绪
+    // 1 玩家已经就绪
+    // 2 叫牌1
+    // 3 叫牌2
+    // 4 叫牌3
+    // 5 过渡
+    // 6 打牌
+    // 7
+    protected int gameStage = 1;
+    public void setGameStage(int gameStage) {
+        this.gameStage = gameStage;
+    }
+    public int getGameStage() {
+        return gameStage;
     }
 
     // 本地玩家标号
@@ -49,6 +60,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
     // 记录庄家
     protected AbstractPlayer dealerPlayer = null;
+
 
 
     protected Timer timer = new Timer();
@@ -63,10 +75,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
     // 玩家
     // TODO:这四个玩家变量应该跟drawPosition绑定还是direction（当然是drawPosition）
-    private AbstractPlayer playerBottom;
-    private AbstractPlayer playerLeft;
-    private AbstractPlayer playerTop;
-    private AbstractPlayer playerRight;
+    private AbstractPlayerWithDraw playerBottom;
+    private AbstractPlayerWithDraw playerLeft;
+    private AbstractPlayerWithDraw playerTop;
+    private AbstractPlayerWithDraw playerRight;
 
     // 赢墩（界面上显示当前玩家的）
 //    private int nsContract = -1;
@@ -108,7 +120,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      * 设置玩家逻辑座位
      * @param player
      */
-    public void setGamePlayer(AbstractPlayer player) {
+    public void setGamePlayer(AbstractPlayerWithDraw player) {
         player.setReady(this.ready);
         player.setTable(this.table);
         player.setCall(this.call);
@@ -195,7 +207,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     @Override
     public void onTouch(int x, int y) {
-        switch (stage) {
+        switch (gameStage) {
             case 0:                // 在Process里自动切换状态
                 // 已准备界面
                 // 触摸取消准备按钮，将playerBottom的准备状态切换为未就绪
@@ -210,17 +222,17 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 {
                     switch (call.onTouch(x, y)) {
                         case 0:
-                            stage = 2;
+                            gameStage = 2;
                             break;
                         case 1:
-                            stage = 3;
+                            gameStage = 3;
                             break;
                         case 2:
-                            stage = 4;
+                            gameStage = 4;
                             break;
                         case 3:
                             // 为了解决之前的bug
-                            stage = 2;
+                            gameStage = 2;
                             playerNumber++;
                             break;
                     }
@@ -234,16 +246,16 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         case 0:
                             // TODO:这个地方可以有吗？不可以，会引起big的情况跳过玩家的bug
                             // TODO:玩家按PASS后player不会++
-                            stage = 2;
+                            gameStage = 2;
                             break;
                         case 1:
-                            stage = 3;
+                            gameStage = 3;
                             break;
                         case 2:
-                            stage = 4;
+                            gameStage = 4;
                             break;
                         case 3:
-                            stage = 2;
+                            gameStage = 2;
                             playerNumber++;
                             break;
                     }
@@ -256,16 +268,16 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     switch (call.onTouch(x, y)) {
                         case 0:
                             playerNumber++;
-                            stage = 2;
+                            gameStage = 2;
                             break;
                         case 1:
-                            stage = 3;
+                            gameStage = 3;
                             break;
                         case 2:
-                            stage = 4;
+                            gameStage = 4;
                             break;
                         case 3:
-                            stage = 2;
+                            gameStage = 2;
                             playerNumber++;
                             break;
                     }
@@ -274,7 +286,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 5:
                 dealerPlayer = call.getDealer();
                 playerNumber = table.getPlayer();
-                stage = 6;
+                gameStage = 6;
                 break;
             case 6:
                 // 本地玩家是人类
@@ -329,15 +341,13 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     @Override
     public void process(Canvas canvas) {
-        switch (stage) {
+        switch (gameStage) {
             case 0:
-                Log.v(this.getClass().getName(), "准备阶段：需要交互");
                 if (ready.isFinish()) {
-                    stage = 2;
+                    gameStage = 2;
                 }
                 break;
             case 1:
-                Log.v(this.getClass().getName(), "准备阶段：不需要交互");
                 // 表示本机已经准备好
                 // 检测所有玩家的就绪状态
                 // 如果所有玩家都已经就绪，则进入下一个阶段
@@ -346,7 +356,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 ((ProxyPlayer) playerLeft).setRealPlayer(new Robot(context));
                 ((ProxyPlayer) playerRight).setRealPlayer(new Robot(context));
                 if (ready.isFinish()) {
-                    stage = 2;
+                    gameStage = 2;
                 }
                 break;
             case 2:
@@ -354,7 +364,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 4:
                 // TODO:修改game的stage可以将游戏进程向前推进
                 if (call.isFinish()) {
-                    stage = 5;
+                    gameStage = 5;
                 } else {
                     if (playerNumber == playerBottom.position) {
 //                        Log.v(this.getClass().getName(), "Bottom叫牌");
@@ -399,7 +409,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 5:
-                Log.v(this.getClass().getName(), "阶段5");
                 // TODO:坐庄提示
                 // TODO:没有逻辑处理
                 table.setDealerAndContract(this.call.getDealer(),
@@ -412,7 +421,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // TODO:修改game的stage可以将游戏进程向前推进
                 // TODO:要设置table的位置（左，中，右）
                 if (table.isFinish()) {
-                    stage = 7;
+                    gameStage = 7;
                 } else {
                     // 有更新playerNumber的必要
                     playerNumber = table.getPlayer();
@@ -489,7 +498,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         Rect des = new Rect();
 
         initCanvas(canvas, paint);
-        switch(stage) {
+        switch(gameStage) {
             case 0:
                 // 绘制已经准备界面
                 ready.draw(canvas, paint, des);
