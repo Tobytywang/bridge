@@ -148,15 +148,13 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         Direction direction = new Direction();
 
         Player player = new Player(this);
-        player.setDirection(direction.getDirections());
-
         ProxyPlayer proxy1 = new ProxyPlayer(this);
-        proxy1.setDirection(direction.getDirections());
-
         ProxyPlayer proxy2 = new ProxyPlayer(this);
-        proxy2.setDirection(direction.getDirections());
-
         ProxyPlayer proxy3 = new ProxyPlayer(this);
+
+        player.setDirection(direction.getDirections());
+        proxy1.setDirection(direction.getDirections());
+        proxy2.setDirection(direction.getDirections());
         proxy3.setDirection(direction.getDirections());
 
 
@@ -165,7 +163,7 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
-        game.setGameStage(0);
+        game.setGameStage(2);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);

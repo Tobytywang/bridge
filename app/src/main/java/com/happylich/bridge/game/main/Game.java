@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
 import com.happylich.bridge.game.player.Player;
@@ -208,79 +209,39 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     @Override
     public void onTouch(int x, int y) {
         switch (gameStage) {
-            case 0:                // 在Process里自动切换状态
+            case 2:                // 在Process里自动切换状态
                 // 已准备界面
                 // 触摸取消准备按钮，将playerBottom的准备状态切换为未就绪
                 ready.onTouch(x, y);
                 break;
-            case 1:
-                break;
-            case 2:
-                // TODO:问题在于新加入的这几个玩家类也需要持有call,table的引用！
-                // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
-                if (playerBottom instanceof Player && playerNumber == playerBottom.position)
-                {
-                    switch (call.onTouch(x, y)) {
-                        case 0:
-                            gameStage = 2;
-                            break;
-                        case 1:
-                            gameStage = 3;
-                            break;
-                        case 2:
-                            gameStage = 4;
-                            break;
-                        case 3:
-                            // 为了解决之前的bug
-                            gameStage = 2;
-                            playerNumber++;
-                            break;
-                    }
-                }
-                break;
             case 3:
-                // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
-                if (playerBottom instanceof Player && playerNumber == playerBottom.position)
-                {
-                    switch (call.onTouch(x, y)) {
-                        case 0:
-                            // TODO:这个地方可以有吗？不可以，会引起big的情况跳过玩家的bug
-                            // TODO:玩家按PASS后player不会++
-                            gameStage = 2;
-                            break;
-                        case 1:
-                            gameStage = 3;
-                            break;
-                        case 2:
-                            gameStage = 4;
-                            break;
-                        case 3:
-                            gameStage = 2;
-                            playerNumber++;
-                            break;
-                    }
-                }
                 break;
             case 4:
                 // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
-                if (playerBottom instanceof Player && playerNumber == playerBottom.position)
-                {
-                    switch (call.onTouch(x, y)) {
-                        case 0:
-                            playerNumber++;
-                            gameStage = 2;
-                            break;
-                        case 1:
-                            gameStage = 3;
-                            break;
-                        case 2:
-                            gameStage = 4;
-                            break;
-                        case 3:
-                            gameStage = 2;
-                            playerNumber++;
-                            break;
-                    }
+                switch (call.onTouch(x, y)) {
+                    case 0:
+                        if (playerBottom instanceof Player && playerNumber == playerBottom.position) {
+                            call.setCallStage(0);
+                        } else {
+                            call.setCallStage(1);
+                        }
+                        Log.v(this.getClass().getName(), "进入Small");
+                        break;
+                    case 1:
+                        call.setCallStage(1);
+                        break;
+                    case 2:
+                        call.setCallStage(2);
+                        Log.v(this.getClass().getName(), "进入Big");
+                        break;
+                    case 3:
+                        call.setCallStage(3);
+                        Log.v(this.getClass().getName(), "进入Selected");
+                        break;
+                    case 4:
+                        call.setCallStage(1);
+                        playerNumber++;
+                        break;
                 }
                 break;
             case 5:
@@ -342,12 +303,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     @Override
     public void process(Canvas canvas) {
         switch (gameStage) {
-            case 0:
+            case 2:
                 if (ready.isFinish()) {
-                    gameStage = 2;
+                    gameStage = 4;
                 }
                 break;
-            case 1:
+            case 3:
                 // 表示本机已经准备好
                 // 检测所有玩家的就绪状态
                 // 如果所有玩家都已经就绪，则进入下一个阶段
@@ -356,43 +317,26 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 ((ProxyPlayer) playerLeft).setRealPlayer(new Robot(context));
                 ((ProxyPlayer) playerRight).setRealPlayer(new Robot(context));
                 if (ready.isFinish()) {
-                    gameStage = 2;
+                    gameStage = 4;
                 }
                 break;
-            case 2:
-            case 3:
             case 4:
                 // TODO:修改game的stage可以将游戏进程向前推进
                 if (call.isFinish()) {
                     gameStage = 5;
                 } else {
                     if (playerNumber == playerBottom.position) {
-//                        Log.v(this.getClass().getName(), "Bottom叫牌");
-                        // TODO:怎么获得人类玩家的叫牌值
-                        // TODO:怎么在获得机器人玩家的叫牌值得同时，不阻碍界面绘制
-                        // TODO:不够抽象？
-                        // 这个逻辑仅仅适用于人机模式
-                        // 机器人玩家在（自己是人类玩家的对面 并且 自己或者人类玩家是庄家） 的情况下，需要将出牌和叫牌的权利移交给人类玩家
-                        // 具体操作是：
-                        //     如果localPlayer是机器人
+                        if (playerBottom instanceof Player && call.getCallStage() == 1) {
+                            call.setCallStage(0);
+                        }
                         if (playerBottom.callCard()) {
                             playerNumber = playerLeft.position;
                         }
                     } else if (playerNumber == playerLeft.position) {
-//                        Log.v(this.getClass().getName(), "Left叫牌");
-//                            if (hasSetLeftPlayerCallCard == 0) {
-//                                timer.schedule(new leftPlayerCallCard(), 3000);
-//                                hasSetLeftPlayerCallCard = 1;
-//                            }
                         if (playerLeft.callCard()) {
                             playerNumber = playerTop.position;
                         }
                     } else if (playerNumber == playerTop.position) {
-//                        Log.v(this.getClass().getName(), "Top叫牌");
-//                            if (hasSetTopPlayerCallCard == 0) {
-//                                timer.schedule(new topPlayerCallCard(), 3000);
-//                                hasSetTopPlayerCallCard = 1;
-//                            }
                         if (playerTop.callCard()) {
                             playerNumber = playerRight.position;
                         }
@@ -460,10 +404,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                             // 条件是，top是庄家或者明手
                             if (playerTop.position == dealerPlayer.position ||
                                     playerTop.position == (dealerPlayer.position + 2) || playerTop.position == (dealerPlayer.position - 2)) {
-//                                Log.v(this.getClass().getName(), "什么也不做，等待触摸事件");
-                                // dropCard还要承担设置明手的作用（setDrop调用
-                                // 设置明手的工作应该在出牌之前
-
                             } else {
                                 // 机器人出牌
                                 if (playerTop.dropCard()) {
@@ -499,34 +439,19 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
         initCanvas(canvas, paint);
         switch(gameStage) {
-            case 0:
+            case 2:
                 // 绘制已经准备界面
                 ready.draw(canvas, paint, des);
                 break;
-            case 1:
-                // 过渡界面
-                break;
-            case 2:
-                playerBottom.draw(canvas, paint, des);
-                // 当下面的玩家是人类玩家并且轮到这个玩家时，点亮叫牌区域
-                if (playerNumber == playerBottom.position && playerBottom instanceof Player) {
-                    call.setCallStage(10);
-                } else {
-                    call.setCallStage(11);
-                }
-                call.draw(canvas, paint, des);
-                break;
             case 3:
-                playerBottom.draw(canvas, paint, des);
-                call.setCallStage(20);
-                call.draw(canvas, paint, des);
+                // 过渡界面
                 break;
             case 4:
                 playerBottom.draw(canvas, paint, des);
-                call.setCallStage(30);
                 call.draw(canvas, paint, des);
                 break;
             case 5:
+                // 过渡阶段，可以什么都不画的
                 playerBottom.draw(canvas, paint, des);
                 call.setCallStage(11);
                 call.draw(canvas, paint, des);

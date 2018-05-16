@@ -134,6 +134,9 @@ public class Call extends AbstractScene {
     public void setCallStage(int stage) {
         this.callStage = stage;
     }
+    public int getCallStage() {
+        return this.callStage;
+    }
 
 
     /**
@@ -196,44 +199,29 @@ public class Call extends AbstractScene {
      * 在特定阶段被game.call调用
      * @param x
      * @param y
-     * @return 表示事件类型，0表示无效区域，1表示有效区域
+     * @return 表示事件类型，0表示无效区域，1表示有效区域(small)，2表示有效区域（big)，3表示有效区域（bigselected）
      */
     public int onTouch(int x, int y) {
+        Log.v(this.getClass().getName(), "callStage " + String.valueOf(this.callStage));
         int touch;
         switch(callStage) {
-            case 00:
-            case 10:
+            case 0:
                 touch = touchSmall(x, y);
-                if (touch == 1) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            case 11:
-                return 0;
-            case 20:
+                break;
+            case 1:
+                touch = 0;
+                break;
+            case 2:
                 touch = touchBig(x, y);
-                if (touch == 2) {
-                    return 2;
-                } else if(touch == 3){
-                    return 3;
-                } else {
-                    return 0;
-                }
-            case 30:
+                break;
+            case 3:
                 touch = touchBigSelected(x, y);
-                if (touch == 0) {
-                    return 0;
-                } else if (touch == 2) {
-                    return 2;
-                } else if (touch == 3) {
-                    return 3;
-                } else {
-                    return 1;
-                }
+                break;
+            case 4:
             default:
-                return 0;
+                touch = 0;
         }
+        return touch;
     }
 
     /**
@@ -249,7 +237,7 @@ public class Call extends AbstractScene {
                 top + 1144, left + 720);
         position.resieze((float)this.width / (float)1440);
         if (Position.inPosition(x, y, position)) {
-            return 1;
+            return 2;
         }
         return 0;
     }
@@ -273,7 +261,7 @@ public class Call extends AbstractScene {
         position.resieze((float)this.width / (float)1440);
         if (Position.inPosition(x, y, position)) {
             setCall(0,35);
-            return 3;
+            return 4;
         }
 
         // 检测是否触摸一个方块（进入阶段2）
@@ -289,7 +277,7 @@ public class Call extends AbstractScene {
                         selectFlag = j * 5 + i;
                         selectFlagX = i;
                         selectFlagY = j;
-                        return 2;
+                        return 3;
                     }
                 }
             }
@@ -321,7 +309,7 @@ public class Call extends AbstractScene {
         position.resieze((float)this.width / (float)1440);
         if (Position.inPosition(x, y, position)) {
             setCall(0,35);
-            return 3;
+            return 4;
         }
 
         // 检测是否触摸方块（有效方块进入阶段0， 无效方块重复阶段2）
@@ -339,7 +327,7 @@ public class Call extends AbstractScene {
                             selectFlagX = -1;
                             selectFlagY = -1;
                             setCall(0, j * 5 + i);
-                            return 0;
+                            return 4;
                         }
                     } else {
                         position = new Position(top + 5 + 165 * j + 2 * j,
@@ -351,7 +339,7 @@ public class Call extends AbstractScene {
                             selectFlag = j * 5 + i;
                             selectFlagX = i;
                             selectFlagY = j;
-                            return 2;
+                            return 3;
                         }
                     }
                 }
@@ -359,7 +347,7 @@ public class Call extends AbstractScene {
         }
 
         // 否则返回阶段1
-        return 1;
+        return 2;
     }
 
     /**
@@ -382,20 +370,21 @@ public class Call extends AbstractScene {
 //        drawTest(canvas);
         switch (callStage) {
             case 0:
-            case 10:
                 drawSmall(canvas, paint, rect);
                 drawHistory(canvas, paint, rect);
                 break;
-            case 11:
+            case 1:
                 drawSmall(canvas, paint, rect);
                 drawHistory(canvas, paint, rect);
                 drawCover(canvas, paint, rect);
                 break;
-            case 20:
+            case 2:
                 drawBig(canvas, paint, rect);
                 break;
-            case 30:
+            case 3:
                 drawBigSelected(canvas, paint, rect);
+                break;
+            case 4:
                 break;
             default:
                 drawSmall(canvas, paint, rect);

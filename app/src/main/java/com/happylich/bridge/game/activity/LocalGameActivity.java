@@ -95,7 +95,7 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
         game.setGamePlayer(proxy4);
-        game.setGameStage(1);
+        game.setGameStage(3);
 
 
         Robot robot1 = new Robot(this);
@@ -139,11 +139,6 @@ public class LocalGameActivity extends AppCompatActivity {
         proxy1.setDirection(direction.getDirections());
         proxy2.setDirection(direction.getDirections());
         proxy3.setDirection(direction.getDirections());
-//        Cards cards = new Cards(52);
-//        player.setCards(cards.getCards(0));
-//        proxy1.setCards(cards.getCards(1));
-//        proxy2.setCards(cards.getCards(2));
-//        proxy3.setCards(cards.getCards(3));
 
 
         //
@@ -152,7 +147,7 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
         game.setGamePlayer(player);
-        game.setGameStage(1);
+        game.setGameStage(3);
 
 
         AbstractPlayer robot1 = new Robot(this);
