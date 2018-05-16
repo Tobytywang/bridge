@@ -6,6 +6,8 @@ package com.happylich.bridge.game.player;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
 /**
  * 使用情景：
  * 1. 主机玩家创建房间，主机玩家设置Player1
@@ -93,6 +95,24 @@ public class ProxyPlayer extends AbstractPlayer{
             return realPlayer;
         }
         return (AbstractPlayer) new Object();
+    }
+
+    /**
+     * 玩家初始化手牌
+     */
+    public void setCards(ArrayList<Integer> cards) {
+        this.cards = cards;
+        if (realPlayer != null) {
+            realPlayer.setCards(cards);
+        }
+    }
+    /**
+     * 玩家出牌
+     * @param cardNumber
+     */
+    public int removeCard(int cardNumber) {
+        this.cards.remove(cardNumber);
+        return this.realPlayer.cards.remove(cardNumber);
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.happylich.bridge.game;
+package com.happylich.bridge.game.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -75,7 +75,6 @@ public class LocalGameActivity extends AppCompatActivity {
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
         // S:服务器负责（负责发牌一致）
         Direction direction = new Direction();
-        Cards cards = new Cards(52);
 
         // S:服务器负责（负责一致性）
         ProxyPlayer proxy1 = new ProxyPlayer(this);
@@ -85,16 +84,9 @@ public class LocalGameActivity extends AppCompatActivity {
 
 
         proxy1.setDirection(direction.getDirections());
-        proxy1.setCards(cards.getCards(0));
-
         proxy2.setDirection(direction.getDirections());
-        proxy2.setCards(cards.getCards(1));
-
         proxy3.setDirection(direction.getDirections());
-        proxy3.setCards(cards.getCards(2));
-
         proxy4.setDirection(direction.getDirections());
-        proxy4.setCards(cards.getCards(3));
 
         // 这一段可以进行隐藏
         game.setLocalPlayerNumber(proxy1.direction);
@@ -102,7 +94,7 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
         game.setGamePlayer(proxy4);
-        game.setGameStage(2);
+        game.setGameStage(1);
 
 
         AbstractPlayer robot1 = new Robot(this);
@@ -133,25 +125,24 @@ public class LocalGameActivity extends AppCompatActivity {
 
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
         Direction direction = new Direction();
-        Cards cards = new Cards(52);
 
         // 建立玩家
         AbstractPlayer player = new Player(this);
-        player.setDirection(direction.getDirections());
-        player.setCards(cards.getCards(0));
-
         ProxyPlayer proxy1 = new ProxyPlayer(this);
         ProxyPlayer proxy2 = new ProxyPlayer(this);
         ProxyPlayer proxy3 = new ProxyPlayer(this);
 
+
+        player.setDirection(direction.getDirections());
+        ((Player) player).setInOrder(true);
         proxy1.setDirection(direction.getDirections());
-        proxy1.setCards(cards.getCards(1));
-
         proxy2.setDirection(direction.getDirections());
-        proxy2.setCards(cards.getCards(2));
-
         proxy3.setDirection(direction.getDirections());
-        proxy3.setCards(cards.getCards(3));
+//        Cards cards = new Cards(52);
+//        player.setCards(cards.getCards(0));
+//        proxy1.setCards(cards.getCards(1));
+//        proxy2.setCards(cards.getCards(2));
+//        proxy3.setCards(cards.getCards(3));
 
 
         //
@@ -160,7 +151,7 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
         game.setGamePlayer(player);
-        game.setGameStage(2);
+        game.setGameStage(1);
 
 
         AbstractPlayer robot1 = new Robot(this);

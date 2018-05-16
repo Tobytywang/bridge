@@ -196,12 +196,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     @Override
     public void onTouch(int x, int y) {
         switch (stage) {
-            case 0:
-            case 1:
-                // 在Process里自动切换状态
+            case 0:                // 在Process里自动切换状态
                 // 已准备界面
                 // 触摸取消准备按钮，将playerBottom的准备状态切换为未就绪
                 ready.onTouch(x, y);
+                break;
+            case 1:
                 break;
             case 2:
                 // TODO:问题在于新加入的这几个玩家类也需要持有call,table的引用！
@@ -331,10 +331,20 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     public void process(Canvas canvas) {
         switch (stage) {
             case 0:
+                Log.v(this.getClass().getName(), "准备阶段：需要交互");
+                if (ready.isFinish()) {
+                    stage = 2;
+                }
+                break;
             case 1:
+                Log.v(this.getClass().getName(), "准备阶段：不需要交互");
                 // 表示本机已经准备好
                 // 检测所有玩家的就绪状态
                 // 如果所有玩家都已经就绪，则进入下一个阶段
+                // 要在这里帮忙建立人机
+                ((ProxyPlayer) playerTop).setRealPlayer(new Robot(context));
+                ((ProxyPlayer) playerLeft).setRealPlayer(new Robot(context));
+                ((ProxyPlayer) playerRight).setRealPlayer(new Robot(context));
                 if (ready.isFinish()) {
                     stage = 2;
                 }
@@ -389,6 +399,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 5:
+                Log.v(this.getClass().getName(), "阶段5");
                 // TODO:坐庄提示
                 // TODO:没有逻辑处理
                 table.setDealerAndContract(this.call.getDealer(),
@@ -480,9 +491,11 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         initCanvas(canvas, paint);
         switch(stage) {
             case 0:
-            case 1:
                 // 绘制已经准备界面
                 ready.draw(canvas, paint, des);
+                break;
+            case 1:
+                // 过渡界面
                 break;
             case 2:
                 playerBottom.draw(canvas, paint, des);

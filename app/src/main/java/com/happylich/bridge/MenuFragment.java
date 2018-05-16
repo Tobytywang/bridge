@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.happylich.bridge.game.LocalGameActivity;
-import com.happylich.bridge.game.SelectHotspotRoomActivity;
-import com.happylich.bridge.game.WifiHotspotGameActivity;
+import com.happylich.bridge.game.activity.LocalGameActivity;
+import com.happylich.bridge.game.activity.SelectHotspotRoomActivity;
+import com.happylich.bridge.game.activity.WifiHotspotGameActivity;
 
 
 /**

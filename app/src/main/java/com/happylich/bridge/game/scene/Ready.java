@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import com.happylich.bridge.engine.util.Position;
+import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
@@ -49,10 +50,21 @@ public class Ready extends AbstractScene {
 //        if (a == 1 && b == 1 && c == 1 && d == 1) {
 //            return true;
 //        }
+        Log.v(this.getClass().getName(), "playertop: " + String.valueOf(playerTop.isInOrder()));
+        Log.v(this.getClass().getName(), "playerleft: " + String.valueOf(playerLeft.isInOrder()));
+        Log.v(this.getClass().getName(), "playerright: " + String.valueOf(playerRight.isInOrder()));
+        Log.v(this.getClass().getName(), "playerbottom: " + String.valueOf(playerBottom.isInOrder()));
         if (playerTop.isInOrder() &&
                 playerLeft.isInOrder() &&
                 playerRight.isInOrder() &&
                 playerBottom.isInOrder()) {
+            // 在这里执行发牌操作？
+            Log.v(this.getClass().getName(), "发牌了。。。。");
+            Cards cards = new Cards(52);
+            playerLeft.setCards(cards.getCards(0));
+            playerRight.setCards(cards.getCards(1));
+            playerBottom.setCards(cards.getCards(2));
+            playerTop.setCards(cards.getCards(3));
             return true;
         }
         return false;

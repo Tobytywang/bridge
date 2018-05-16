@@ -1,6 +1,7 @@
 package com.happylich.bridge.game.player;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.Random;
 
@@ -109,6 +110,7 @@ public class Robot extends AbstractPlayer{
      */
     @Override
     public boolean dropCard() {
+        Log.v(this.getClass().getName(), "我持有的牌是 " + String.valueOf(cards));
         switch(position) {
             case 0:
                 if (table.isFinish()) {

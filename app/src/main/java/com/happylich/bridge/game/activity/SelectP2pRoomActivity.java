@@ -1,4 +1,4 @@
-package com.happylich.bridge.game;
+package com.happylich.bridge.game.activity;
 
 import android.content.Context;
 import android.net.wifi.WpsInfo;
@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.happylich.bridge.R;
+import com.happylich.bridge.game.utils.AdapterImageView;
 import com.happylich.bridge.game.wlan.wifip2p.ActionListenerHandler;
 import com.happylich.bridge.game.wlan.wifip2p.WifiDirectReceiver;
 

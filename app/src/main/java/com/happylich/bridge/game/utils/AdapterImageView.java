@@ -1,4 +1,4 @@
-package com.happylich.bridge.game;
+package com.happylich.bridge.game.utils;
 
 import android.app.Activity;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.happylich.bridge.game;
+package com.happylich.bridge.game.activity;
 
 import android.content.Context;
 import android.net.wifi.WpsInfo;
@@ -15,14 +15,20 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.happylich.bridge.R;
-import com.happylich.bridge.game.AdapterImageView;
+import com.happylich.bridge.game.utils.AdapterImageView;
 import com.happylich.bridge.game.wlan.wifip2p.ActionListenerHandler;
 import com.happylich.bridge.game.wlan.wifip2p.WifiDirectReceiver;
 
 import java.util.ArrayList;
 
 /**
- * 这个Activity负责找出所有建立Wi-Fi direct连接的设备，并列出其中建立的房间的设备
+ * 这个Activity负责找出所有在局域网中发送游戏广播消息的主机
+ *
+ * 1. 广播消息的内容：ip:port,
+ * 2. 接收方要做的事：向ip:port发送消息，说明自己的ip:port，声明加入意图
+ * 3. 服务端new一个remoteplayer，将它作为proxyplayer的realplayer，同时也获得了本次发的牌？将准备界面的图标进行更新
+ * 4. 所有玩家就位后，确认所有主机的玩家状态是OK的
+ * 5. 对有必要的动作进行同步
  *
  * 被连接方：
  *     1. WifiP2pManager.discoverPeers()
@@ -59,6 +65,8 @@ public class SelectHotspotRoomActivity extends AppCompatActivity
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
     public WifiDirectReceiver mReceiver;
+
+
 
     private ArrayList<String> devicesNames;
     private ArrayList<String> devicesAddress;

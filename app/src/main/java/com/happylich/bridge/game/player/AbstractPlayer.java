@@ -172,7 +172,6 @@ public abstract class AbstractPlayer {
     }
 
 
-
     // 当前选中的牌(table)
     protected int selectCardIndex = -1;
     protected int selectCard = -1;

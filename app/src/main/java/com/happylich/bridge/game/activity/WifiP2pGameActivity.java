@@ -1,4 +1,4 @@
-package com.happylich.bridge.game;
+package com.happylich.bridge.game.activity;
 
 /**
  * Created by lich on 2018/5/2.

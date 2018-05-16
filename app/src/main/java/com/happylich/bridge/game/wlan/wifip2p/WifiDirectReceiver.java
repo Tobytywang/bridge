@@ -11,7 +11,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 
-import com.happylich.bridge.game.SelectHotspotRoomActivity;
+import com.happylich.bridge.game.activity.SelectHotspotRoomActivity;
 import com.happylich.bridge.game.main.Game;
 
 import java.util.ArrayList;

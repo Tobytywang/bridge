@@ -3,7 +3,7 @@ package com.happylich.bridge;
 import android.net.Uri;
 
 import com.happylich.bridge.dummy.DummyContent;
-import android.content.Intent;
+
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
@@ -11,12 +11,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-
-import com.happylich.bridge.game.LocalGameActivity;
-import com.happylich.bridge.game.WifiHotspotGameActivity;
-import com.happylich.bridge.game.SelectHotspotRoomActivity;
 
 // 没有Fragment的Activity
 // 要考虑向后兼容，继承自AppCompatActivity

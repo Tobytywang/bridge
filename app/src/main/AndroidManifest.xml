@@ -24,17 +24,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".game.LocalGameActivity"
+            android:name=".game.activity.LocalGameActivity"
             android:label="@string/title_activity_play"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".game.WifiHotspotGameActivity"
+            android:name=".game.activity.WifiHotspotGameActivity"
             android:label="@string/title_activity_play2"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".game.SelectHotspotRoomActivity"
+            android:name=".game.activity.SelectHotspotRoomActivity"
             android:label="@string/title_activity_select"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
