@@ -29,6 +29,18 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
     private Context context;
 
+    // 游戏状态标志
+    // 1. 等待玩家加入中
+    // 2. 玩家已满
+    // 3. 游戏进行中
+    protected int gameState = 0;
+    public void setGameState(int gameStage) {
+        this.gameStage = gameState;
+    }
+    public int getGameState() {
+        return this.gameState;
+    }
+
     // 游戏类型标志
     protected int gameType = -1;
     public void setGameType(int gameType) {
@@ -225,18 +237,15 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         } else {
                             call.setCallStage(1);
                         }
-                        Log.v(this.getClass().getName(), "进入Small");
                         break;
                     case 1:
                         call.setCallStage(1);
                         break;
                     case 2:
                         call.setCallStage(2);
-                        Log.v(this.getClass().getName(), "进入Big");
                         break;
                     case 3:
                         call.setCallStage(3);
-                        Log.v(this.getClass().getName(), "进入Selected");
                         break;
                     case 4:
                         call.setCallStage(1);
@@ -305,6 +314,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         switch (gameStage) {
             case 2:
                 if (ready.isFinish()) {
+                    // 进入游戏
+                    gameState = 2;
                     gameStage = 4;
                 }
                 break;

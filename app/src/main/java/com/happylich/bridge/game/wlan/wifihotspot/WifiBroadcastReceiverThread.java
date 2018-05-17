@@ -1,31 +1,30 @@
 package com.happylich.bridge.game.wlan.wifihotspot;
 
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.content.res.Resources;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.util.Log;
-import android.view.SurfaceHolder;
 
-import com.happylich.bridge.game.main.Game;
+import com.happylich.bridge.engine.game.Game;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 /**
- * Created by lich on 2018/5/16.
+ * Created by lich on 2018/5/17.
  */
 
-public class WifiBroadcastThread extends Thread {
+/**
+ * 这个类监听局域网中发送"IP + 状态"UDP包
+ * 将这些IP和状态显示在列表中
+ *
+ * 点击列表后，向服务器发送连接请求
+ * 客户端所有的请求都发送给服务器å
+ */
+public class WifiBroadcastReceiverThread extends Thread {
 
-    private Game game;
     private WifiInfo mWifiInfo;
     private String ip;
-    private String message;
     private static int BROADCAST_PORT = 8003;
     private static String BROADCAST_IP = "224.0.0.1";
 
@@ -33,24 +32,21 @@ public class WifiBroadcastThread extends Thread {
     MulticastSocket mMulticastSocket = null;
     DatagramPacket  mDatagramPacket = null;
 
-    byte[] data = new byte[1024];
-
     // 游戏线程运行开关
     private boolean running = false;
-    private final static int DELAY_TIME = 500;
+    private final static int DELAY_TIME = 5000;
     private boolean isPaused = false;
 
+    byte[] data = new byte[1024];
     /**
      * 线程构造函数
      */
-    public WifiBroadcastThread(WifiManager mWifiManager) {
+    public WifiBroadcastReceiverThread(WifiManager mWifiManager) {
         // 自动获得IP地址
         if (mWifiManager.isWifiEnabled()) {
-            Log.v(this.getClass().getName(), "Wifi启用了");
             mWifiInfo = mWifiManager.getConnectionInfo();
             ip = getIpString(mWifiInfo.getIpAddress());
         }
-        Log.v(this.getClass().getName(), "Wifi没有启用");
     }
 
     /**
@@ -60,14 +56,6 @@ public class WifiBroadcastThread extends Thread {
      */
     public String getIpString(int i) {
         return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF) + "." + ((i >> 24) & 0xFF);
-    }
-
-    /**
-     * 设置游戏类
-     * @param game
-     */
-    public void setGame(Game game) {
-        this.game = game;
     }
 
     /**
@@ -82,33 +70,42 @@ public class WifiBroadcastThread extends Thread {
      * 线程更新函数
      */
     public void run() {
+        DatagramPacket dataPacket = null;
 
         // 这里是广播IP
         // 视情况的不同，这个类还可能广播
         // 1. 房间的情况
-        //   0. 未满员：可以点击加入
-        //   1. 满员：不可以加入了
-        //   2. 游戏中：游戏已经开始
+        //   1. 未满员：可以点击加入
+        //   2. 满员：不可以加入了
+        //   3. 游戏中：游戏已经开始
         // 2. 心跳检测
         //   1. 依次向连接的客户端发起连接请求
         try {
+            InetAddress groupAddress = InetAddress.getByName("224.0.0.1");
             mMulticastSocket = new MulticastSocket(8003);
-            mInetAddress = InetAddress.getByName("224.0.0.1");
+            mMulticastSocket.joinGroup(groupAddress);
         } catch (Exception e) {
             e.printStackTrace();
         }
+//        byte[] data = ip.getBytes();
+//        dataPacket = new DatagramPacket(data, data.length, inetAddress, BROADCAST_PORT);
         while(running) {
-            if (!isPaused) {
+            if(!isPaused) {
                 try {
-                    message = ip + " " + String.valueOf(game.getGameState());
-                    Log.v(this.getClass().getName(), message);
-                    data = message.getBytes();
-                    mDatagramPacket = new DatagramPacket(data, data.length, mInetAddress, BROADCAST_PORT);
-                    mMulticastSocket.send(mDatagramPacket);
-                    Thread.sleep(DELAY_TIME);
+                    mDatagramPacket = new DatagramPacket(data, data.length);
+                    if (mMulticastSocket != null) {
+                        mMulticastSocket.receive(mDatagramPacket);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
+                // 获得发送的地址和数据
+                mDatagramPacket.getAddress();
+                mDatagramPacket.getData();
+//                if(mDatagramPacket.getAddress() != null) {
+//                    final String quest_ip = dataPacket.getAddress().toString();
+//                }
             }
         }
     }

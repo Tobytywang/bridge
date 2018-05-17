@@ -77,7 +77,6 @@ public class GameView extends SurfaceView
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.v(this.getClass().getName(), "创建Surface");
 
         gameThread = new GameThread(holder, context, new Handler() {
             @Override
@@ -92,27 +91,18 @@ public class GameView extends SurfaceView
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.v(this.getClass().getName(), "改变Surface");
 
         // 在这里创建游戏
         // TODO:把新建游戏的过程延迟到这里执行，就可以解决宽高的问题
         // TODO:这里报game为null的BUG
         game.setWidthHeight(this.getWidth(), this.getHeight());
-        Log.v(this.getClass().getName(), "修改宽高");
         gameThread.setGame(game);
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.v(this.getClass().getName(), "销毁Surface");
 
         gameThread.setRunning(false);
     }
 
-//    private void refresh() {
-//        Message message = Message.obtain();
-//        message.what = 0;
-//        handler.removeMessage(0);
-//        handler.sendMessage(message);
-//    }
 }

@@ -97,7 +97,7 @@ public class WifiDirectReceiver extends BroadcastReceiver
                 wifiP2pDeviceList.getDeviceList() != null &&
                 wifiP2pDeviceList.getDeviceList().size() > 0) {
             wifiDevices = new ArrayList<>(wifiP2pDeviceList.getDeviceList());
-            mActivity.peerAvailable();
+//            mActivity.peerAvailable();
         } else {
             wifiDevices = null;
         }

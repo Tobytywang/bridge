@@ -5,6 +5,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.happylich.bridge.R;
 import com.happylich.bridge.engine.view.GameView;
@@ -15,6 +16,7 @@ import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
+import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastThread;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -53,7 +55,8 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
     private WifiInfo mWifiInfo;
     private String ip;
 
-    private MulticastSocket mMulticastSocket;
+    private Game game;
+    private WifiBroadcastThread mWifiBroadcastThread;
 
     /**
      * Activity的onCreate函数
@@ -67,7 +70,7 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         // 玩家加入
         mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
-
+        mWifiBroadcastThread = new WifiBroadcastThread(mWifiManager);
         // 开一个线程不停的广播
         // 在Activity结束之后停止广播
 
@@ -77,69 +80,23 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         // remoteplayer建立之后，保存一个socket引用，当需要发送消息时，直接调用remoteplayer的方法发送
         // 除了remoteplayer之外，还应该有个类，负责全局消息的发送，比如玩家在加入房间之后，需要确定这个玩家在哪个位置（direction）
         // 发牌的
-        createLanGame();
+        Log.v(this.getClass().getName(), "新建游戏");
+        game = createLanGame();
+        mWifiBroadcastThread.setGame(game);
+        Log.v(this.getClass().getName(), "新建线程");
+        mWifiBroadcastThread.setRunning(true);
+        mWifiBroadcastThread.start();
     }
 
-
-
-    public void init() {
-        try {
-            mMulticastSocket = new MulticastSocket();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 发送广播消息
-    public void send() {
-        int ip = mWifiInfo.getIpAddress();
-        int broadCastIP = ip | 0xFF000000;
-        DatagramPacket datagramPacket = null;
-        try {
-            mMulticastSocket.setTimeToLive(4);
-
-            byte[] data = "192.168.1.101".getBytes();
-
-            // 广播地址
-            InetAddress address = InetAddress.getByName("224.0.0.1");
-
-            datagramPacket = new DatagramPacket(data, data.length, address, 8003);
-
-            mMulticastSocket.send(datagramPacket);
-            mMulticastSocket.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 发送广播消息
-    public void sendBroadCastToCenter(WifiInfo wifiInfo) {
-        int ip = wifiInfo.getIpAddress();
-        int broadCastIP = ip | 0xFF000000;
-        int port = 2333;
-
-        byte[] message = new byte[1024];
-
-        try {
-            DatagramSocket datagramSocket = new DatagramSocket(port);
-            DatagramPacket datagramPacket = new DatagramPacket(message, message.length);
-            try {
-                while(true) {
-                    datagramSocket.receive(datagramPacket);
-                    //
-                }
-            }catch (IOException e) {
-
-            }
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+        mWifiBroadcastThread.setRunning(false);
     }
 
     /**
      * 用来建立游戏的函数
      */
-    public void createLanGame() {
+    public Game createLanGame() {
         setContentView(R.layout.game_loading);
 
         Game game = new Game(this);
@@ -167,5 +124,7 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
+
+        return game;
     }
 }

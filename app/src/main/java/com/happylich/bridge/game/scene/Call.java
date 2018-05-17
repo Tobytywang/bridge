@@ -202,7 +202,6 @@ public class Call extends AbstractScene {
      * @return 表示事件类型，0表示无效区域，1表示有效区域(small)，2表示有效区域（big)，3表示有效区域（bigselected）
      */
     public int onTouch(int x, int y) {
-        Log.v(this.getClass().getName(), "callStage " + String.valueOf(this.callStage));
         int touch;
         switch(callStage) {
             case 0:

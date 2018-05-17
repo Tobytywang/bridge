@@ -73,7 +73,6 @@ public class GameThread extends Thread {
      * @param state
      */
     public void setRunning (boolean state) {
-        Log.v(this.getClass().getName(), "设置running");
         running = state;
     }
 
@@ -86,7 +85,6 @@ public class GameThread extends Thread {
         synchronized (surfaceHolder) {
             mCanvasHeight = width;
             mCanvasWidth = height;
-            // 每次画布的宽高发生改变时，就在这里对图片等资源进行缩放等相关适配工作
         }
     }
 
@@ -94,25 +92,19 @@ public class GameThread extends Thread {
      * 线程更新函数
      */
     public void run() {
-        Log.v(this.getClass().getName(), "我要跑了！");
         while (running) {
             long startTime = System.currentTimeMillis();
             Canvas canvas = null;
             if (!isPaused) {
                 game.process(canvas);
-//                Log.v(this.getClass().getName(), "process " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                 try {
                     canvas = surfaceHolder.lockCanvas(null);
                     synchronized (surfaceHolder) {
-                        // 这段时间最好执行和绘图有关的操作，其他代码越少越好
                         game.draw(canvas);
                     }
-//                    Log.v(this.getClass().getName(), "dddd    " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                     if (((int)(System.currentTimeMillis() - startTime)) < DELAY_TIME) {
                         Thread.sleep(Math.max(0, DELAY_TIME - (int)(System.currentTimeMillis() - startTime)));
-//                        Log.v(this.getClass().getName(), "draw    " + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                     } else {
-//                        Log.v(this.getClass().getName(), "draw----" + String.valueOf((float)(System.currentTimeMillis() - startTime)));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -123,7 +115,6 @@ public class GameThread extends Thread {
                 }
             }
         }
-        Log.v(this.getClass().getName(), "我不跑了！");
     }
 
     /**
@@ -131,7 +122,6 @@ public class GameThread extends Thread {
      * @param canvas
      */
     private void doDraw(Canvas canvas) {
-        // Log.v(this.getClass().getName(), "doDraw");
         // TODO:
         canvas.drawColor(Color.WHITE);
         canvas.drawArc(0, 0, 100, 100, 0, 90, true, new Paint());
