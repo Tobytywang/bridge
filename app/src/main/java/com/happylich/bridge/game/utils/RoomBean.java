@@ -21,14 +21,15 @@ public class RoomBean {
         return mIP;
     }
 
-    public void setState(int state) {
-        if (state == 0) {
-            this.mState = "等待加入";
-        } else if (state == 1) {
-            this.mState = "房间已满";
-        } else if (state == 2) {
-            this.mState = "正在游戏";
-        }
+    public void setState(String state) {
+//        if (state == "0") {
+//            this.mState = "等待加入";
+//        } else if (state == "1") {
+//            this.mState = "房间已满";
+//        } else if (state == "2") {
+//            this.mState = "正在游戏";
+//        }
+        this.mState = state;
     }
 
     public String getState() {

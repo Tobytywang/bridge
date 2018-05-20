@@ -107,7 +107,6 @@ public class GameThread extends Thread {
                     } else {
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                 } finally {
                     if (canvas != null) {
                         surfaceHolder.unlockCanvasAndPost(canvas);

@@ -1,10 +1,12 @@
 package com.happylich.bridge.game.activity;
 
 import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +23,8 @@ import com.happylich.bridge.R;
 import com.happylich.bridge.game.utils.AdapterImageView;
 import com.happylich.bridge.game.utils.RoomAdapter;
 import com.happylich.bridge.game.utils.RoomBean;
+import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastReceiverThread;
+import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastThread;
 import com.happylich.bridge.game.wlan.wifip2p.ActionListenerHandler;
 import com.happylich.bridge.game.wlan.wifip2p.WifiDirectReceiver;
 
@@ -63,18 +67,28 @@ import java.util.List;
  *
  *
  */
+
+/**
+ * 1. 监听局域网广播消息
+ * 2. 将所有广播加入列表
+ * 3. 点击列表项目，加入服务器
+ */
 public class SelectHotspotRoomActivity extends AppCompatActivity {
 
     Context context;
 
-    private WifiP2pManager mManager;
+    private WifiManager mWifiManager;
+    private WifiManager.MulticastLock multicastLock;
+
 
     private ListView listView;
 
-    private ArrayList<RoomBean> mList;
+    private ArrayList<RoomBean> mRoomList;
 
-    private RoomAdapter mAdapter;
+    private RoomAdapter mRoomAdapter;
     private Handler mHandler;
+
+    private WifiBroadcastReceiverThread mWifiBroadcastReceiverThread;
 
     private ArrayList<String> devicesNames;
     private ArrayList<String> devicesAddress;
@@ -90,6 +104,8 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select);
 
+        mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        multicastLock = mWifiManager.createMulticastLock("multicast");
 
 //        hybridAdapter = new AdapterImageView(this,
 //                R.layout.list_item_hybrid,
@@ -99,31 +115,35 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
 
         listView = (ListView)findViewById(R.id.list_view);
 //        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, getData()));
-        mList = new ArrayList<RoomBean>();
-        mAdapter = new RoomAdapter(mList, this);
+        mRoomList = new ArrayList<RoomBean>();
+
+
+        // 提交更新
+        Log.v(this.getClass().getName(), String.valueOf(mRoomList));
+        mRoomAdapter = new RoomAdapter(mRoomList, this);
+        listView.setAdapter(mRoomAdapter);
 
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                mList.add((RoomBean) msg.obj);
-                mAdapter.refresh(mList);
-
+                switch (msg.what) {
+                    case 0:
+                        mRoomAdapter.notifyDataSetChanged();
+                        break;
+                    default:
+                        break;
+                }
             }
         };
 
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    // blahblah
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
+        Log.v(this.getClass().getName(), "启用监听线程");
+        mWifiBroadcastReceiverThread = new WifiBroadcastReceiverThread();
+        mWifiBroadcastReceiverThread.setRoomAdapter(mRoomAdapter);
+        mWifiBroadcastReceiverThread.setRoomList(mRoomList);
+        mWifiBroadcastReceiverThread.setHandler(mHandler);
+        mWifiBroadcastReceiverThread.setMulticastLock(multicastLock);
+        mWifiBroadcastReceiverThread.setRunning(true);
+        mWifiBroadcastReceiverThread.start();
 //        mManager = (WifiP2pManager)getSystemService(Context.WIFI_P2P_SERVICE);
 
 //        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -168,7 +188,7 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mManager = (WifiP2pManager)getSystemService(Context.WIFI_P2P_SERVICE);
+        mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
     }
 
     /**
@@ -177,7 +197,9 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        mManager=null;
+        mWifiBroadcastReceiverThread.setRunning(false);
+        mWifiManager=null;
     }
+
 
 }

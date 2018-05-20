@@ -161,6 +161,7 @@ public class LocalGameActivity extends AppCompatActivity {
         setContentView(gameview);
     }
 
+
     private void DiscoverPeers() {
         mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
             @Override

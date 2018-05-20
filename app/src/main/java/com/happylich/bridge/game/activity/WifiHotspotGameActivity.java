@@ -16,6 +16,7 @@ import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
+import com.happylich.bridge.game.res.CardImage;
 import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastThread;
 
 import java.io.IOException;
@@ -52,6 +53,7 @@ import java.net.SocketException;
 public class WifiHotspotGameActivity extends AppCompatActivity{
 
     private WifiManager mWifiManager;
+    private WifiManager.MulticastLock multicastLock;
     private WifiInfo mWifiInfo;
     private String ip;
 
@@ -69,7 +71,7 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         // 向局域网广播消息要在建立game类之后
         // 玩家加入
         mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
+        multicastLock = mWifiManager.createMulticastLock("multicast");
         mWifiBroadcastThread = new WifiBroadcastThread(mWifiManager);
         // 开一个线程不停的广播
         // 在Activity结束之后停止广播
@@ -83,13 +85,21 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         Log.v(this.getClass().getName(), "新建游戏");
         game = createLanGame();
         mWifiBroadcastThread.setGame(game);
+        mWifiBroadcastThread.setMulticastLock(multicastLock);
         Log.v(this.getClass().getName(), "新建线程");
         mWifiBroadcastThread.setRunning(true);
         mWifiBroadcastThread.start();
     }
 
+    protected void onStop() {
+        super.onStop();
+        Log.v(this.getClass().getName(), "onStop......");
+        CardImage.releaseResource();
+    }
+
     protected void onDestroy() {
         super.onDestroy();
+        Log.v(this.getClass().getName(), "onDestroy...");
         mWifiBroadcastThread.setRunning(false);
     }
 

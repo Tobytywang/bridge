@@ -24,6 +24,7 @@ public class WifiBroadcastThread extends Thread {
 
     private Game game;
     private WifiInfo mWifiInfo;
+    private WifiManager.MulticastLock mMulticastLock;
     private String ip;
     private String message;
     private static int BROADCAST_PORT = 8003;
@@ -78,6 +79,10 @@ public class WifiBroadcastThread extends Thread {
         running = state;
     }
 
+    public void setMulticastLock (WifiManager.MulticastLock mMulticastLock) {
+        this.mMulticastLock = mMulticastLock;
+    }
+
     /**
      * 线程更新函数
      */
@@ -91,23 +96,25 @@ public class WifiBroadcastThread extends Thread {
         //   2. 游戏中：游戏已经开始
         // 2. 心跳检测
         //   1. 依次向连接的客户端发起连接请求
-        try {
-            mMulticastSocket = new MulticastSocket(8003);
-            mInetAddress = InetAddress.getByName("224.0.0.1");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         while(running) {
             if (!isPaused) {
+                mMulticastLock.acquire();
                 try {
+                    // 先加入，后发送原则
+                    mMulticastSocket = new MulticastSocket(8003);
+                    mInetAddress = InetAddress.getByName("239.0.0.1");
+                    mMulticastSocket.joinGroup(mInetAddress);
                     message = ip + " " + String.valueOf(game.getGameState());
                     Log.v(this.getClass().getName(), message);
-                    data = message.getBytes();
+                    data = message.getBytes("utf-8");
                     mDatagramPacket = new DatagramPacket(data, data.length, mInetAddress, BROADCAST_PORT);
                     mMulticastSocket.send(mDatagramPacket);
                     Thread.sleep(DELAY_TIME);
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    mMulticastSocket.close();
+                    mMulticastLock.release();
                 }
             }
         }

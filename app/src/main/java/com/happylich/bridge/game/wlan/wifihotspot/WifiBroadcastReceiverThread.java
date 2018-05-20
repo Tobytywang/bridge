@@ -3,12 +3,19 @@ package com.happylich.bridge.game.wlan.wifihotspot;
 import android.content.res.Resources;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.util.Log;
 
 import com.happylich.bridge.engine.game.Game;
+import com.happylich.bridge.game.utils.RoomAdapter;
+import com.happylich.bridge.game.utils.RoomBean;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 
 /**
  * Created by lich on 2018/5/17.
@@ -24,13 +31,19 @@ import java.net.MulticastSocket;
 public class WifiBroadcastReceiverThread extends Thread {
 
     private WifiInfo mWifiInfo;
+    private WifiManager.MulticastLock mMulticastLock;
+
     private String ip;
+    private ArrayList<RoomBean> mRoomList;
+    private RoomAdapter mRoomAdapter;
     private static int BROADCAST_PORT = 8003;
-    private static String BROADCAST_IP = "224.0.0.1";
+    private static String BROADCAST_IP = "239.0.0.1";
 
     InetAddress     mInetAddress = null;
     MulticastSocket mMulticastSocket = null;
     DatagramPacket  mDatagramPacket = null;
+
+    Handler mHandler;
 
     // 游戏线程运行开关
     private boolean running = false;
@@ -41,12 +54,30 @@ public class WifiBroadcastReceiverThread extends Thread {
     /**
      * 线程构造函数
      */
+    public WifiBroadcastReceiverThread() {
+    }
     public WifiBroadcastReceiverThread(WifiManager mWifiManager) {
         // 自动获得IP地址
         if (mWifiManager.isWifiEnabled()) {
             mWifiInfo = mWifiManager.getConnectionInfo();
             ip = getIpString(mWifiInfo.getIpAddress());
         }
+    }
+
+    public void setRoomList(ArrayList<RoomBean> mRoomList) {
+        this.mRoomList = mRoomList;
+    }
+
+    public ArrayList<RoomBean> getmRoomList() {
+        return this.mRoomList;
+    }
+
+    public void setRoomAdapter(RoomAdapter mRoomAdapter) {
+        this.mRoomAdapter = mRoomAdapter;
+    }
+
+    public void setHandler(Handler mHandler) {
+        this.mHandler = mHandler;
     }
 
     /**
@@ -66,11 +97,14 @@ public class WifiBroadcastReceiverThread extends Thread {
         running = state;
     }
 
+    public void setMulticastLock (WifiManager.MulticastLock mMulticastLock) {
+        this.mMulticastLock = mMulticastLock;
+    }
+
     /**
      * 线程更新函数
      */
     public void run() {
-        DatagramPacket dataPacket = null;
 
         // 这里是广播IP
         // 视情况的不同，这个类还可能广播
@@ -81,8 +115,8 @@ public class WifiBroadcastReceiverThread extends Thread {
         // 2. 心跳检测
         //   1. 依次向连接的客户端发起连接请求
         try {
-            InetAddress groupAddress = InetAddress.getByName("224.0.0.1");
-            mMulticastSocket = new MulticastSocket(8003);
+            InetAddress groupAddress = InetAddress.getByName(BROADCAST_IP);
+            mMulticastSocket = new MulticastSocket(BROADCAST_PORT);
             mMulticastSocket.joinGroup(groupAddress);
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,21 +125,61 @@ public class WifiBroadcastReceiverThread extends Thread {
 //        dataPacket = new DatagramPacket(data, data.length, inetAddress, BROADCAST_PORT);
         while(running) {
             if(!isPaused) {
+                mMulticastLock.acquire();
+
                 try {
                     mDatagramPacket = new DatagramPacket(data, data.length);
                     if (mMulticastSocket != null) {
+                        Log.v(this.getClass().getName(), "正在监听");
+                        mMulticastSocket.setSoTimeout(500);
                         mMulticastSocket.receive(mDatagramPacket);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
 
-                // 获得发送的地址和数据
-                mDatagramPacket.getAddress();
-                mDatagramPacket.getData();
-//                if(mDatagramPacket.getAddress() != null) {
-//                    final String quest_ip = dataPacket.getAddress().toString();
+                    RoomBean roomBean = new RoomBean();
+                    roomBean.setIP(mDatagramPacket.getAddress().toString().trim());
+                    roomBean.setState(new String(mDatagramPacket.getData(), "utf-8"));
+                    mRoomList.add(roomBean);
+                    mHandler.sendEmptyMessage(0);
+                    // 获得发送的地址和数据
+                    // 怎样将这个线程和Activity连接起来
+                }  catch (SocketTimeoutException e) {
+                    Log.v(this.getClass().getName(), "超时");
+//                    e.printStackTrace();
+                } catch (Exception e) {
+//                    e.printStackTrace();
+                }
+                mMulticastLock.release();
+
+
+//                if (mDatagramPacket.getAddress() != null) {
+//                    try {
+//                        mMulticastSocket = new MulticastSocket(BROADCAST_PORT);
+//                        mInetAddress = InetAddress.getByName(BROADCAST_IP);
+//                        mMulticastSocket.joinGroup(mInetAddress);
+//                        String message = "超时";
+//                        Log.v(this.getClass().getName(), message);
+//                        data = message.getBytes();
+//                        mDatagramPacket = new DatagramPacket(data, data.length, mInetAddress, BROADCAST_PORT);
+//                        mMulticastSocket.send(mDatagramPacket);
+//                    } catch (Exception exception) {
+//
+//                    } finally {
+//                        mMulticastSocket.close();
+//                    }
+
 //                }
+
+//                RoomBean roomBean = new RoomBean();
+//                roomBean.setIP("112.0.0.1");
+//                roomBean.setState("0");
+//                mRoomList.add(roomBean);
+//                mHandler.sendEmptyMessage(0);
+
+                try {
+                    Thread.sleep(DELAY_TIME);
+                } catch (Exception e) {
+
+                }
             }
         }
     }
