@@ -133,6 +133,7 @@ public class MenuFragment extends Fragment {
                 Intent intent = new Intent(
                         getActivity().getApplicationContext(),
                         WifiHotspotGameActivity.class);
+                intent.putExtra("type", "CREATE_GAME");
                 startActivity(intent);
             }
         });

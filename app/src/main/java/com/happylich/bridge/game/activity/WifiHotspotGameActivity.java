@@ -1,6 +1,7 @@
 package com.happylich.bridge.game.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -68,27 +69,13 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 向局域网广播消息要在建立game类之后
-        // 玩家加入
-        mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        multicastLock = mWifiManager.createMulticastLock("multicast");
-        mWifiBroadcastThread = new WifiBroadcastThread(mWifiManager);
-        // 开一个线程不停的广播
-        // 在Activity结束之后停止广播
-
-        // 设置一个网络类
-        // 这个网络类建立之后，不停的向局域网发送广播，声明主机的状态
-        // 其他主机回复之后，这个类负责调用game建立remoteplayer类，并且要是不是的发送心跳检测，检测目标主机是否还在线
-        // remoteplayer建立之后，保存一个socket引用，当需要发送消息时，直接调用remoteplayer的方法发送
-        // 除了remoteplayer之外，还应该有个类，负责全局消息的发送，比如玩家在加入房间之后，需要确定这个玩家在哪个位置（direction）
-        // 发牌的
-        Log.v(this.getClass().getName(), "新建游戏");
-        game = createLanGame();
-        mWifiBroadcastThread.setGame(game);
-        mWifiBroadcastThread.setMulticastLock(multicastLock);
-        Log.v(this.getClass().getName(), "新建线程");
-        mWifiBroadcastThread.setRunning(true);
-        mWifiBroadcastThread.start();
+        Intent intent = getIntent();
+        String gameType = intent.getStringExtra("type");
+        if (gameType.equals("CREATE_GAME")) {
+            createLanGame(this);
+        } else if (gameType.equals("JOIN_GAME")) {
+            joinLanGame(this);
+        }
     }
 
     protected void onStop() {
@@ -100,24 +87,31 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
         Log.v(this.getClass().getName(), "onDestroy...");
-        mWifiBroadcastThread.setRunning(false);
+        if (mWifiBroadcastThread != null) {
+            mWifiBroadcastThread.setRunning(false);
+        }
     }
 
     /**
      * 用来建立游戏的函数
      */
-    public Game createLanGame() {
+    public void createLanGame(Context context) {
+        mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        multicastLock = mWifiManager.createMulticastLock("multicast");
+        mWifiBroadcastThread = new WifiBroadcastThread(mWifiManager);
+
+
         setContentView(R.layout.game_loading);
 
-        Game game = new Game(this);
+        Game game = new Game(context);
         game.setGameType(2);
 
         Direction direction = new Direction();
 
-        Player player = new Player(this);
-        ProxyPlayer proxy1 = new ProxyPlayer(this);
-        ProxyPlayer proxy2 = new ProxyPlayer(this);
-        ProxyPlayer proxy3 = new ProxyPlayer(this);
+        Player player = new Player(context);
+        ProxyPlayer proxy1 = new ProxyPlayer(context);
+        ProxyPlayer proxy2 = new ProxyPlayer(context);
+        ProxyPlayer proxy3 = new ProxyPlayer(context);
 
         player.setDirection(direction.getDirections());
         proxy1.setDirection(direction.getDirections());
@@ -132,9 +126,47 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         game.setGamePlayer(proxy3);
         game.setGameStage(2);
 
-        GameView gameview = new GameView(this, game);
+        GameView gameview = new GameView(context, game);
         setContentView(gameview);
 
-        return game;
+        mWifiBroadcastThread.setGame(game);
+        mWifiBroadcastThread.setMulticastLock(multicastLock);
+        mWifiBroadcastThread.setRunning(true);
+        mWifiBroadcastThread.start();
+    }
+
+    /**
+     * 用来建立游戏的函数
+     */
+    public void joinLanGame(Context context) {
+        mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        setContentView(R.layout.game_loading);
+
+        Game game = new Game(context);
+        game.setGameType(2);
+
+        Direction direction = new Direction();
+
+        Player player = new Player(context);
+        ProxyPlayer proxy1 = new ProxyPlayer(context);
+        ProxyPlayer proxy2 = new ProxyPlayer(context);
+        ProxyPlayer proxy3 = new ProxyPlayer(context);
+
+        player.setDirection(direction.getDirections());
+        proxy1.setDirection(direction.getDirections());
+        proxy2.setDirection(direction.getDirections());
+        proxy3.setDirection(direction.getDirections());
+
+
+        game.setLocalPlayerNumber(player.direction);
+        game.setGamePlayer(player);
+        game.setGamePlayer(proxy1);
+        game.setGamePlayer(proxy2);
+        game.setGamePlayer(proxy3);
+        game.setGameStage(2);
+
+        GameView gameview = new GameView(context, game);
+        setContentView(gameview);
     }
 }

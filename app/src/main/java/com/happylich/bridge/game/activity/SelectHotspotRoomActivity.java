@@ -149,6 +149,8 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mRoomList != null) {
                     Intent intent = new Intent(view.getContext(), WifiHotspotGameActivity.class);
+                    intent.putExtra("type", "JOIN_GAME");
+                    intent.putExtra("ip", mRoomAdapter.getItem(position).getIP());
                     startActivity(intent);
                 }
             }
