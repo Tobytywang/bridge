@@ -28,7 +28,7 @@ public class WifiBroadcastThread extends Thread {
     private String ip;
     private String message;
     private static int BROADCAST_PORT = 8003;
-    private static String BROADCAST_IP = "224.0.0.1";
+    private static String BROADCAST_IP = "255.255.255.255";
 
     InetAddress     mInetAddress = null;
     MulticastSocket mMulticastSocket = null;
@@ -38,14 +38,14 @@ public class WifiBroadcastThread extends Thread {
 
     // 游戏线程运行开关
     private boolean running = false;
-    private final static int DELAY_TIME = 500;
+    private final static int DELAY_TIME = 200;
     private boolean isPaused = false;
 
     /**
      * 线程构造函数
      */
     public WifiBroadcastThread(WifiManager mWifiManager) {
-        // 自动获得IP地址
+        // 自动获得本机IP地址
         if (mWifiManager.isWifiEnabled()) {
             Log.v(this.getClass().getName(), "Wifi启用了");
             mWifiInfo = mWifiManager.getConnectionInfo();
@@ -101,9 +101,9 @@ public class WifiBroadcastThread extends Thread {
                 mMulticastLock.acquire();
                 try {
                     // 先加入，后发送原则
-                    mMulticastSocket = new MulticastSocket(8003);
-                    mInetAddress = InetAddress.getByName("239.0.0.1");
-                    mMulticastSocket.joinGroup(mInetAddress);
+                    mMulticastSocket = new MulticastSocket(BROADCAST_PORT);
+                    mInetAddress = InetAddress.getByName(BROADCAST_IP);
+//                    mMulticastSocket.joinGroup(mInetAddress);
                     message = ip + " " + String.valueOf(game.getGameState());
                     Log.v(this.getClass().getName(), message);
                     data = message.getBytes("utf-8");

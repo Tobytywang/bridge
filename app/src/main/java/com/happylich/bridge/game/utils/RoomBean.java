@@ -10,8 +10,11 @@ package com.happylich.bridge.game.utils;
  * 2. 房间的状态
  */
 public class RoomBean {
-    private String mIP;
+    private String mIP = "";
     private String mState;
+
+    private int maxTime;
+    private int time;
 
     public void setIP(String ip) {
         this.mIP = ip;
@@ -22,17 +25,41 @@ public class RoomBean {
     }
 
     public void setState(String state) {
-//        if (state == "0") {
-//            this.mState = "等待加入";
-//        } else if (state == "1") {
-//            this.mState = "房间已满";
-//        } else if (state == "2") {
-//            this.mState = "正在游戏";
-//        }
-        this.mState = state;
+        if (state.equals("0")) {
+            this.mState = "等待加入";
+        } else if (state.equals("1")) {
+            this.mState = "房间已满";
+        } else if (state.equals("2")) {
+            this.mState = "正在游戏";
+        } else {
+            this.mState = String.valueOf(time);
+        }
+//        this.mState = state;
     }
 
     public String getState() {
-        return this.mState;
+        return String.valueOf(this.time);
     }
+
+    public void setTime(int time) {
+        this.maxTime = time;
+        this.time = time;
+    }
+
+    public void refreshTime() {
+        this.time--;
+    }
+
+
+    public void addTime() {
+        if (this.time < this.maxTime) {
+            this.time++;
+        }
+    }
+
+    public int getTime() {
+        return this.time;
+    }
+
+
 }

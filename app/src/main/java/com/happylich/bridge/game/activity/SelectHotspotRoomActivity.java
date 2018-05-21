@@ -1,6 +1,7 @@
 package com.happylich.bridge.game.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.happylich.bridge.R;
 import com.happylich.bridge.game.utils.AdapterImageView;
@@ -28,8 +30,10 @@ import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastThread;
 import com.happylich.bridge.game.wlan.wifip2p.ActionListenerHandler;
 import com.happylich.bridge.game.wlan.wifip2p.WifiDirectReceiver;
 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 这个Activity负责找出所有在局域网中发送游戏广播消息的主机
@@ -83,7 +87,7 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
 
     private ListView listView;
 
-    private ArrayList<RoomBean> mRoomList;
+    private CopyOnWriteArrayList<RoomBean> mRoomList;
 
     private RoomAdapter mRoomAdapter;
     private Handler mHandler;
@@ -106,23 +110,10 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
 
         mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         multicastLock = mWifiManager.createMulticastLock("multicast");
-
-//        hybridAdapter = new AdapterImageView(this,
-//                R.layout.list_item_hybrid,
-//                R.id.list_item_device_textview,
-//                R.id.list_item_avatar_imageView,
-//                devicesNames);
-
         listView = (ListView)findViewById(R.id.list_view);
-//        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, getData()));
-        mRoomList = new ArrayList<RoomBean>();
-
-
-        // 提交更新
-        Log.v(this.getClass().getName(), String.valueOf(mRoomList));
+        mRoomList = new CopyOnWriteArrayList<RoomBean>();
         mRoomAdapter = new RoomAdapter(mRoomList, this);
         listView.setAdapter(mRoomAdapter);
-
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -136,70 +127,52 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
             }
         };
 
-        Log.v(this.getClass().getName(), "启用监听线程");
-        mWifiBroadcastReceiverThread = new WifiBroadcastReceiverThread();
+        RoomBean roomBean = new RoomBean();
+        roomBean.setIP("122.122.122.122");
+        roomBean.setState("你好");
+        roomBean.setTime(1000);
+
+        mRoomList.add(roomBean);
+        mRoomAdapter.notifyDataSetChanged();
+
+
+        mWifiBroadcastReceiverThread = new WifiBroadcastReceiverThread(mWifiManager);
         mWifiBroadcastReceiverThread.setRoomAdapter(mRoomAdapter);
         mWifiBroadcastReceiverThread.setRoomList(mRoomList);
         mWifiBroadcastReceiverThread.setHandler(mHandler);
         mWifiBroadcastReceiverThread.setMulticastLock(multicastLock);
         mWifiBroadcastReceiverThread.setRunning(true);
         mWifiBroadcastReceiverThread.start();
-//        mManager = (WifiP2pManager)getSystemService(Context.WIFI_P2P_SERVICE);
 
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                if (devicesList != null) {
-//                    String address = devicesAddress.get(position);
-//                    String name = devicesNames.get(position);
-//
-//                }
-//            }
-//        });
-    }
-
-    /**
-     * 如何实现即时刷新？
-     * @return
-     */
-    private List<String> getData() {
-        List<String> data = new ArrayList<String>();
-        data.add("测试数据1");
-        data.add("测试数据2");
-        data.add("测试数据3");
-        data.add("测试数据4");
-        data.add("测试数据5");
-        data.add("测试数据6");
-        data.add("测试数据7");
-        data.add("测试数据8");
-        data.add("测试数据9");
-
-        return data;
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (mRoomList != null) {
+                    Intent intent = new Intent(view.getContext(), WifiHotspotGameActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
 
-    /**
-     * Activity的onStart函数
-     * 获得mManager
-     * 注册Receiver()
-     * 使用mManager来监听节点
-     * 以回调的方式通知onPeersAvailable方法
-     */
     @Override
-    protected void onStart() {
-        super.onStart();
-        mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+    public void onResume() {
+        super.onResume();
+        Log.v(this.getClass().getName(), "Select onResume");
+        mWifiBroadcastReceiverThread.setPause(false);
     }
 
-    /**
-     * Activity的onStop函数
-     */
     @Override
-    protected void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
+        Log.v(this.getClass().getName(), "Select onPause");
+        mWifiBroadcastReceiverThread.setPause(true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         mWifiBroadcastReceiverThread.setRunning(false);
-        mWifiManager=null;
     }
-
-
 }

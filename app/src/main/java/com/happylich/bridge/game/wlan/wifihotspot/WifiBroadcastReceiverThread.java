@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.happylich.bridge.engine.game.Game;
+import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.utils.RoomAdapter;
 import com.happylich.bridge.game.utils.RoomBean;
 
@@ -16,6 +17,7 @@ import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by lich on 2018/5/17.
@@ -34,10 +36,10 @@ public class WifiBroadcastReceiverThread extends Thread {
     private WifiManager.MulticastLock mMulticastLock;
 
     private String ip;
-    private ArrayList<RoomBean> mRoomList;
+    private CopyOnWriteArrayList<RoomBean> mRoomList;
     private RoomAdapter mRoomAdapter;
     private static int BROADCAST_PORT = 8003;
-    private static String BROADCAST_IP = "239.0.0.1";
+    private static String BROADCAST_IP = "255.255.255.255";
 
     InetAddress     mInetAddress = null;
     MulticastSocket mMulticastSocket = null;
@@ -57,18 +59,18 @@ public class WifiBroadcastReceiverThread extends Thread {
     public WifiBroadcastReceiverThread() {
     }
     public WifiBroadcastReceiverThread(WifiManager mWifiManager) {
-        // 自动获得IP地址
+        // 自动获得本机IP地址
         if (mWifiManager.isWifiEnabled()) {
             mWifiInfo = mWifiManager.getConnectionInfo();
             ip = getIpString(mWifiInfo.getIpAddress());
         }
     }
 
-    public void setRoomList(ArrayList<RoomBean> mRoomList) {
+    public void setRoomList(CopyOnWriteArrayList<RoomBean> mRoomList) {
         this.mRoomList = mRoomList;
     }
 
-    public ArrayList<RoomBean> getmRoomList() {
+    public CopyOnWriteArrayList<RoomBean> getmRoomList() {
         return this.mRoomList;
     }
 
@@ -94,7 +96,10 @@ public class WifiBroadcastReceiverThread extends Thread {
      * @param state
      */
     public void setRunning (boolean state) {
-        running = state;
+        this.running = state;
+    }
+    public void setPause (boolean state) {
+        this.isPaused = state;
     }
 
     public void setMulticastLock (WifiManager.MulticastLock mMulticastLock) {
@@ -104,7 +109,7 @@ public class WifiBroadcastReceiverThread extends Thread {
     /**
      * 线程更新函数
      */
-    public void run() {
+    public synchronized void run() {
 
         // 这里是广播IP
         // 视情况的不同，这个类还可能广播
@@ -117,70 +122,81 @@ public class WifiBroadcastReceiverThread extends Thread {
         try {
             InetAddress groupAddress = InetAddress.getByName(BROADCAST_IP);
             mMulticastSocket = new MulticastSocket(BROADCAST_PORT);
-            mMulticastSocket.joinGroup(groupAddress);
+//            mMulticastSocket.joinGroup(groupAddress);
+            mDatagramPacket = new DatagramPacket(data, data.length);
         } catch (Exception e) {
             e.printStackTrace();
         }
 //        byte[] data = ip.getBytes();
 //        dataPacket = new DatagramPacket(data, data.length, inetAddress, BROADCAST_PORT);
         while(running) {
+            Log.v(this.getClass().getName(), "正在监听");
+
             if(!isPaused) {
+                Log.v(this.getClass().getName(), "没有暂停");
                 mMulticastLock.acquire();
 
+                RoomBean roomBean = new RoomBean();
                 try {
-                    mDatagramPacket = new DatagramPacket(data, data.length);
                     if (mMulticastSocket != null) {
-                        Log.v(this.getClass().getName(), "正在监听");
                         mMulticastSocket.setSoTimeout(500);
                         mMulticastSocket.receive(mDatagramPacket);
                     }
 
-                    RoomBean roomBean = new RoomBean();
-                    roomBean.setIP(mDatagramPacket.getAddress().toString().trim());
-                    roomBean.setState(new String(mDatagramPacket.getData(), "utf-8"));
-                    mRoomList.add(roomBean);
-                    mHandler.sendEmptyMessage(0);
+                    String message = new String(mDatagramPacket.getData(), "utf-8");
+                    String[] messageList = message.split(" ");
+
+                    roomBean.setIP(messageList[0].trim());
+                    roomBean.setState(messageList[1].trim());
+                    // 检查是否重复
+
+                    // 清除没有时间的选项
+
                     // 获得发送的地址和数据
                     // 怎样将这个线程和Activity连接起来
                 }  catch (SocketTimeoutException e) {
-                    Log.v(this.getClass().getName(), "超时");
-//                    e.printStackTrace();
                 } catch (Exception e) {
-//                    e.printStackTrace();
+                } finally {
+                    int flag = 1;
+                    for(RoomBean tmp:mRoomList) {
+                        if (tmp != null && tmp.getIP() != null) {
+                            if (tmp.getIP().equals(roomBean.getIP())) {
+                                flag = 0;
+                                tmp.setTime(mRoomList.size() * 2 + 3);
+                            }
+                        }
+                        tmp.refreshTime();
+                    }
+                    if (flag == 1) {
+                        if (roomBean.getIP() != null && !roomBean.getIP().equals(ip) && !roomBean.getIP().equals("null") && !roomBean.getIP().equals("")) {
+                            roomBean.setTime(mRoomList.size() * 2 + 3);
+                            mRoomList.add(roomBean);
+                        }
+                    }
+                    // 如果不是新增的
+                    // 给监听到的增加时间
+                    // 这个似乎无效？
+                    for (RoomBean tmp : mRoomList) {
+                        if (tmp != null) {
+                            if (tmp.getTime() <= 0) {
+                                mRoomList.remove(tmp);
+                            }
+                        } else {
+                            mRoomList.remove(tmp);
+                        }
+                    }
+
+                    mHandler.sendEmptyMessage(0);
                 }
                 mMulticastLock.release();
-
-
-//                if (mDatagramPacket.getAddress() != null) {
-//                    try {
-//                        mMulticastSocket = new MulticastSocket(BROADCAST_PORT);
-//                        mInetAddress = InetAddress.getByName(BROADCAST_IP);
-//                        mMulticastSocket.joinGroup(mInetAddress);
-//                        String message = "超时";
-//                        Log.v(this.getClass().getName(), message);
-//                        data = message.getBytes();
-//                        mDatagramPacket = new DatagramPacket(data, data.length, mInetAddress, BROADCAST_PORT);
-//                        mMulticastSocket.send(mDatagramPacket);
-//                    } catch (Exception exception) {
-//
-//                    } finally {
-//                        mMulticastSocket.close();
-//                    }
-
-//                }
-
-//                RoomBean roomBean = new RoomBean();
-//                roomBean.setIP("112.0.0.1");
-//                roomBean.setState("0");
-//                mRoomList.add(roomBean);
-//                mHandler.sendEmptyMessage(0);
-
+            } else {
                 try {
-                    Thread.sleep(DELAY_TIME);
+                    Thread.sleep(1000);
+                    Log.v(this.getClass().getName(), "暂停了");
                 } catch (Exception e) {
-
                 }
             }
         }
+        Log.v(this.getClass().getName(), "线程结束了");
     }
 }

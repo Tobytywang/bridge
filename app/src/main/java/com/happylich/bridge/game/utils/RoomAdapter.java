@@ -11,6 +11,7 @@ import com.happylich.bridge.R;
 import com.happylich.bridge.game.player.ProxyPlayer;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by lich on 2018/5/18.
@@ -18,15 +19,15 @@ import java.util.ArrayList;
 
 public class RoomAdapter extends BaseAdapter {
 
-    private ArrayList<RoomBean> mList;
+    private CopyOnWriteArrayList<RoomBean> mList;
     private Context mContext;
 
-    public RoomAdapter(ArrayList<RoomBean> list, Context context) {
+    public RoomAdapter(CopyOnWriteArrayList<RoomBean> list, Context context) {
         mList = list;
         mContext = context;
     }
 
-    public void refresh(ArrayList<RoomBean> list) {
+    public void refresh(CopyOnWriteArrayList<RoomBean> list) {
         mList = list;
         notifyDataSetChanged();
     }
@@ -37,7 +38,7 @@ public class RoomAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public RoomBean getItem(int position) {
         return mList.get(position);
     }
 
