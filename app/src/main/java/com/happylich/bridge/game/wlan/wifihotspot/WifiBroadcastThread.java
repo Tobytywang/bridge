@@ -105,7 +105,6 @@ public class WifiBroadcastThread extends Thread {
                     mInetAddress = InetAddress.getByName(BROADCAST_IP);
 //                    mMulticastSocket.joinGroup(mInetAddress);
                     message = ip + " " + String.valueOf(game.getGameState());
-                    Log.v(this.getClass().getName(), message);
                     data = message.getBytes("utf-8");
                     mDatagramPacket = new DatagramPacket(data, data.length, mInetAddress, BROADCAST_PORT);
                     mMulticastSocket.send(mDatagramPacket);

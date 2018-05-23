@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.happylich.bridge.engine.util.Position;
 
+import java.net.Socket;
+
 /**
  * Created by wangt on 2018/3/22.
  */
@@ -16,6 +18,9 @@ import com.happylich.bridge.engine.util.Position;
  * 当这个类被远程玩家代理时如何处理？
  * 这个玩家的操作会被本地解析，同时也会被远程代理？
  * 如果一个Player被Remote代理了，应该会有标志表示这个类需要向远程传递消息
+ *
+ * 这个类是被代理的一个类，代表一个远程玩家
+ * 所有的操作都要借用socket实现
  */
 public class Player extends AbstractPlayerWithDraw {
 
@@ -63,5 +68,7 @@ public class Player extends AbstractPlayerWithDraw {
     public boolean dropCard() {
         return table.isFinish();
     }
+
+
 
 }

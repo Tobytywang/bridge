@@ -55,8 +55,6 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
     private WifiManager mWifiManager;
     private WifiManager.MulticastLock multicastLock;
-    private WifiInfo mWifiInfo;
-    private String ip;
 
     private Game game;
     private WifiBroadcastThread mWifiBroadcastThread;
@@ -71,24 +69,11 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
         Intent intent = getIntent();
         String gameType = intent.getStringExtra("type");
+        String serverIP = intent.getStringExtra("ip");
         if (gameType.equals("CREATE_GAME")) {
             createLanGame(this);
         } else if (gameType.equals("JOIN_GAME")) {
-            joinLanGame(this);
-        }
-    }
-
-    protected void onStop() {
-        super.onStop();
-        Log.v(this.getClass().getName(), "onStop......");
-        CardImage.releaseResource();
-    }
-
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.v(this.getClass().getName(), "onDestroy...");
-        if (mWifiBroadcastThread != null) {
-            mWifiBroadcastThread.setRunning(false);
+            joinLanGame(this, serverIP);
         }
     }
 
@@ -103,8 +88,9 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
         setContentView(R.layout.game_loading);
 
-        Game game = new Game(context);
+        game = new Game(context);
         game.setGameType(2);
+
 
         Direction direction = new Direction();
 
@@ -124,7 +110,10 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
-        game.setGameStage(2);
+        game.setGameStage(0);
+
+        // 作为服务器
+        game.setGameServer();
 
         GameView gameview = new GameView(context, game);
         setContentView(gameview);
@@ -138,13 +127,21 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
     /**
      * 用来建立游戏的函数
      */
-    public void joinLanGame(Context context) {
-        mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
+    public void joinLanGame(Context context, String serverIP) {
+        // 可以从Intent中获得IP，建立Socket连接到主机
         setContentView(R.layout.game_loading);
 
-        Game game = new Game(context);
+        game = new Game(context);
         game.setGameType(2);
+
+        // 作为客户端——与服务端通信
+        // 建立服务器后，当客户端请求和服务器建立联系时，服务器就会将连接接入ServerSocket
+        //
+        // 1. 玩家加入后，首先发送进入消息
+        // 2.
+
+        // 这里需要建立和服务器的远程连接
+        // 但是如果建立失败怎么办呢？
 
         Direction direction = new Direction();
 
@@ -164,9 +161,26 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
-        game.setGameStage(2);
+        game.setGameStage(0);
+
+        game.setGameClient(serverIP);
 
         GameView gameview = new GameView(context, game);
         setContentView(gameview);
+    }
+
+    protected void onStop() {
+        super.onStop();
+        Log.v(this.getClass().getName(), "onStop......");
+        CardImage.releaseResource();
+        game.stopGameThreads();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.v(this.getClass().getName(), "onDestroy...");
+        if (mWifiBroadcastThread != null) {
+            mWifiBroadcastThread.setRunning(false);
+        }
     }
 }

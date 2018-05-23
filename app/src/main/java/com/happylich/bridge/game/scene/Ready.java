@@ -18,6 +18,7 @@ import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
+import com.happylich.bridge.game.player.RemotePlayer;
 import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 
@@ -61,6 +62,37 @@ public class Ready extends AbstractScene {
             return true;
         }
         return false;
+    }
+
+    public boolean hasFreePlace() {
+        if (!playerTop.isInOrder() ||
+                !playerLeft.isInOrder() ||
+                !playerRight.isInOrder()) {
+            return true;
+        }
+        return false;
+    }
+
+    public void setRealPlayer(RemotePlayer remotePlayer) {
+        if (!playerTop.isInOrder()) {
+            ((ProxyPlayer) playerTop).setRealPlayer(remotePlayer);
+        } else if (!playerLeft.isInOrder()) {
+            ((ProxyPlayer) playerLeft).setRealPlayer(remotePlayer);
+        } else if (!playerRight.isInOrder()) {
+            ((ProxyPlayer) playerRight).setRealPlayer(remotePlayer);
+        }
+    }
+
+    //
+    public void removeRealPlayer(int direction) {
+        // 应该传入一个参数，传什么呢？
+        if (playerTop.direction == direction) {
+            playerTop = null;
+        } else if (playerLeft.direction == direction) {
+            playerLeft = null;
+        } else if (playerRight.direction == direction) {
+            playerRight = null;
+        }
     }
 
     // 默认为ProxyPlayer，如果没有就绪（没有被代理的玩家）
@@ -108,10 +140,19 @@ public class Ready extends AbstractScene {
                         readyStage = 3;
                         break;
                     case 9:
+                        readyStage = 0;
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " ready");
+                            }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "取消准备");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " unready");
+                            }
                         }
                         break;
                     default:
@@ -127,6 +168,9 @@ public class Ready extends AbstractScene {
                     case 1:
                         // 设置上边位置为ProxyPlayer
                         a = 0;
+                        if (playerTop instanceof  ProxyPlayer) {
+                            ((ProxyPlayer) playerTop).removeRealPlayer();
+                        }
                         readyStage = 0;
                         break;
                     case 2:
@@ -144,6 +188,7 @@ public class Ready extends AbstractScene {
                         readyStage = 3;
                         break;
                     case 9:
+                        readyStage = 0;
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
                         } else {
@@ -167,6 +212,9 @@ public class Ready extends AbstractScene {
                     case 4:
                         // 设置左边位置为ProxyPlayer
                         b = 0;
+                        if (playerLeft instanceof  ProxyPlayer) {
+                            ((ProxyPlayer) playerLeft).removeRealPlayer();
+                        }
                         readyStage = 0;
                         break;
                     case 5:
@@ -181,6 +229,7 @@ public class Ready extends AbstractScene {
                         readyStage = 3;
                         break;
                     case 9:
+                        readyStage = 0;
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
                         } else {
@@ -208,6 +257,9 @@ public class Ready extends AbstractScene {
                         // 设置右边位置为PorxyPlayer
                         c = 0;
                         readyStage = 0;
+                        if (playerRight instanceof  ProxyPlayer) {
+                            ((ProxyPlayer) playerRight).removeRealPlayer();
+                        }
                         break;
                     case 8:
                         // 设置右边位置为Robot
@@ -218,6 +270,7 @@ public class Ready extends AbstractScene {
                         }
                         break;
                     case 9:
+                        readyStage = 0;
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
                         } else {
@@ -311,6 +364,9 @@ public class Ready extends AbstractScene {
                 top + 152, left + 300);
         positionBottom.resieze((float)this.width / (float)1440);
 
+        Log.v(this.getClass().getName(), "触摸");
+        Log.v(this.getClass().getName(), String.valueOf(x));
+        Log.v(this.getClass().getName(), String.valueOf(y));
         if (Position.inPosition(x, y, positionTop)) {
             return 0;
         } else if (Position.inPosition(x, y, positionTop1)) {
@@ -328,10 +384,12 @@ public class Ready extends AbstractScene {
         } else if (Position.inPosition(x, y, positionRight1)) {
             return 7;
         } else if (Position.inPosition(x, y, positionRight2)) {
+            Log.v(this.getClass().getName(), "触摸8");
             return 8;
         } else if (Position.inPosition(x, y, positionBottom)) {
             return 9;
         }
+        Log.v(this.getClass().getName(), "完毕");
         return 10;
     }
 
@@ -366,6 +424,7 @@ public class Ready extends AbstractScene {
         int left = this.left;
         int top = this.top;
 
+
         // 绘制本地玩家的未准备状态
         // 根据其他玩家的状态绘制其他玩家的状态
         Image = CardImage.buttonBitmapImage;
@@ -375,13 +434,21 @@ public class Ready extends AbstractScene {
         top = this.top + 120;
         des.set(left, top, left+ 300, top + 152);
         canvas.drawBitmap(Image, null, des, paint);
+
         // 按钮上的字
         paint.setTextSize(100);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        if (a == 0) {
+//        if (a == 0) {
+//            canvas.drawText("玩家", left + 150, top + 100, paint);
+//        } else {
+//            canvas.drawText("电脑", left + 150, top + 100, paint);
+//        }
+        if (playerTop instanceof ProxyPlayer && !((ProxyPlayer) playerTop).isInOrder()) {
             canvas.drawText("玩家", left + 150, top + 100, paint);
-        } else {
+        } else if (playerTop instanceof ProxyPlayer && ((ProxyPlayer) playerTop).getRealPlayer() instanceof RemotePlayer) {
+            canvas.drawText("就绪", left + 150, top + 100, paint);
+        } else if (playerTop instanceof ProxyPlayer && ((ProxyPlayer) playerTop).getRealPlayer() instanceof Robot) {
             canvas.drawText("电脑", left + 150, top + 100, paint);
         }
 
@@ -409,11 +476,18 @@ public class Ready extends AbstractScene {
         paint.setTextSize(100);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        if (b == 0) {
+        if (playerLeft instanceof ProxyPlayer && !((ProxyPlayer) playerLeft).isInOrder()) {
             canvas.drawText("玩家", left + 150, top + 100, paint);
-        } else {
+        } else if (playerLeft instanceof ProxyPlayer && ((ProxyPlayer) playerLeft).getRealPlayer() instanceof RemotePlayer) {
+            canvas.drawText("就绪", left + 150, top + 100, paint);
+        } else if (playerLeft instanceof ProxyPlayer && ((ProxyPlayer) playerLeft).getRealPlayer() instanceof Robot) {
             canvas.drawText("电脑", left + 150, top + 100, paint);
         }
+//        if (b == 0) {
+//            canvas.drawText("玩家", left + 150, top + 100, paint);
+//        } else {
+//            canvas.drawText("电脑", left + 150, top + 100, paint);
+//        }
 
         // 右边的按钮
         left = 1440 - 40 - 300;
@@ -424,11 +498,18 @@ public class Ready extends AbstractScene {
         paint.setTextSize(100);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        if (c == 0) {
+        if (playerRight instanceof ProxyPlayer && !((ProxyPlayer) playerRight).isInOrder()) {
             canvas.drawText("玩家", left + 150, top + 100, paint);
-        } else {
+        } else if (playerRight instanceof ProxyPlayer && ((ProxyPlayer) playerRight).getRealPlayer() instanceof RemotePlayer) {
+            canvas.drawText("就绪", left + 150, top + 100, paint);
+        } else if (playerRight instanceof ProxyPlayer && ((ProxyPlayer) playerRight).getRealPlayer() instanceof Robot) {
             canvas.drawText("电脑", left + 150, top + 100, paint);
         }
+//        if (c == 0) {
+//            canvas.drawText("玩家", left + 150, top + 100, paint);
+//        } else {
+//            canvas.drawText("电脑", left + 150, top + 100, paint);
+//        }
         Image = null;
     }
     public void drawTopMenu(Canvas canvas, Paint paint, Rect des) {

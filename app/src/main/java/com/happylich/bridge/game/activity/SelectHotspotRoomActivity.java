@@ -77,7 +77,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 2. 将所有广播加入列表
  * 3. 点击列表项目，加入服务器
  */
-public class SelectHotspotRoomActivity extends AppCompatActivity {
+public class SelectHotspotRoomActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     Context context;
 
@@ -127,12 +127,24 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
             }
         };
 
-        RoomBean roomBean = new RoomBean();
-        roomBean.setIP("122.122.122.122");
-        roomBean.setState("你好");
-        roomBean.setTime(1000);
-
-        mRoomList.add(roomBean);
+//        RoomBean roomBean = new RoomBean();
+//        roomBean.setIP("122.122.122.122");
+//        roomBean.setState("你好");
+//        roomBean.setTime(1000);
+//
+//        RoomBean roomBean1 = new RoomBean();
+//        roomBean1.setIP("122.122.122.123");
+//        roomBean1.setState("你好");
+//        roomBean1.setTime(1000);
+//
+//        RoomBean roomBean2 = new RoomBean();
+//        roomBean2.setIP("122.122.122.124");
+//        roomBean2.setState("你好");
+//        roomBean2.setTime(1000);
+//
+//        mRoomList.add(roomBean);
+//        mRoomList.add(roomBean1);
+//        mRoomList.add(roomBean2);
         mRoomAdapter.notifyDataSetChanged();
 
 
@@ -144,17 +156,16 @@ public class SelectHotspotRoomActivity extends AppCompatActivity {
         mWifiBroadcastReceiverThread.setRunning(true);
         mWifiBroadcastReceiverThread.start();
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mRoomList != null) {
-                    Intent intent = new Intent(view.getContext(), WifiHotspotGameActivity.class);
-                    intent.putExtra("type", "JOIN_GAME");
-                    intent.putExtra("ip", mRoomAdapter.getItem(position).getIP());
-                    startActivity(intent);
-                }
-            }
-        });
+        listView.setOnItemClickListener(this);
+    }
+
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (mRoomList != null) {
+            Intent intent = new Intent(view.getContext(), WifiHotspotGameActivity.class);
+            intent.putExtra("type", "JOIN_GAME");
+            intent.putExtra("ip", mRoomAdapter.getItem(position).getIP());
+            startActivity(intent);
+        }
     }
 
 

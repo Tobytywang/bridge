@@ -77,6 +77,7 @@ public class ProxyPlayer extends AbstractPlayerWithDraw {
 
         player.setDirection(this.direction);
         player.position = this.position;
+        player.direction = this.direction;
         player.setCards(this.cards);
         player.setPlayerStage(this.playerStage);
 
@@ -94,7 +95,13 @@ public class ProxyPlayer extends AbstractPlayerWithDraw {
         if (realPlayer != null) {
             return realPlayer;
         }
-        return (AbstractPlayer) new Object();
+        return null;
+    }
+
+    public void removeRealPlayer() {
+        if (realPlayer != null) {
+            this.realPlayer = null;
+        }
     }
 
     /**

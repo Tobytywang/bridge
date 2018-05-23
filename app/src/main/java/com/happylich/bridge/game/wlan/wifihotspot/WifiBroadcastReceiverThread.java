@@ -130,10 +130,7 @@ public class WifiBroadcastReceiverThread extends Thread {
 //        byte[] data = ip.getBytes();
 //        dataPacket = new DatagramPacket(data, data.length, inetAddress, BROADCAST_PORT);
         while(running) {
-            Log.v(this.getClass().getName(), "正在监听");
-
             if(!isPaused) {
-                Log.v(this.getClass().getName(), "没有暂停");
                 mMulticastLock.acquire();
 
                 RoomBean roomBean = new RoomBean();
@@ -192,7 +189,6 @@ public class WifiBroadcastReceiverThread extends Thread {
             } else {
                 try {
                     Thread.sleep(1000);
-                    Log.v(this.getClass().getName(), "暂停了");
                 } catch (Exception e) {
                 }
             }

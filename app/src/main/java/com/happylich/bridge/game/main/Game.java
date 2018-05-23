@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
@@ -13,10 +15,16 @@ import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 import com.happylich.bridge.game.scene.Call;
+import com.happylich.bridge.game.wlan.wifihotspot.FakeSocket;
+import com.happylich.bridge.game.wlan.wifihotspot.GameClient;
+import com.happylich.bridge.game.wlan.wifihotspot.GameServer;
 import com.happylich.bridge.game.scene.Ready;
 import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,6 +36,7 @@ import java.util.TimerTask;
 public class Game extends com.happylich.bridge.engine.game.Game{
 
     private Context context;
+    private Handler mHandler;
 
     // 游戏状态标志
     // 1. 等待玩家加入中
@@ -74,11 +83,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     // 记录庄家
     protected AbstractPlayer dealerPlayer = null;
 
-
-
     protected Timer timer = new Timer();
 
 
+    private String serverIP;
+    private GameServer gameServer;
+    private GameClient gameClient;
     // 准备
     private Ready ready;
     // 叫牌
@@ -119,7 +129,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      */
     public Game(Context context) {
         this.context = context;
+
         CardImage.getResource(context);
+
         this.ready = new Ready(context);
         this.call = new Call(context);
         this.table = new Table(context);
@@ -127,7 +139,82 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         this.ready.setGame(this);
         this.call.setGame(this);
         this.table.setGame(this);
+
+        mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 0:
+                        // 表示玩家取消准备状态（哪个玩家呢？）
+                        break;
+                    case 1:
+                        // 表示玩家准备就绪状态
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
     }
+
+
+    public String getServerIP() {
+        return this.serverIP;
+    }
+
+    public void setGameServer() {
+        if (this.gameServer == null) {
+            this.gameServer = new GameServer();
+        }
+        gameServer.setGame(this);
+//        this.gameServer.setGame(this);
+        gameServer.setRunning(true);
+        try {
+            gameServer.start();
+        } catch (Exception e) {
+            Log.v(this.getClass().getName(), e.toString());
+        }
+        Log.v(this.getClass().getName(), "线程已经启动");
+    }
+
+    public void setGameClient(String serverIP) {
+        this.serverIP = serverIP;
+        if (this.gameClient == null) {
+            this.gameClient = new GameClient(serverIP);
+        }
+        gameClient.setRunning(true);
+//        gameClient.setGame(this);
+        try {
+            gameClient.start();
+        } catch (Exception e) {
+
+        }
+        Log.v(this.getClass().getName(), "开启完毕");
+    }
+
+    public void stopGameThreads() {
+        if (this.gameServer != null) {
+            this.gameServer.setRunning(false);
+            new FakeSocket().start();
+        }
+        if (this.gameClient != null) {
+            try {
+                this.gameClient.getSocket().close();
+                this.gameClient.setRunning(false);
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
+    public GameClient getGameClient() {
+        return this.gameClient;
+    }
+    public GameServer getGameServer() { return this.gameServer; }
 
     /**
      * 设置玩家逻辑座位
@@ -166,6 +253,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         ready.setPlayer(player);
     }
 
+
+    public Ready getReady() {
+        return this.ready;
+    }
 
     /**
      * 这个类用来在若干秒后给出机器人的叫牌结果
@@ -221,6 +312,11 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     @Override
     public void onTouch(int x, int y) {
         switch (gameStage) {
+            case 0:
+                break;
+            case 1:
+                gameStage = 2;
+                break;
             case 2:                // 在Process里自动切换状态
                 // 已准备界面
                 // 触摸取消准备按钮，将playerBottom的准备状态切换为未就绪
@@ -312,6 +408,22 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     @Override
     public void process(Canvas canvas) {
         switch (gameStage) {
+            case 0:
+                if (this.gameServer != null) {
+                    if (this.gameServer.getServerSocket() != null && this.gameServer.getServerSocket().isBound()) {
+                        // 如果服务器准备就绪？
+                        gameStage = 1;
+                    }
+                }
+                if (this.gameClient != null) {
+                    if (this.gameClient.getSocket() != null && this.gameClient.getSocket().isConnected()) {
+                        // 如果客户端准备就绪
+                        gameStage = 1;
+                    }
+                }
+                break;
+            case 1:
+                break;
             case 2:
                 if (ready.isFinish()) {
                     // 进入游戏
@@ -450,6 +562,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
         initCanvas(canvas, paint);
         switch(gameStage) {
+            case 0:
+                drawText(canvas, paint, des);
+                break;
+            case 1:
+                drawText(canvas, paint, des);
+                break;
             case 2:
                 // 绘制已经准备界面
                 ready.draw(canvas, paint, des);
@@ -543,6 +661,25 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         canvas.drawCircle(1440, 2160, 100, paint);
     }
 
+    public void drawText(Canvas canvas, Paint paint, Rect des) {
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(100);
+
+        canvas.drawText("阶段" + this.gameStage, 0, 100, paint);
+
+        paint.setTextSize(20);
+        try {
+            if (this.getGameClient() == null) {
+                canvas.drawText("serverSocket", 0, 400, paint);
+                canvas.drawText(String.valueOf(this.getGameServer().getServerSocket().getInetAddress()), 0, 460, paint);
+            } else {
+                canvas.drawText("clientSocket", 0, 400, paint);
+//                canvas.drawText(String.valueOf(this.getGameClient().serverIP), 0, 460, paint);
+            }
+        } catch (Exception e){
+            canvas.drawText(String.valueOf(e.toString()), 0, 460, paint);
+        }
+    }
     /**
      * 从庄家获得明手
      * @return

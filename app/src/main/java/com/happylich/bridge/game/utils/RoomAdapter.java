@@ -39,7 +39,7 @@ public class RoomAdapter extends BaseAdapter {
 
     @Override
     public RoomBean getItem(int position) {
-        return mList.get(position);
+        return mList.get(getCount() - position - 1);
     }
 
     @Override
