@@ -42,7 +42,7 @@ public class GameServer extends Thread {
     private boolean paused = false;
 
     private ServerSocket serverSocket;
-    private ArrayList<Socket> sockets = new ArrayList<>();
+    public static ArrayList<Socket> sockets = new ArrayList<>();
 
     /**
      * 接收服务器消息 变量
@@ -132,6 +132,7 @@ public class GameServer extends Thread {
             for (Socket sokt:sockets) {
                 if (sokt != null) {
                     String[] messageList = response.split(" ");
+                    String ip = messageList[0];
                     String msg = messageList[1];
                     switch (msg) {
                         case "ready":

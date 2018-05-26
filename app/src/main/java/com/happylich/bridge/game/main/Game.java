@@ -427,7 +427,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 2:
                 if (ready.isFinish()) {
                     // 进入游戏
-                    gameState = 2;
+//                    gameState = 2;
                     gameStage = 4;
                 }
                 break;
@@ -563,10 +563,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         initCanvas(canvas, paint);
         switch(gameStage) {
             case 0:
-                drawText(canvas, paint, des);
+                drawStage0(canvas, paint, des);
                 break;
             case 1:
-                drawText(canvas, paint, des);
+                drawStage1(canvas, paint, des);
                 break;
             case 2:
                 // 绘制已经准备界面
@@ -661,19 +661,40 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         canvas.drawCircle(1440, 2160, 100, paint);
     }
 
-    public void drawText(Canvas canvas, Paint paint, Rect des) {
+    public void drawStage0(Canvas canvas, Paint paint, Rect des) {
         paint.setColor(Color.WHITE);
         paint.setTextSize(100);
 
         canvas.drawText("阶段" + this.gameStage, 0, 100, paint);
 
-        paint.setTextSize(20);
+        paint.setTextSize(100);
         try {
             if (this.getGameClient() == null) {
-                canvas.drawText("serverSocket", 0, 400, paint);
-                canvas.drawText(String.valueOf(this.getGameServer().getServerSocket().getInetAddress()), 0, 460, paint);
+                canvas.drawText("作为服务器", 480, 720, paint);
+                canvas.drawText("正在建立建立连接", 280, 1260, paint);
             } else {
-                canvas.drawText("clientSocket", 0, 400, paint);
+                canvas.drawText("作为客户端", 480, 720, paint);
+                canvas.drawText("正在建立连接", 280, 1260, paint);
+//                canvas.drawText(String.valueOf(this.getGameClient().serverIP), 0, 460, paint);
+            }
+        } catch (Exception e){
+//            canvas.drawText(String.valueOf(e.toString()), 0, 460, paint);
+        }
+    }
+    public void drawStage1(Canvas canvas, Paint paint, Rect des) {
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(100);
+
+        canvas.drawText("阶段" + this.gameStage, 0, 100, paint);
+
+        paint.setTextSize(100);
+        try {
+            if (this.getGameClient() == null) {
+                canvas.drawText("作为服务器", 480, 720, paint);
+                canvas.drawText("完成连接，点击继续", 280, 1260, paint);
+            } else {
+                canvas.drawText("作为客户端", 480, 720, paint);
+                canvas.drawText("完成连接，点击继续", 280, 1260, paint);
 //                canvas.drawText(String.valueOf(this.getGameClient().serverIP), 0, 460, paint);
             }
         } catch (Exception e){

@@ -140,6 +140,13 @@ public class Table extends AbstractScene {
 
         // TODO:应该根据类型而不是位置决定出牌方法
 
+        if (this.dropHistory.size() == 4) {
+            cardBottom = -1;
+            cardLeft = -1;
+            cardTop = -1;
+            cardRight = -1;
+            this.dropHistory.clear();
+        }
         switch (drawPosition) {
             case 0:
                 if (cardFirst == -1) {
@@ -189,15 +196,10 @@ public class Table extends AbstractScene {
             cardFirst = -1;
             cardFirstPlayer = -1;
 
-            cardBottom = -1;
-            cardLeft = -1;
-            cardTop = -1;
-            cardRight = -1;
             this.tricks++;
             if (tricks == 13) {
                 finish();
             }
-            this.dropHistory.clear();
         } else {
             if ((++player) > 3) {
                 player = 0;
@@ -530,16 +532,16 @@ public class Table extends AbstractScene {
 //                        CardImage.cardImages[(Integer)entity.getValue()]);
                 if ((Integer)entity.getKey() == 0) {
                     // 绘制出牌
-                    des.set(left + 275 + 50, top + 340, left + 445 + 50, top + 580);
+                    des.set(left + 275 + 50, top + 330, left + 445 + 50, top + 570);
                     canvas.drawBitmap(Image, null, des, paint);
                 } else if ((Integer)entity.getKey() == 1) {
-                    des.set(left + 140, top + 270, left + 310, top + 480);
+                    des.set(left + 140, top + 260, left + 310, top + 470);
                     canvas.drawBitmap(Image, null, des, paint);
                 } else if ((Integer)entity.getKey() == 2) {
                     des.set(left + 275 + 50, top + 140, left + 445 + 50, top + 380);
                     canvas.drawBitmap(Image, null, des, paint);
                 } else if ((Integer)entity.getKey() == 3) {
-                    des.set(left + 410, top + 270, left + 580, top + 480);
+                    des.set(left + 410, top + 260, left + 580, top + 470);
                     canvas.drawBitmap(Image, null, des, paint);
                 }
                 Image = null;

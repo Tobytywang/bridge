@@ -166,10 +166,10 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         break;
                     case 1:
-                        // 设置上边位置为ProxyPlayer
+                        // 设置上边位置为ProxyPlayer（
                         a = 0;
-                        if (playerTop instanceof  ProxyPlayer) {
-                            ((ProxyPlayer) playerTop).removeRealPlayer();
+                        if (playerTop instanceof  ProxyPlayer && !playerTop.isInOrder()) {
+//                            ((ProxyPlayer) playerTop).removeRealPlayer();
                         }
                         readyStage = 0;
                         break;
@@ -191,8 +191,16 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " ready");
+                            }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "取消准备");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " unready");
+                            }
                         }
                         break;
                     default:
@@ -212,8 +220,8 @@ public class Ready extends AbstractScene {
                     case 4:
                         // 设置左边位置为ProxyPlayer
                         b = 0;
-                        if (playerLeft instanceof  ProxyPlayer) {
-                            ((ProxyPlayer) playerLeft).removeRealPlayer();
+                        if (playerLeft instanceof ProxyPlayer && !playerLeft.isInOrder()) {
+//                            ((ProxyPlayer) playerLeft).removeRealPlayer();
                         }
                         readyStage = 0;
                         break;
@@ -232,8 +240,16 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " ready");
+                            }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "取消准备");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " unready");
+                            }
                         }
                         break;
                     default:
@@ -257,7 +273,7 @@ public class Ready extends AbstractScene {
                         // 设置右边位置为PorxyPlayer
                         c = 0;
                         readyStage = 0;
-                        if (playerRight instanceof  ProxyPlayer) {
+                        if (playerRight instanceof ProxyPlayer && !playerRight.isInOrder()) {
                             ((ProxyPlayer) playerRight).removeRealPlayer();
                         }
                         break;
@@ -273,8 +289,16 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         if (playerBottom instanceof Player && !playerBottom.isInOrder()) {
                             ((Player) playerBottom).setInOrder(true);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " ready");
+                            }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
+                            if (this.game.getGameClient() != null) {
+                                Log.v(this.getClass().getName(), "取消准备");
+                                game.getGameClient().sendToServer(this.game.getServerIP() + " unready");
+                            }
                         }
                         break;
                     default:
@@ -364,9 +388,6 @@ public class Ready extends AbstractScene {
                 top + 152, left + 300);
         positionBottom.resieze((float)this.width / (float)1440);
 
-        Log.v(this.getClass().getName(), "触摸");
-        Log.v(this.getClass().getName(), String.valueOf(x));
-        Log.v(this.getClass().getName(), String.valueOf(y));
         if (Position.inPosition(x, y, positionTop)) {
             return 0;
         } else if (Position.inPosition(x, y, positionTop1)) {
