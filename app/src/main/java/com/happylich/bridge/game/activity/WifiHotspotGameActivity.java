@@ -105,7 +105,7 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         proxy3.setDirection(direction.getDirections());
 
 
-        game.setLocalPlayerNumber(player.direction);
+        game.setlocalPlayerDirection(player.direction);
         game.setGamePlayer(player);
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
@@ -156,7 +156,7 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         proxy3.setDirection(direction.getDirections());
 
 
-        game.setLocalPlayerNumber(player.direction);
+        game.setlocalPlayerDirection(player.direction);
         game.setGamePlayer(player);
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);

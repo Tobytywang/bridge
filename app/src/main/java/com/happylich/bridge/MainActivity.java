@@ -3,6 +3,7 @@ package com.happylich.bridge;
 import android.net.Uri;
 
 import com.happylich.bridge.dummy.DummyContent;
+import com.happylich.bridge.game.scene.Count;
 
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity
         //
     }
 
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(Count item) {
         //
     }
 }

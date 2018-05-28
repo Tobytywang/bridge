@@ -90,7 +90,7 @@ public class LocalGameActivity extends AppCompatActivity {
         proxy4.setDirection(direction.getDirections());
 
         // 这一段可以进行隐藏
-        game.setLocalPlayerNumber(proxy1.direction);
+        game.setlocalPlayerDirection(proxy1.direction);
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
@@ -142,7 +142,7 @@ public class LocalGameActivity extends AppCompatActivity {
 
 
         //
-        game.setLocalPlayerNumber(player.direction);
+        game.setlocalPlayerDirection(player.direction);
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);

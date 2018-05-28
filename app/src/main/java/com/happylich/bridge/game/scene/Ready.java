@@ -22,6 +22,8 @@ import com.happylich.bridge.game.player.RemotePlayer;
 import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 
+import java.net.Socket;
+
 /**
  * 玩家准备界面
  */
@@ -59,6 +61,10 @@ public class Ready extends AbstractScene {
             playerRight.setCards(cards.getCards(1));
             playerBottom.setCards(cards.getCards(2));
             playerTop.setCards(cards.getCards(3));
+            this.game.getCount().setCard(playerLeft.direction, playerLeft.getCards());
+            this.game.getCount().setCard(playerRight.direction, playerRight.getCards());
+            this.game.getCount().setCard(playerBottom.direction, playerBottom.getCards());
+            this.game.getCount().setCard(playerTop.direction, playerTop.getCards());
             return true;
         }
         return false;
@@ -80,6 +86,19 @@ public class Ready extends AbstractScene {
             ((ProxyPlayer) playerLeft).setRealPlayer(remotePlayer);
         } else if (!playerRight.isInOrder()) {
             ((ProxyPlayer) playerRight).setRealPlayer(remotePlayer);
+        }
+    }
+
+    public void setSocket(Socket socket) {
+        if ((((ProxyPlayer) playerTop).getRealPlayer() instanceof RemotePlayer) &&
+                (!((ProxyPlayer) playerTop).getRealPlayer().isInOrder())) {
+            ((RemotePlayer) ((ProxyPlayer) playerTop).getRealPlayer()).setSocket(socket);
+        } else if ((((ProxyPlayer) playerLeft).getRealPlayer() instanceof RemotePlayer) &&
+                (!((ProxyPlayer) playerLeft).getRealPlayer().isInOrder())) {
+            ((RemotePlayer) ((ProxyPlayer) playerLeft).getRealPlayer()).setSocket(socket);
+        } else if ((((ProxyPlayer) playerRight).getRealPlayer() instanceof RemotePlayer) &&
+                (!((ProxyPlayer) playerRight).getRealPlayer().isInOrder())) {
+            ((RemotePlayer) ((ProxyPlayer) playerRight).getRealPlayer()).setSocket(socket);
         }
     }
 
@@ -166,10 +185,10 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         break;
                     case 1:
-                        // 设置上边位置为ProxyPlayer（
+                        // 设置上边位置为RemotePlayer（
                         a = 0;
                         if (playerTop instanceof  ProxyPlayer && !playerTop.isInOrder()) {
-//                            ((ProxyPlayer) playerTop).removeRealPlayer();
+                            ((ProxyPlayer) playerTop).setRealPlayer(new RemotePlayer(context));
                         }
                         readyStage = 0;
                         break;
@@ -221,7 +240,7 @@ public class Ready extends AbstractScene {
                         // 设置左边位置为ProxyPlayer
                         b = 0;
                         if (playerLeft instanceof ProxyPlayer && !playerLeft.isInOrder()) {
-//                            ((ProxyPlayer) playerLeft).removeRealPlayer();
+                            ((ProxyPlayer) playerLeft).setRealPlayer(new RemotePlayer(context));
                         }
                         readyStage = 0;
                         break;
@@ -274,7 +293,7 @@ public class Ready extends AbstractScene {
                         c = 0;
                         readyStage = 0;
                         if (playerRight instanceof ProxyPlayer && !playerRight.isInOrder()) {
-                            ((ProxyPlayer) playerRight).removeRealPlayer();
+                            ((ProxyPlayer) playerRight).setRealPlayer(new RemotePlayer(context));
                         }
                         break;
                     case 8:

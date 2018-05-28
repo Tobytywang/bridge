@@ -97,6 +97,9 @@ public class Call extends AbstractScene {
             if (getCallHistory().get(getCallHistory().size() - 1) == 35 &&
                     getCallHistory().get(getCallHistory().size() - 2) == 35 &&
                     getCallHistory().get(getCallHistory().size() - 3) == 35) {
+                //
+                this.game.getCount().setBanker(dealerPlayer.direction);
+                this.game.getCount().setContract(level * 5 + suits);
                 return true;
             }
         }

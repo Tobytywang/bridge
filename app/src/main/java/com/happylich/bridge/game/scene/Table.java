@@ -23,7 +23,7 @@ import java.util.Map;
  */
 
 public class Table extends AbstractScene {
-     Path path = new Path();
+    Path path = new Path();
     RectF round = new RectF();
 
     // 叫牌阶段标志位
@@ -40,7 +40,6 @@ public class Table extends AbstractScene {
 
     // 领牌人（本轮首次出牌的）
     private int player = -1;
-//    private int leader = -1;
 
     // 定约阶
     private int level = -1;
@@ -49,6 +48,8 @@ public class Table extends AbstractScene {
     // ?
     private int full = 0;
     private int tricks = 0;
+    private int tricksNS = 0;
+    private int tricksWE = 0;
     private int cardFirstPlayer = -1;
     private int cardFirst = -1;
     private int cardBottom;
@@ -123,6 +124,14 @@ public class Table extends AbstractScene {
         return player;
     }
 
+    public int getTricksNS() {
+        return this.tricksNS;
+    }
+
+    public int getTricksWE() {
+        return this.tricksWE;
+    }
+
     /**
      * 设置callstage
      * @param stage
@@ -193,11 +202,27 @@ public class Table extends AbstractScene {
         if (this.dropHistory.size() == 4) {
             this.player = sortCards(cardFirst, cardBottom, cardLeft, cardTop, cardRight);
 
+            this.tricks++;
+            if (playerTop.position == this.player || playerBottom.position == this.player) {
+                if (playerTop.direction == 0 || playerTop.direction == 2) {
+                    this.tricksNS ++;
+                } else {
+                    this.tricksWE ++;
+                }
+            } else {
+                if (playerLeft.direction == 0 || playerLeft.direction == 2) {
+                    this.tricksNS ++;
+                } else {
+                    this.tricksWE ++;
+                }
+            }
+
             cardFirst = -1;
             cardFirstPlayer = -1;
 
-            this.tricks++;
+            // TODO:在这里更新分数
             if (tricks == 13) {
+                player = -1;
                 finish();
             }
         } else {
@@ -352,10 +377,7 @@ public class Table extends AbstractScene {
         top = this.top + 360 + 180;
         // 绘制庄家
 
-//        Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.callImages[level * 5 + suits], 180, 240);
         Image = CardImage.callBitmapImages.get(level * 5 + suits);
-//        Image = BitmapFactory.decodeResource(context.getResources(),
-//                CardImage.callImages[level * 5 + suits]);
         paint.setColor(Color.BLACK);
         paint.setTextSize(80);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -511,6 +533,8 @@ public class Table extends AbstractScene {
             path.moveTo(left + 820, top + 360);
             path.lineTo(left + 740, top + 330);
             path.lineTo(left + 740, top + 390);
+        } else {
+            path.reset();
         }
 
         path.close();
@@ -526,22 +550,19 @@ public class Table extends AbstractScene {
         {
             Map.Entry entity = (Map.Entry) it.next();
             for (int i = 0; i < dropHistory.size(); i++) {
-//                Image = CardImage.decodeSampledBitmapFromResource(context.getResources(), CardImage.cardImages[(Integer)entity.getValue()], 180, 240);
                 Image = CardImage.cardBitmapImages.get((Integer)entity.getValue());
-//                Image =  BitmapFactory.decodeResource(context.getResources(),
-//                        CardImage.cardImages[(Integer)entity.getValue()]);
                 if ((Integer)entity.getKey() == 0) {
                     // 绘制出牌
-                    des.set(left + 275 + 50, top + 330, left + 445 + 50, top + 570);
+                    des.set(left + 275, top + 330, left + 445, top + 570);
                     canvas.drawBitmap(Image, null, des, paint);
                 } else if ((Integer)entity.getKey() == 1) {
-                    des.set(left + 140, top + 260, left + 310, top + 470);
+                    des.set(left + 150, top + 260, left + 320, top + 470);
                     canvas.drawBitmap(Image, null, des, paint);
                 } else if ((Integer)entity.getKey() == 2) {
-                    des.set(left + 275 + 50, top + 140, left + 445 + 50, top + 380);
+                    des.set(left + 275, top + 150, left + 445, top + 390);
                     canvas.drawBitmap(Image, null, des, paint);
                 } else if ((Integer)entity.getKey() == 3) {
-                    des.set(left + 410, top + 260, left + 580, top + 470);
+                    des.set(left + 400, top + 260, left + 570, top + 470);
                     canvas.drawBitmap(Image, null, des, paint);
                 }
                 Image = null;

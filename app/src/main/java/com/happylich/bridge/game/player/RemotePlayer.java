@@ -1,5 +1,7 @@
 package com.happylich.bridge.game.player;
 
+import android.content.Context;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,7 +44,15 @@ public class RemotePlayer extends AbstractPlayer {
     // 输出流对象
     OutputStream outputStream;
 
-    public RemotePlayer(Socket socket) {
+//    public RemotePlayer(Socket socket) {
+//        this.socket = socket;
+//    }
+
+    public RemotePlayer(Context context) {
+
+    }
+
+    public void setSocket(Socket socket) {
         this.socket = socket;
     }
 
@@ -52,7 +62,10 @@ public class RemotePlayer extends AbstractPlayer {
      */
     @Override
     public boolean isInOrder() {
-        return inOrder;
+        if (this.socket != null && this.socket.isConnected()) {
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -15,6 +15,7 @@ import com.happylich.bridge.game.player.ProxyPlayer;
 import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 import com.happylich.bridge.game.scene.Call;
+import com.happylich.bridge.game.scene.Count;
 import com.happylich.bridge.game.wlan.wifihotspot.FakeSocket;
 import com.happylich.bridge.game.wlan.wifihotspot.GameClient;
 import com.happylich.bridge.game.wlan.wifihotspot.GameServer;
@@ -54,6 +55,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     protected int gameType = -1;
     public void setGameType(int gameType) {
         this.gameType = gameType;
+        this.count.setGameType(gameType);
     }
 
     // 游戏进程标志
@@ -75,9 +77,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
     // 本地玩家标号
     protected int playerNumber = 0;
-    protected int localPlayerNumber = -1;
-    public void setLocalPlayerNumber(int localPlayerNumber) {
-        this.localPlayerNumber = localPlayerNumber;
+    protected int localPlayerDirection = -1;
+    public void setlocalPlayerDirection(int localPlayerDirection) {
+        this.localPlayerDirection = localPlayerDirection;
+        this.count.setPlayerDirection(localPlayerDirection);
     }
 
     // 记录庄家
@@ -89,6 +92,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     private String serverIP;
     private GameServer gameServer;
     private GameClient gameClient;
+
+    private Count count;
     // 准备
     private Ready ready;
     // 叫牌
@@ -132,10 +137,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
         CardImage.getResource(context);
 
+        this.count = new Count(context);
         this.ready = new Ready(context);
         this.call = new Call(context);
         this.table = new Table(context);
 
+        this.count.setGame(this);
         this.ready.setGame(this);
         this.call.setGame(this);
         this.table.setGame(this);
@@ -159,6 +166,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
             }
         };
+    }
+
+    public Count getCount() {
+        return this.count;
     }
 
 
@@ -225,19 +236,19 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         player.setTable(this.table);
         player.setCall(this.call);
 
-        if (player.direction == localPlayerNumber) {
+        if (player.direction == localPlayerDirection) {
             player.position = 0;
             playerBottom = player;
-        } else if (player.direction == localPlayerNumber + 1
-                || player.direction == localPlayerNumber - 3) {
+        } else if (player.direction == localPlayerDirection + 1
+                || player.direction == localPlayerDirection - 3) {
             player.position = 1;
             playerLeft = player;
-        } else if (player.direction == localPlayerNumber + 2
-                || player.direction == localPlayerNumber - 2) {
+        } else if (player.direction == localPlayerDirection + 2
+                || player.direction == localPlayerDirection - 2) {
             player.position = 2;
             playerTop = player;
-        } else if (player.direction == localPlayerNumber + 3
-                || player.direction == localPlayerNumber - 1) {
+        } else if (player.direction == localPlayerDirection + 3
+                || player.direction == localPlayerDirection - 1) {
             player.position = 3;
             playerRight = player;
         }
@@ -257,7 +268,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     public Ready getReady() {
         return this.ready;
     }
-
+    public Call getCall() {
+        return this.call;
+    }
+    public Table getTable() { return this.table; }
     /**
      * 这个类用来在若干秒后给出机器人的叫牌结果
      */
@@ -382,6 +396,22 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                             }
                         }
                     }
+                }
+                break;
+            case 7:
+                // 在这里存储
+                Log.v(this.getClass().getName(), "正在存储数据");
+                count.saveGame();
+                gameStage = 8;
+                break;
+            case 8:
+                switch (count.onTouch(x, y)) {
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    default:
+                        break;
                 }
                 break;
             default:
@@ -544,8 +574,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         }
                     }
                 }
-                break;
             case 7:
+                break;
+            case 8:
                 break;
             default:
                 break;
@@ -586,6 +617,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 call.draw(canvas, paint, des);
                 break;
             case 6:
+            case 7:
+                drawCount(canvas, paint, des);
                 // TODO:出牌循环
                 // 根据叫牌情况选择不同的绘制形态
                 table.setModifier(getModifier());
@@ -604,7 +637,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     playerLeft.draw(canvas, paint, des);
                 }
                 break;
-            case 7:
+            case 8:
+                count.draw(canvas, paint, des);
                 break;
             default:
                 break;
@@ -628,8 +662,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     /**
      * 适应性测试
      */
-    public void drawText(Canvas canvas) {
-        Paint paint = new Paint();
+    public void drawText(Canvas canvas, Paint paint, Rect des) {
         paint.setColor(Color.WHITE);
         paint.setTextSize(100);
 
@@ -700,6 +733,14 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         } catch (Exception e){
             canvas.drawText(String.valueOf(e.toString()), 0, 460, paint);
         }
+    }
+
+    public void drawCount(Canvas canvas, Paint paint, Rect des) {
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(100);
+
+        canvas.drawText("南北" + this.table.getTricksNS(), 0, 100, paint);
+        canvas.drawText("东西" + this.table.getTricksWE(), 720, 100, paint);
     }
     /**
      * 从庄家获得明手

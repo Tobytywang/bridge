@@ -172,7 +172,8 @@ public class GameServer extends Thread {
                     if (serverSocket != null) {
                         try {
                             Socket sokt = serverSocket.accept();
-                            game.getReady().setRealPlayer(new RemotePlayer(sokt));
+                            // 把这个socket传给一个随机的用户
+//                            game.getReady().setRealPlayer(new RemotePlayer(sokt));
                         } catch (Exception e) {
                             //                        e.printStackTrace();
                         }

@@ -1,5 +1,7 @@
 package com.happylich.bridge.dummy;
 
+import com.happylich.bridge.game.scene.Count;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,23 +18,28 @@ public class DummyContent {
     /**
      * An array of sample (dummy) items.
      */
-    public static final List<DummyItem> ITEMS = new ArrayList<DummyItem>();
+    public static final List<Count> ITEMS = new ArrayList<Count>();
 
     /**
      * A map of sample (dummy) items, by ID.
      */
-    public static final Map<String, DummyItem> ITEM_MAP = new HashMap<String, DummyItem>();
+    public static final Map<String, Count> ITEM_MAP = new HashMap<String, Count>();
 
     private static final int COUNT = 25;
 
     static {
         // Add some sample items.
         for (int i = 1; i <= COUNT; i++) {
-            addItem(createDummyItem(i));
+            addCount(createDummyCount(i));
         }
     }
 
-    private static void addItem(DummyItem item) {
+//    private static void addItem(DummyItem item) {
+//        ITEMS.add(item);
+//        ITEM_MAP.put(item.id, item);
+//    }
+
+    private static void addCount(Count item) {
         ITEMS.add(item);
         ITEM_MAP.put(item.id, item);
     }
@@ -41,6 +48,11 @@ public class DummyContent {
         return new DummyItem(String.valueOf(position), "Item " + position, makeDetails(position));
     }
 
+    private static Count createDummyCount(int position) {
+        return new Count(String.valueOf(position), 0, 0, 0, 12);
+    }
+
+    // ?什么作用？
     private static String makeDetails(int position) {
         StringBuilder builder = new StringBuilder();
         builder.append("Details about Item: ").append(position);
