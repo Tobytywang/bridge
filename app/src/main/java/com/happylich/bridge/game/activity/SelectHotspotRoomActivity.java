@@ -3,36 +3,22 @@ package com.happylich.bridge.game.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
-import android.net.wifi.WpsInfo;
-import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.happylich.bridge.R;
-import com.happylich.bridge.game.utils.AdapterImageView;
 import com.happylich.bridge.game.utils.RoomAdapter;
 import com.happylich.bridge.game.utils.RoomBean;
-import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastReceiverThread;
-import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastThread;
-import com.happylich.bridge.game.wlan.wifip2p.ActionListenerHandler;
-import com.happylich.bridge.game.wlan.wifip2p.WifiDirectReceiver;
+import com.happylich.bridge.game.wlan.wifihotspot.autofind.WifiBroadcastReceiverThread;
 
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -131,7 +117,8 @@ public class SelectHotspotRoomActivity extends AppCompatActivity implements Adap
 //        roomBean.setIP("122.122.122.122");
 //        roomBean.setState("你好");
 //        roomBean.setTime(1000);
-//
+//        mRoomList.add(roomBean);
+
 //        RoomBean roomBean1 = new RoomBean();
 //        roomBean1.setIP("122.122.122.123");
 //        roomBean1.setState("你好");

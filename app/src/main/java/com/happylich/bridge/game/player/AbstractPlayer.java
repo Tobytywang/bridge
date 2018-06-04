@@ -59,8 +59,8 @@ public abstract class AbstractPlayer {
     protected ArrayList<Integer> cards;
     protected int selectCardIndex = -1;
     protected int selectCard = -1;
-    public int direction;
-    public int position;
+    public int direction = -1;
+    public int position = -1;
 
     /**
      * 构造函数
@@ -107,6 +107,12 @@ public abstract class AbstractPlayer {
      * @param direction
      */
     public void setDirection(int direction) {
+        if (direction > 3) {
+            direction = direction - 4;
+        }
+        if (direction < 0) {
+            direction = direction + 4;
+        }
         this.direction = direction;
     }
 
@@ -171,7 +177,11 @@ public abstract class AbstractPlayer {
      * 表示玩家是否处于就绪状态
      */
     public boolean isInOrder() {
-        return true;
+        if (this.direction == 0 || this.direction == 1 ||
+                this.direction == 2 || this.direction == 3) {
+            return true;
+        }
+        return false;
     }
 
     /**

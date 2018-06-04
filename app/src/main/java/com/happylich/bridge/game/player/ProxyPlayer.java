@@ -39,7 +39,8 @@ public class ProxyPlayer extends AbstractPlayerWithDraw {
      */
     @Override
     public boolean isInOrder() {
-        if (this.realPlayer != null) {
+        if (this.realPlayer != null &&
+                (this.direction == 0 || this.direction == 1 || this.direction == 2 || this.direction ==3)) {
             return realPlayer.isInOrder();
         }
         return false;

@@ -8,24 +8,29 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.happylich.bridge.game.player.AbstractPlayerWithDraw;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
+import com.happylich.bridge.game.player.RemotePlayer;
 import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
 import com.happylich.bridge.game.scene.Call;
 import com.happylich.bridge.game.scene.Count;
-import com.happylich.bridge.game.wlan.wifihotspot.FakeSocket;
-import com.happylich.bridge.game.wlan.wifihotspot.GameClient;
-import com.happylich.bridge.game.wlan.wifihotspot.GameServer;
+import com.happylich.bridge.game.wlan.wifihotspot.transmitdata.GameClientReceiveDataThread;
+import com.happylich.bridge.game.wlan.wifihotspot.transmitdata.GameServerReceiveDataThread;
+import com.happylich.bridge.game.wlan.wifihotspot.transmitdata.GameTransmitData;
+import com.happylich.bridge.game.wlan.wifihotspot.validconnection.FakeSocket;
+import com.happylich.bridge.game.wlan.wifihotspot.validconnection.GameClient;
+import com.happylich.bridge.game.wlan.wifihotspot.validconnection.GameServer;
 import com.happylich.bridge.game.scene.Ready;
 import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 
-import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,8 +41,12 @@ import java.util.TimerTask;
 
 public class Game extends com.happylich.bridge.engine.game.Game{
 
-    private Context context;
-    private Handler mHandler;
+    public final Context context;
+    public Handler mHandler;
+
+    public ArrayList<Socket> sockets = new ArrayList<>();
+    public Socket socket;
+
 
     // 游戏状态标志
     // 1. 等待玩家加入中
@@ -57,16 +66,21 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         this.gameType = gameType;
         this.count.setGameType(gameType);
     }
+    public int getGameType() {
+        return this.gameType;
+    }
 
     // 游戏进程标志
     // 0 玩家未就绪
     // 1 玩家已经就绪
-    // 2 叫牌1
-    // 3 叫牌2
-    // 4 叫牌3
-    // 5 过渡
-    // 6 打牌
-    // 7
+    // 2 准备阶段
+    // 3 准备阶段
+    // 4 发牌阶段
+    // 5 叫牌阶段
+    // 6 叫牌过渡阶段
+    // 7 打牌阶段
+    // 8 打牌过渡阶段
+    // 9 结算阶段
     protected int gameStage = 1;
     public void setGameStage(int gameStage) {
         this.gameStage = gameStage;
@@ -78,7 +92,11 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     // 本地玩家标号
     protected int playerNumber = 0;
     protected int localPlayerDirection = -1;
-    public void setlocalPlayerDirection(int localPlayerDirection) {
+    public void setLocalPlayer(AbstractPlayerWithDraw localPlayer) {
+        this.playerLocal = localPlayer;
+    }
+    public void setLocalPlayerDirection(int localPlayerDirection) {
+        // TODO:还要做什么额外的工作？
         this.localPlayerDirection = localPlayerDirection;
         this.count.setPlayerDirection(localPlayerDirection);
     }
@@ -91,23 +109,39 @@ public class Game extends com.happylich.bridge.engine.game.Game{
 
     private String serverIP;
     private GameServer gameServer;
+    private GameServerReceiveDataThread gameServerReceiveDataThread;
     private GameClient gameClient;
+    private GameClientReceiveDataThread gameClientReceiveDataThread;
+    public GameTransmitData gameTransmitData;
 
-    private Count count;
+    protected Count count;
     // 准备
-    private Ready ready;
+    protected Ready ready;
     // 叫牌
-    private Call call;
+    protected Call call;
     // 打牌
-    private Table table;
+    protected Table table;
 
     // 玩家
     // TODO:这四个玩家变量应该跟drawPosition绑定还是direction（当然是drawPosition）
+    private AbstractPlayerWithDraw playerLocal;
     private AbstractPlayerWithDraw playerBottom;
     private AbstractPlayerWithDraw playerLeft;
     private AbstractPlayerWithDraw playerTop;
     private AbstractPlayerWithDraw playerRight;
 
+    public AbstractPlayer getPlayerTop() {
+        return this.playerTop;
+    }
+    public AbstractPlayer getPlayerLeft() {
+        return this.playerLeft;
+    }
+    public AbstractPlayer getPlayerRight() {
+        return this.playerRight;
+    }
+    public AbstractPlayer getPlayerBottom() {
+        return this.playerBottom;
+    }
     // 赢墩（界面上显示当前玩家的）
 //    private int nsContract = -1;
 //    private int weContract = -1;
@@ -152,14 +186,49 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case 0:
-                        // 表示玩家取消准备状态（哪个玩家呢？）
+                        // 表示消费事件
+                        toast(msg.obj.toString());
+                        onMessage(msg.obj.toString());
                         break;
                     case 1:
+                        // 表示发送事件
                         // 表示玩家准备就绪状态
+                        sendTo(msg.obj.toString());
                         break;
                     case 2:
                         break;
                     case 3:
+                        break;
+                    case 220:
+                        toast220();
+                        break;
+                    case 221:
+                        toast221();
+                        break;
+                    case 222:
+                        toast222();
+                        break;
+                    case 223:
+                        toast223();
+                        break;
+                    case 233:
+                        toast();
+//                        Toast.makeText(context, "GameServer启动了", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 234:
+                        toast2();
+                        break;
+                    case 235:
+                        toast235();
+                        break;
+                    case 236:
+                        toast236();
+                        break;
+                    case 244:
+                        toast244();
+                        break;
+                    case 245:
+                        toast245();
                         break;
                     default:
                         break;
@@ -168,43 +237,95 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         };
     }
 
+    public void sendTo(String message) {
+        this.gameTransmitData.sendToClients(message);
+    }
+    public void toast(String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+    public void toast() {
+        Toast.makeText(context, "GameServer启动了", Toast.LENGTH_SHORT).show();
+    }
+    public void toast2() {
+        Toast.makeText(context, "GameClient启动了", Toast.LENGTH_SHORT).show();
+    }
+    public void toast220() {
+        Toast.makeText(context, "客户端准备接收消息", Toast.LENGTH_SHORT).show();
+    }
+    public void toast221() {
+        Toast.makeText(context, "客户端接收消息中", Toast.LENGTH_SHORT).show();
+    }
+    public void toast222() {
+        Toast.makeText(context, "客户端接收到了消息", Toast.LENGTH_SHORT).show();
+    }
+    public void toast223() {
+        Toast.makeText(context, "客户端没法儿接收消息", Toast.LENGTH_SHORT).show();
+    }
+    public void toast235() {
+        Toast.makeText(context, "客户端准备连接服务端", Toast.LENGTH_SHORT).show();
+    }
+    public void toast236() {
+        Toast.makeText(context, "客户端连接上服务端了", Toast.LENGTH_SHORT).show();
+    }
+    public void toast244() {
+        Toast.makeText(context, "服务器接收客户端连接", Toast.LENGTH_SHORT).show();
+    }
+    public void toast245() {
+        Toast.makeText(context, "服务器接收到客户端连接了", Toast.LENGTH_SHORT).show();
+    }
+    public void toast246() {
+        Toast.makeText(context, String.valueOf(this.sockets.size()), Toast.LENGTH_SHORT).show();
+    }
+
     public Count getCount() {
         return this.count;
     }
 
-
+    public void setServerIP(String serverIP) {
+        this.serverIP = serverIP;
+    }
     public String getServerIP() {
         return this.serverIP;
     }
 
+    // 启动服务器（开始通信）
     public void setGameServer() {
         if (this.gameServer == null) {
             this.gameServer = new GameServer();
         }
+//        if (this.gameServerReceiveDataThread == null) {
+//            this.gameServerReceiveDataThread = new GameServerReceiveDataThread();
+//        }
         gameServer.setGame(this);
-//        this.gameServer.setGame(this);
         gameServer.setRunning(true);
+//        gameServerReceiveDataThread.setGame(this);
+//        gameServerReceiveDataThread.setRunning(true);
         try {
+//            gameServerReceiveDataThread.start();
             gameServer.start();
         } catch (Exception e) {
-            Log.v(this.getClass().getName(), e.toString());
         }
-        Log.v(this.getClass().getName(), "线程已经启动");
+        this.gameTransmitData = new GameTransmitData(this);
     }
 
-    public void setGameClient(String serverIP) {
-        this.serverIP = serverIP;
+    // 启动客户端（开始通信）
+    public void setGameClient() {
         if (this.gameClient == null) {
             this.gameClient = new GameClient(serverIP);
         }
+        if (this.gameClientReceiveDataThread == null) {
+            this.gameClientReceiveDataThread = new GameClientReceiveDataThread();
+        }
+        gameClient.setGame(this);
         gameClient.setRunning(true);
-//        gameClient.setGame(this);
+        gameClientReceiveDataThread.setGame(this);
+        gameClientReceiveDataThread.setRunning(true);
         try {
+            gameClientReceiveDataThread.start();
             gameClient.start();
         } catch (Exception e) {
-
         }
-        Log.v(this.getClass().getName(), "开启完毕");
+        this.gameTransmitData = new GameTransmitData(this);
     }
 
     public void stopGameThreads() {
@@ -214,10 +335,21 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         }
         if (this.gameClient != null) {
             try {
-                this.gameClient.getSocket().close();
+                this.socket.close();
                 this.gameClient.setRunning(false);
             } catch (Exception e) {
-
+            }
+        }
+        if (this.gameServerReceiveDataThread != null) {
+            try {
+                this.gameServerReceiveDataThread.setRunning(false);
+            } catch (Exception e) {
+            }
+        }
+        if (this.gameClientReceiveDataThread != null) {
+            try {
+                this.gameClientReceiveDataThread.setRunning(false);
+            } catch (Exception e) {
             }
         }
     }
@@ -262,7 +394,68 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         table.setPlayer(player);
         call.setPlayer(player);
         ready.setPlayer(player);
+
+        if (gameType == 0 && player instanceof ProxyPlayer) {
+            ((ProxyPlayer) player).setRealPlayer(new Robot(context));
+        }
+        if (gameType == 1 && player instanceof ProxyPlayer) {
+            ((ProxyPlayer) player).setRealPlayer(new Robot(context));
+        }
+        // 服务器模式下专用
+        if (gameType == 2 && player instanceof ProxyPlayer) {
+            ((ProxyPlayer) player).setRealPlayer(new RemotePlayer(context));
+        }
+        // 客户端模式下，所有ProxyPlayer都是RemotePlayer
+//        if (gameType == 3 && player instanceof ProxyPlayer) {
+//            ((ProxyPlayer) player).setRealPlayer(new RemotePlayer(context));
+//        }
     }
+
+    public void setGamePlayer(AbstractPlayerWithDraw player, int position) {
+        player.setReady(this.ready);
+        player.setTable(this.table);
+        player.setCall(this.call);
+
+        if (position == 0) {
+            player.position = 0;
+            playerBottom = player;
+        } else if (position == 1) {
+            player.position = 1;
+            playerLeft = player;
+        } else if (position == 2) {
+            player.position = 2;
+            playerTop = player;
+        } else if (position == 3) {
+            player.position = 3;
+            playerRight = player;
+        }
+
+        if (player.position == 0) {
+            player.setPlayerStage(1);
+        } else {
+            player.setPlayerStage(2);
+        }
+
+        table.setPlayer(player);
+        call.setPlayer(player);
+        ready.setPlayer(player);
+
+//        if (gameType == 0 && player instanceof ProxyPlayer) {
+//            ((ProxyPlayer) player).setRealPlayer(new Robot(context));
+//        }
+//        if (gameType == 1 && player instanceof ProxyPlayer) {
+//            ((ProxyPlayer) player).setRealPlayer(new Robot(context));
+//        }
+//        // 服务器模式下专用
+//        if (gameType == 2 && player instanceof ProxyPlayer) {
+//            ((ProxyPlayer) player).setRealPlayer(new RemotePlayer(context));
+//        }
+        // 客户端模式下，所有ProxyPlayer都是RemotePlayer
+        if (gameType == 3 && player instanceof ProxyPlayer) {
+            ((ProxyPlayer) player).setRealPlayer(new RemotePlayer(context));
+        }
+    }
+
 
 
     public Ready getReady() {
@@ -327,9 +520,24 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     public void onTouch(int x, int y) {
         switch (gameStage) {
             case 0:
+                Toast.makeText(context, "阶段 0", Toast.LENGTH_SHORT).show();
                 break;
             case 1:
-                gameStage = 2;
+                // 阶段1自动进入阶段2
+                //
+
+                // 同步玩家状态
+                // 同步玩家状态的时候，还需要同时同步IP和玩家位置
+                // 服务端可能需要同步多个
+                // 客户端需要同步一个
+
+                // 要考虑谁先进入阶段2
+                // 如果是服务端先进入阶段2，先发送消息，客户端就要先处理服务端的玩家状态
+                // 如果是客户端先进入阶段2，先发送消息，服务端就要先处理客户端的玩家状态
+
+                // 需要在客户端接入服务器的时候，发送数据包？
+//                gameTransmitData.sendToClients();
+//                gameStage = 2;
                 break;
             case 2:                // 在Process里自动切换状态
                 // 已准备界面
@@ -339,6 +547,8 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             case 3:
                 break;
             case 4:
+                break;
+            case 5:
                 // 如果本地玩家是人类玩家 并且 轮到本地玩家叫牌
                 switch (call.onTouch(x, y)) {
                     case 0:
@@ -363,12 +573,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         break;
                 }
                 break;
-            case 5:
+            case 6:
                 dealerPlayer = call.getDealer();
                 playerNumber = table.getPlayer();
-                gameStage = 6;
+                gameStage = 7;
                 break;
-            case 6:
+            case 7:
                 // 本地玩家是人类
                 if (playerBottom instanceof Player) {
                     if (playerNumber == playerBottom.position) {
@@ -398,13 +608,13 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     }
                 }
                 break;
-            case 7:
+            case 8:
                 // 在这里存储
                 Log.v(this.getClass().getName(), "正在存储数据");
                 count.saveGame();
-                gameStage = 8;
+                gameStage = 9;
                 break;
-            case 8:
+            case 9:
                 switch (count.onTouch(x, y)) {
                     case 1:
                         break;
@@ -417,6 +627,192 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             default:
                 break;
         }
+    }
+
+    /**
+     * 接收到来自socket的消息
+     */
+    public void onMessage(String message) {
+        Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
+        Log.v(this.getClass().getName(), message);
+        Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
+        String[] messages = message.split(":");
+        String ip = messages[0];
+        String content = messages[1];
+        if (ip != this.serverIP) {
+            switch (gameStage) {
+                case 0:
+                    // 没有连接的状态
+                    break;
+                case 1:
+                case 2:
+                    // 连接成功的状态
+                    // ready阶段
+                    // 如果是服务端：接收来自客户端的消息，还要广播到其他客户端
+                    // 如果是客户端：接收来自客户端的消息
+
+                    // 先给玩家从所有状态为x的位置中分配一个位置
+                    // 服务器怎么处理这个消息的？
+                    // 客户端发送的消息和服务端发送的消息有何不同？
+                    // handleMessage时，只同步来自其他客户端的玩家消息（除了Direction）
+                    //
+                    handleMessagePlayer(content);
+                    // 在将所有其他玩家的状态显示到ready中
+                    break;
+                case 3:
+                    // 同步玩家手牌
+                    // ready状态
+                    break;
+                case 4:
+                    // ready2阶段
+                    break;
+                case 5:
+                    // 同步叫牌值
+                    // 叫牌阶段
+                    break;
+                case 6:
+                    // 叫牌过渡阶段
+                    break;
+                case 7:
+                    // 同步打牌值
+                    // 打牌阶段
+                    break;
+                case 8:
+                    // 打牌过渡阶段
+                    break;
+                case 9:
+                    // 结算阶段
+                    break;
+            }
+        }
+    }
+
+    public void handleMessagePlayer(String content) {
+        Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
+        Log.v(this.getClass().getName(), content);
+        Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
+        String[] message = content.split(" ");
+//        setLocalPlayerDirection();
+        // 设置所有玩家的direction
+        // 设置所有玩家的状态！
+        int n = new Random().nextInt(4);
+        int state = 0;
+        // 如果本机没有设置direction，先占用一个direction
+        // 分配Direction
+        if (localPlayerDirection == -1) {
+            while (state == 0) {
+                if (message[n*2] == "0") {
+                    if (message[n*2+1] == "px") {
+                        setLocalPlayerDirection(0);
+                    }
+                } else if (message[n*2] == "1") {
+                    if (message[n*2+1] == "px") {
+                        setLocalPlayerDirection(1);
+                    }
+                } else if (message[n*2] == "2") {
+                    if (message[n*2+1] == "px") {
+                        setLocalPlayerDirection(2);
+                    }
+                } else if (message[n*2] == "3") {
+                    if (message[n*2+1] == "px") {
+                        setLocalPlayerDirection(3);
+                    }
+                }
+                state = 1;
+            }
+            playerLeft.setDirection(localPlayerDirection + 1);
+            playerTop.setDirection(localPlayerDirection + 2);
+            playerRight.setDirection(localPlayerDirection + 3);
+        }
+        // 分配剩下的direction
+        // 设置其他玩家的就绪状态
+        // 就绪状态可能要区分几种不同的状态
+        // 增加一个根据direction找player的函数
+        // 只需要设置RemotePlayer
+        // 这里只同步了服务器到客户端
+        AbstractPlayer player = null;
+        state = 0;
+        n = 0;
+        Log.v(this.getClass().getName(), message.toString());
+        while (state == 0) {
+            if (message[n] == "0") {
+                player = getPlayerByDirection(0);
+                if (player instanceof ProxyPlayer) {
+                    if (message[n * 2 + 1] == "mo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
+                    } else if (message[n * 2 + 1] == "zx") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
+                    } else if (message[n * 2 + 1] == "zo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
+                    } else if (message[n * 2 + 1] == "po") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
+                    } else if (message[n * 2 + 1] == "px") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                    }
+                }
+            } else if (message[n] == "1") {
+                player = getPlayerByDirection(1);
+                if (player instanceof ProxyPlayer) {
+                    if (message[n * 2 + 1] == "mo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
+                    } else if (message[n * 2 + 1] == "zx") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
+                    } else if (message[n * 2 + 1] == "zo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
+                    } else if (message[n * 2 + 1] == "po") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
+                    } else if (message[n * 2 + 1] == "px") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                    }
+                }
+            } else if (message[n] == "2") {
+                player = getPlayerByDirection(2);
+                if (player instanceof ProxyPlayer) {
+                    if (message[n * 2 + 1] == "mo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
+                    } else if (message[n * 2 + 1] == "zx") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
+                    } else if (message[n * 2 + 1] == "zo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
+                    } else if (message[n * 2 + 1] == "po") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
+                    } else if (message[n * 2 + 1] == "px") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                    }
+                }
+            } else if (message[n] == "3") {
+                player = getPlayerByDirection(3);
+                if (player instanceof ProxyPlayer) {
+                    if (message[n * 2 + 1] == "mo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
+                    } else if (message[n * 2 + 1] == "zx") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
+                    } else if (message[n * 2 + 1] == "zo") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
+                    } else if (message[n * 2 + 1] == "po") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
+                    } else if (message[n * 2 + 1] == "px") {
+                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                    }
+                }
+            }
+            n = n + 2;
+            Log.v(this.getClass().getName(), "n = " + String.valueOf(n));
+            if (n == 8) {
+                state = 1;
+            }
+        }
+    }
+
+    public AbstractPlayer getPlayerByDirection(int direction) {
+        if (playerTop.direction == direction) {
+            return playerTop;
+        } else if (playerBottom.direction == direction) {
+            return playerBottom;
+        } else if (playerLeft.direction == direction) {
+            return playerLeft;
+        }
+        return playerRight;
     }
 
     /**
@@ -439,6 +835,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     public void process(Canvas canvas) {
         switch (gameStage) {
             case 0:
+                // 未连接的状态
                 if (this.gameServer != null) {
                     if (this.gameServer.getServerSocket() != null && this.gameServer.getServerSocket().isBound()) {
                         // 如果服务器准备就绪？
@@ -446,13 +843,15 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     }
                 }
                 if (this.gameClient != null) {
-                    if (this.gameClient.getSocket() != null && this.gameClient.getSocket().isConnected()) {
+                    if (this.socket != null && this.socket.isConnected()) {
                         // 如果客户端准备就绪
                         gameStage = 1;
                     }
                 }
                 break;
             case 1:
+                // 连接成功，点击进入下一阶段
+                gameStage = 2;
                 break;
             case 2:
                 if (ready.isFinish()) {
@@ -474,9 +873,13 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 }
                 break;
             case 4:
+                ready.setCards();
+                gameStage = 5;
+                break;
+            case 5:
                 // TODO:修改game的stage可以将游戏进程向前推进
                 if (call.isFinish()) {
-                    gameStage = 5;
+                    gameStage = 6;
                 } else {
                     if (playerNumber == playerBottom.position) {
                         if (playerBottom instanceof Player && call.getCallStage() == 1) {
@@ -505,7 +908,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     }
                 }
                 break;
-            case 5:
+            case 6:
                 // TODO:坐庄提示
                 // TODO:没有逻辑处理
                 table.setDealerAndContract(this.call.getDealer(),
@@ -513,12 +916,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 同步game-player和table-playerNumber;
 //                table.setDirection();
                 break;
-            case 6:
+            case 7:
                 // TODO:出牌循环
                 // TODO:修改game的stage可以将游戏进程向前推进
                 // TODO:要设置table的位置（左，中，右）
                 if (table.isFinish()) {
-                    gameStage = 7;
+                    gameStage = 8;
                 } else {
                     // 有更新playerNumber的必要
                     playerNumber = table.getPlayer();
@@ -574,9 +977,9 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                         }
                     }
                 }
-            case 7:
-                break;
             case 8:
+                break;
+            case 9:
                 break;
             default:
                 break;
@@ -604,20 +1007,25 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 ready.draw(canvas, paint, des);
                 break;
             case 3:
-                // 过渡界面
+                // 绘制已经准备界面
+                ready.draw(canvas, paint, des);
                 break;
             case 4:
+                // 发牌
+                ready.draw(canvas, paint, des);
+                break;
+            case 5:
                 playerBottom.draw(canvas, paint, des);
                 call.draw(canvas, paint, des);
                 break;
-            case 5:
+            case 6:
                 // 过渡阶段，可以什么都不画的
                 playerBottom.draw(canvas, paint, des);
                 call.setCallStage(11);
                 call.draw(canvas, paint, des);
                 break;
-            case 6:
             case 7:
+            case 8:
                 drawCount(canvas, paint, des);
                 // TODO:出牌循环
                 // 根据叫牌情况选择不同的绘制形态
@@ -637,7 +1045,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     playerLeft.draw(canvas, paint, des);
                 }
                 break;
-            case 8:
+            case 9:
                 count.draw(canvas, paint, des);
                 break;
             default:
@@ -704,14 +1112,12 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         try {
             if (this.getGameClient() == null) {
                 canvas.drawText("作为服务器", 480, 720, paint);
-                canvas.drawText("正在建立建立连接", 280, 1260, paint);
+                canvas.drawText("正在建立连接", 280, 1260, paint);
             } else {
                 canvas.drawText("作为客户端", 480, 720, paint);
                 canvas.drawText("正在建立连接", 280, 1260, paint);
-//                canvas.drawText(String.valueOf(this.getGameClient().serverIP), 0, 460, paint);
             }
         } catch (Exception e){
-//            canvas.drawText(String.valueOf(e.toString()), 0, 460, paint);
         }
     }
     public void drawStage1(Canvas canvas, Paint paint, Rect des) {
@@ -829,10 +1235,18 @@ public class Game extends com.happylich.bridge.engine.game.Game{
      * 设置宽高
      */
     public void setWidgetWidthHeight() {
-        playerTop.setWidthHeight(this.width, this.height);
-        playerLeft.setWidthHeight(this.width, this.height);
-        playerRight.setWidthHeight(this.width, this.height);
-        playerBottom.setWidthHeight(this.width, this.height);
+        if (playerTop != null) {
+            playerTop.setWidthHeight(this.width, this.height);
+        }
+        if (playerLeft != null) {
+            playerLeft.setWidthHeight(this.width, this.height);
+        }
+        if (playerRight != null) {
+            playerRight.setWidthHeight(this.width, this.height);
+        }
+        if (playerBottom != null) {
+            playerBottom.setWidthHeight(this.width, this.height);
+        }
 
         ready.setWidthHeight(this.width, this.height);
         call.setWidthHeight(this.width, this.height);

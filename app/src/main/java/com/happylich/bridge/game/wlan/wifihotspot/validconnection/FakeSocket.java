@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.wlan.wifihotspot;
+package com.happylich.bridge.game.wlan.wifihotspot.validconnection;
 
 import java.io.IOException;
 import java.net.Socket;

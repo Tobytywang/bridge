@@ -10,22 +10,12 @@ import android.util.Log;
 
 import com.happylich.bridge.R;
 import com.happylich.bridge.engine.view.GameView;
-import com.happylich.bridge.game.main.Cards;
 import com.happylich.bridge.game.main.Direction;
 import com.happylich.bridge.game.main.Game;
-import com.happylich.bridge.game.player.AbstractPlayer;
 import com.happylich.bridge.game.player.Player;
 import com.happylich.bridge.game.player.ProxyPlayer;
-import com.happylich.bridge.game.player.Robot;
 import com.happylich.bridge.game.res.CardImage;
-import com.happylich.bridge.game.wlan.wifihotspot.WifiBroadcastThread;
-
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.SocketException;
+import com.happylich.bridge.game.wlan.wifihotspot.autofind.WifiBroadcastThread;
 
 /**
  * Created by lich on 2018/4/23.
@@ -55,6 +45,8 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
 
     private WifiManager mWifiManager;
     private WifiManager.MulticastLock multicastLock;
+    private WifiInfo mWifiInfo;
+    private String ip;
 
     private Game game;
     private WifiBroadcastThread mWifiBroadcastThread;
@@ -82,30 +74,31 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
      */
     public void createLanGame(Context context) {
         mWifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        mWifiInfo = mWifiManager.getConnectionInfo();
+        ip = getIpString(mWifiInfo.getIpAddress());
+
         multicastLock = mWifiManager.createMulticastLock("multicast");
         mWifiBroadcastThread = new WifiBroadcastThread(mWifiManager);
-
-
         setContentView(R.layout.game_loading);
 
         game = new Game(context);
         game.setGameType(2);
-
-
-        Direction direction = new Direction();
 
         Player player = new Player(context);
         ProxyPlayer proxy1 = new ProxyPlayer(context);
         ProxyPlayer proxy2 = new ProxyPlayer(context);
         ProxyPlayer proxy3 = new ProxyPlayer(context);
 
+
+        // 这一段放到ready执行
+        Direction direction = new Direction();
         player.setDirection(direction.getDirections());
         proxy1.setDirection(direction.getDirections());
         proxy2.setDirection(direction.getDirections());
         proxy3.setDirection(direction.getDirections());
 
 
-        game.setlocalPlayerDirection(player.direction);
+        game.setLocalPlayerDirection(player.direction);
         game.setGamePlayer(player);
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
@@ -113,6 +106,7 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
         game.setGameStage(0);
 
         // 作为服务器
+        game.setServerIP(ip);
         game.setGameServer();
 
         GameView gameview = new GameView(context, game);
@@ -128,45 +122,36 @@ public class WifiHotspotGameActivity extends AppCompatActivity{
      * 用来建立游戏的函数
      */
     public void joinLanGame(Context context, String serverIP) {
-        // 可以从Intent中获得IP，建立Socket连接到主机
         setContentView(R.layout.game_loading);
 
         game = new Game(context);
-        game.setGameType(2);
-
-        // 作为客户端——与服务端通信
-        // 建立服务器后，当客户端请求和服务器建立联系时，服务器就会将连接接入ServerSocket
-        //
-        // 1. 玩家加入后，首先发送进入消息
-        // 2.
-
-        // 这里需要建立和服务器的远程连接
-        // 但是如果建立失败怎么办呢？
-
-        Direction direction = new Direction();
+        game.setGameType(3);
 
         Player player = new Player(context);
         ProxyPlayer proxy1 = new ProxyPlayer(context);
         ProxyPlayer proxy2 = new ProxyPlayer(context);
         ProxyPlayer proxy3 = new ProxyPlayer(context);
 
-        player.setDirection(direction.getDirections());
-        proxy1.setDirection(direction.getDirections());
-        proxy2.setDirection(direction.getDirections());
-        proxy3.setDirection(direction.getDirections());
-
-
-        game.setlocalPlayerDirection(player.direction);
-        game.setGamePlayer(player);
-        game.setGamePlayer(proxy1);
-        game.setGamePlayer(proxy2);
-        game.setGamePlayer(proxy3);
+        game.setGamePlayer(player, 0);
+        game.setGamePlayer(proxy1, 1);
+        game.setGamePlayer(proxy2, 2);
+        game.setGamePlayer(proxy3, 3);
         game.setGameStage(0);
 
-        game.setGameClient(serverIP);
+        game.setServerIP(serverIP);
+        game.setGameClient();
 
         GameView gameview = new GameView(context, game);
         setContentView(gameview);
+    }
+
+    /**
+     * IP转换函数
+     * @param i
+     * @return
+     */
+    public String getIpString(int i) {
+        return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF) + "." + ((i >> 24) & 0xFF);
     }
 
     protected void onStop() {

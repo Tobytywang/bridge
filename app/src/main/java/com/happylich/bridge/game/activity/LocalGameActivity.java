@@ -75,7 +75,6 @@ public class LocalGameActivity extends AppCompatActivity {
 
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
         // S:服务器负责（负责发牌一致）
-        Direction direction = new Direction();
 
         // S:服务器负责（负责一致性）
         ProxyPlayer proxy1 = new ProxyPlayer(this);
@@ -84,13 +83,15 @@ public class LocalGameActivity extends AppCompatActivity {
         ProxyPlayer proxy4 = new ProxyPlayer(this);
 
 
+        // 这一段放到ready执行
+        Direction direction = new Direction();
         proxy1.setDirection(direction.getDirections());
         proxy2.setDirection(direction.getDirections());
         proxy3.setDirection(direction.getDirections());
         proxy4.setDirection(direction.getDirections());
 
         // 这一段可以进行隐藏
-        game.setlocalPlayerDirection(proxy1.direction);
+        game.setLocalPlayerDirection(proxy1.direction);
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
@@ -98,15 +99,15 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGameStage(3);
 
 
-        Robot robot1 = new Robot(this);
-        Robot robot2 = new Robot(this);
-        Robot robot3 = new Robot(this);
-        Robot robot4 = new Robot(this);
-
-        proxy1.setRealPlayer(robot1);
-        proxy2.setRealPlayer(robot2);
-        proxy3.setRealPlayer(robot3);
-        proxy4.setRealPlayer(robot4);
+//        Robot robot1 = new Robot(this);
+//        Robot robot2 = new Robot(this);
+//        Robot robot3 = new Robot(this);
+//        Robot robot4 = new Robot(this);
+//
+//        proxy1.setRealPlayer(robot1);
+//        proxy2.setRealPlayer(robot2);
+//        proxy3.setRealPlayer(robot3);
+//        proxy4.setRealPlayer(robot4);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);
@@ -125,7 +126,7 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGameType(1);
 
         // TODO:主机的Cards给玩家发牌(如果是从机，则不需要创建Cards对象，或者说只要创建Cards的副本）
-        Direction direction = new Direction();
+
 
         // 建立玩家
         Player player = new Player(this);
@@ -133,7 +134,8 @@ public class LocalGameActivity extends AppCompatActivity {
         ProxyPlayer proxy2 = new ProxyPlayer(this);
         ProxyPlayer proxy3 = new ProxyPlayer(this);
 
-
+        // 这一段放到ready执行
+        Direction direction = new Direction();
         player.setDirection(direction.getDirections());
         player.setInOrder(true);
         proxy1.setDirection(direction.getDirections());
@@ -142,7 +144,7 @@ public class LocalGameActivity extends AppCompatActivity {
 
 
         //
-        game.setlocalPlayerDirection(player.direction);
+        game.setLocalPlayerDirection(player.direction);
         game.setGamePlayer(proxy1);
         game.setGamePlayer(proxy2);
         game.setGamePlayer(proxy3);
@@ -150,12 +152,12 @@ public class LocalGameActivity extends AppCompatActivity {
         game.setGameStage(3);
 
 
-        AbstractPlayer robot1 = new Robot(this);
-        AbstractPlayer robot2 = new Robot(this);
-        AbstractPlayer robot3 = new Robot(this);
-        proxy1.setRealPlayer(robot1);
-        proxy2.setRealPlayer(robot2);
-        proxy3.setRealPlayer(robot3);
+//        AbstractPlayer robot1 = new Robot(this);
+//        AbstractPlayer robot2 = new Robot(this);
+//        AbstractPlayer robot3 = new Robot(this);
+//        proxy1.setRealPlayer(robot1);
+//        proxy2.setRealPlayer(robot2);
+//        proxy3.setRealPlayer(robot3);
 
         GameView gameview = new GameView(this, game);
         setContentView(gameview);

@@ -1,4 +1,4 @@
-package com.happylich.bridge.game.wlan.wifihotspot;
+package com.happylich.bridge.game.wlan.wifihotspot.autofind;
 
 import android.content.res.Resources;
 import android.net.wifi.WifiInfo;

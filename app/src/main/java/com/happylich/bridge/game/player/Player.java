@@ -41,7 +41,11 @@ public class Player extends AbstractPlayerWithDraw {
      */
     @Override
     public boolean isInOrder() {
-        return inOrder;
+        if (inOrder &&
+            (this.direction == 0 || this.direction == 1 || this.direction == 2 || this.direction == 3)) {
+            return true;
+        }
+        return false;
     }
 
     /**
