@@ -79,11 +79,10 @@ public class GameServer extends Thread {
                         mGameServerReceiveDataThread.start();
 
                         // 客户端刚刚接入服务器时，向客户端发送服务器玩家设置
-
-                        Message message1 = new Message();
-                        message1.what = 1;
-                        message1.obj = "players";
-                        game.mHandler.sendMessage(message1);
+                        Message message = new Message();
+                        message.what = 0;
+                        message.obj = "players";
+                        game.mHandler.sendMessage(message);
                     } catch (Exception e) {
                         //                        e.printStackTrace();
                     }

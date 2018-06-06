@@ -54,20 +54,26 @@ public class GameTransmitData {
 
     /**
      *
-     * @param message
+     * @param messageType 012
+     * @param message players
      */
-    public void sendToClients(String message) {
-        message = transform(message);
+    public void sendToClients(int messageType, String message) {
+        message = transform(messageType, message);
         Toast.makeText(this.game.context, message, Toast.LENGTH_SHORT).show();
 //        String[] messages = message.split(" ");
 //        String ip = messages[0];
 //        String content = messages[1];
 
-        // 发送给本机
-        Message message1 = new Message();
-        message1.what = 0;
-        message1.obj = message;
-        game.mHandler.sendMessage(message1);
+        // 发送给本机？
+//        Message message1 = new Message();
+//        message1.what = messageType;
+//        message1.obj = message;
+//        game.mHandler.sendMessage(message1);
+//        String[] messages = message.split(">");
+//        Message message1 = new Message();
+//        message1.what = Integer.parseInt(messages[0]);
+//        message1.obj = messages[1];
+//        game.mHandler.sendMessage(message1);
 
         // 发送给其他玩家
         // 需要区分客户端和服务端
@@ -107,53 +113,54 @@ public class GameTransmitData {
         }
     }
 
-    private String transform(String messageType) {
-        String message = this.game.getServerIP() + ":";
-        switch (messageType) {
+    // 发送的时候需要知道type
+    private String transform(int messageType, String message) {
+        String tmp =  String.valueOf(messageType) + ">" + message + "=" + this.game.getServerIP() + ":";
+        switch (message) {
             case "players":
                 // 将当前服务器玩家状态表示成字符串
                 if (this.game.getPlayerBottom() instanceof Player) {
                     if (this.game.getPlayerBottom().isInOrder()) {
-                        message += this.game.getPlayerBottom().direction + " " + "zo ";
+                        tmp += this.game.getPlayerBottom().direction + " " + "zo ";
                     } else if(!this.game.getPlayerBottom().isInOrder()) {
-                        message += this.game.getPlayerBottom().direction + " " + "zx ";
+                        tmp += this.game.getPlayerBottom().direction + " " + "zx ";
                     }
                 }
                 if (this.game.getPlayerLeft() instanceof ProxyPlayer) {
                     if (((ProxyPlayer) this.game.getPlayerLeft()).getRealPlayer() instanceof Robot) {
-                        message += this.game.getPlayerLeft().direction + " " + "mo ";
+                        tmp += this.game.getPlayerLeft().direction + " " + "mo ";
                     } else if (((ProxyPlayer) this.game.getPlayerLeft()).getRealPlayer() instanceof RemotePlayer) {
                         if (((ProxyPlayer) this.game.getPlayerLeft()).getRealPlayer().isInOrder()) {
-                            message += this.game.getPlayerLeft().direction + " " + "po ";
+                            tmp += this.game.getPlayerLeft().direction + " " + "po ";
                         } else {
-                            message += this.game.getPlayerLeft().direction + " " + "px ";
+                            tmp += this.game.getPlayerLeft().direction + " " + "px ";
                         }
                     }
                 }
                 if (this.game.getPlayerTop() instanceof ProxyPlayer) {
                     if (((ProxyPlayer) this.game.getPlayerTop()).getRealPlayer() instanceof Robot) {
-                        message += this.game.getPlayerTop().direction + " " + "mo ";
+                        tmp += this.game.getPlayerTop().direction + " " + "mo ";
                     } else if (((ProxyPlayer) this.game.getPlayerTop()).getRealPlayer() instanceof RemotePlayer) {
                         if (((ProxyPlayer) this.game.getPlayerTop()).getRealPlayer().isInOrder()) {
-                            message += this.game.getPlayerTop().direction + " " + "po ";
+                            tmp += this.game.getPlayerTop().direction + " " + "po ";
                         } else {
-                            message += this.game.getPlayerTop().direction + " " + "px ";
+                            tmp += this.game.getPlayerTop().direction + " " + "px ";
                         }
                     }
                 }
                 if (this.game.getPlayerRight() instanceof ProxyPlayer) {
                     if (((ProxyPlayer) this.game.getPlayerRight()).getRealPlayer() instanceof Robot) {
-                        message += this.game.getPlayerRight().direction + " " + "mo ";
+                        tmp += this.game.getPlayerRight().direction + " " + "mo ";
                     } else if (((ProxyPlayer) this.game.getPlayerRight()).getRealPlayer() instanceof RemotePlayer) {
                         if (((ProxyPlayer) this.game.getPlayerRight()).getRealPlayer().isInOrder()) {
-                            message += this.game.getPlayerRight().direction + " " + "po ";
+                            tmp += this.game.getPlayerRight().direction + " " + "po ";
                         } else {
-                            message += this.game.getPlayerRight().direction + " " + "px ";
+                            tmp += this.game.getPlayerRight().direction + " " + "px ";
                         }
                     }
                 }
                 break;
         }
-        return message;
+        return tmp;
     }
 }

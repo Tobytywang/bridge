@@ -1,6 +1,7 @@
 package com.happylich.bridge.game.wlan.wifihotspot.transmitdata;
 
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.happylich.bridge.game.main.Game;
@@ -52,15 +53,16 @@ public class GameClientReceiveDataThread extends Thread {
                     this.game.mHandler.sendEmptyMessage(223);
                 }
                 this.game.mHandler.sendEmptyMessage(222);
-//                Toast.makeText(this.game.context, response, Toast.LENGTH_SHORT).show();
-//                String[] message = response.split(" ");
-//                String ip = message[0];
-//                String content = message[1];
-//                game.onMessage(ip, content);
 
+
+                // 客户端可能受到0或者2两种消息
+                // 先将1>解析出来
+                // 1要交给handler处理
+                Log.v(this.getClass().getName(), response);
+                String[] message = response.split(">");
                 Message message1 = new Message();
-                message1.what = 0;
-                message1.obj = response;
+                message1.what = Integer.parseInt(message[0]);
+                message1.obj = message[1];
                 game.mHandler.sendMessage(message1);
             }
         }

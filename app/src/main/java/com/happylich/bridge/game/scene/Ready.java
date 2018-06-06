@@ -159,22 +159,22 @@ public class Ready extends AbstractScene {
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "准备就绪");
                                 Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
-                                this.game.gameTransmitData.sendToClients("players");
+                                this.game.onInformation(2, "players");
                             } else if (this.game.getGameServer() != null){
                                 Log.v(this.getClass().getName(), "准备就绪");
                                 Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
-                                this.game.gameTransmitData.sendToClients("players");
+                                this.game.onInformation(2, "players");
                             }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "取消准备");
                                 Toast.makeText(this.game.context, "准备发送取消准备", Toast.LENGTH_SHORT).show();
-                                this.game.gameTransmitData.sendToClients("players");
+                                this.game.onInformation(2, "players");
                             } else if (this.game.getGameServer() != null) {
                                 Log.v(this.getClass().getName(), "准备就绪");
                                 Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
-                                this.game.gameTransmitData.sendToClients("players");
+                                this.game.onInformation(2, "players");
                             }
                         }
                         break;
@@ -193,6 +193,7 @@ public class Ready extends AbstractScene {
                         a = 0;
                         if (playerTop instanceof  ProxyPlayer) {
                             ((ProxyPlayer) playerTop).setRealPlayer(new RemotePlayer(context));
+                            this.game.onInformation(2, "players");
                         }
                         readyStage = 0;
                         break;
@@ -201,6 +202,7 @@ public class Ready extends AbstractScene {
                         a = 1;
                         if (playerTop instanceof ProxyPlayer) {
                             ((ProxyPlayer) playerTop).setRealPlayer(new Robot(context));
+                            this.game.onInformation(2, "players");
                         }
                         readyStage = 0;
                         break;
@@ -216,15 +218,26 @@ public class Ready extends AbstractScene {
                             ((Player) playerBottom).setInOrder(true);
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "准备就绪");
-                                this.game.gameTransmitData.sendToClients("players");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
+                            } else if (this.game.getGameServer() != null){
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
                             }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "取消准备");
-                                this.game.gameTransmitData.sendToClients("players");
+                                Toast.makeText(this.game.context, "准备发送取消准备", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
+                            } else if (this.game.getGameServer() != null) {
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
                             }
                         }
+
                         break;
                     default:
                         readyStage = 0;
@@ -245,6 +258,7 @@ public class Ready extends AbstractScene {
                         b = 0;
                         if (playerLeft instanceof ProxyPlayer) {
                             ((ProxyPlayer) playerLeft).setRealPlayer(new RemotePlayer(context));
+                            this.game.onInformation(2, "players");
                         }
                         readyStage = 0;
                         break;
@@ -254,6 +268,7 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         if (playerLeft instanceof ProxyPlayer) {
                             ((ProxyPlayer) playerLeft).setRealPlayer(new Robot(context));
+                            this.game.onInformation(2, "players");
                         }
                         break;
                     case 6:
@@ -265,13 +280,23 @@ public class Ready extends AbstractScene {
                             ((Player) playerBottom).setInOrder(true);
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "准备就绪");
-                                this.game.gameTransmitData.sendToClients("players");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
+                            } else if (this.game.getGameServer() != null){
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
                             }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "取消准备");
-                                this.game.gameTransmitData.sendToClients("players");
+                                Toast.makeText(this.game.context, "准备发送取消准备", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
+                            } else if (this.game.getGameServer() != null) {
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
                             }
                         }
                         break;
@@ -298,6 +323,7 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         if (playerRight instanceof ProxyPlayer) {
                             ((ProxyPlayer) playerRight).setRealPlayer(new RemotePlayer(context));
+                            this.game.onInformation(2, "players");
                         }
                         break;
                     case 8:
@@ -306,6 +332,7 @@ public class Ready extends AbstractScene {
                         readyStage = 0;
                         if (playerRight instanceof ProxyPlayer) {
                             ((ProxyPlayer) playerRight).setRealPlayer(new Robot(context));
+                            this.game.onInformation(2, "players");
                         }
                         break;
                     case 9:
@@ -315,13 +342,23 @@ public class Ready extends AbstractScene {
                             ((Player) playerBottom).setInOrder(true);
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "准备就绪");
-                                this.game.gameTransmitData.sendToClients("players");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
+                            } else if (this.game.getGameServer() != null){
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
                             }
                         } else {
                             ((Player) playerBottom).setInOrder(false);
                             if (this.game.getGameClient() != null) {
                                 Log.v(this.getClass().getName(), "取消准备");
-                                this.game.gameTransmitData.sendToClients("players");
+                                Toast.makeText(this.game.context, "准备发送取消准备", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
+                            } else if (this.game.getGameServer() != null) {
+                                Log.v(this.getClass().getName(), "准备就绪");
+                                Toast.makeText(this.game.context, "准备发送就绪", Toast.LENGTH_SHORT).show();
+                                this.game.onInformation(2, "players");
                             }
                         }
                         break;

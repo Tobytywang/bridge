@@ -28,6 +28,7 @@ import com.happylich.bridge.game.scene.Ready;
 import com.happylich.bridge.game.scene.Table;
 import com.happylich.bridge.game.player.AbstractPlayer;
 
+import java.net.Proxy;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
@@ -186,16 +187,23 @@ public class Game extends com.happylich.bridge.engine.game.Game{
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case 0:
-                        // 表示消费事件
+                        // 表示消费事件（客户端接收事件后）
+                        // 表示服务端向客户端发送的需要客户端回复的消息
                         toast(msg.obj.toString());
-                        onMessage(msg.obj.toString());
+                        onInformation(0, msg.obj.toString());
                         break;
                     case 1:
                         // 表示发送事件
                         // 表示玩家准备就绪状态
-                        sendTo(msg.obj.toString());
+                        // 表示客户端向服务端发送的消息
+                        toast(msg.obj.toString());
+                        onInformation(1, msg.obj.toString());
                         break;
                     case 2:
+                        // 表示客户端消费事件？
+                        // 表示服务端向客户端发送的不需要客户端回复的消息
+                        toast(msg.obj.toString());
+                        onInformation(2, msg.obj.toString());
                         break;
                     case 3:
                         break;
@@ -237,9 +245,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         };
     }
 
-    public void sendTo(String message) {
-        this.gameTransmitData.sendToClients(message);
-    }
     public void toast(String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
@@ -536,8 +541,6 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 // 如果是客户端先进入阶段2，先发送消息，服务端就要先处理客户端的玩家状态
 
                 // 需要在客户端接入服务器的时候，发送数据包？
-//                gameTransmitData.sendToClients();
-//                gameStage = 2;
                 break;
             case 2:                // 在Process里自动切换状态
                 // 已准备界面
@@ -628,14 +631,68 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                 break;
         }
     }
+    // onMessage负责消费事件
+    // sendTo负责发送事件
+    // 发送事件需要选择state，处理消息只要将去掉state的消息如实转发给onMessage
+    public void onInformation(int state, String message) {
+        // players=192.168.1.104:0 po 1px 2 zo 3 mo
+        String[] msg = message.split("=");
+        if (this.gameType == 2) {
+            switch (state) {
+                case 0:
+                    sendTo(0, msg[0]);
+                    break;
+                case 1:
+                    // 消费事件
+                    onMessage(msg[0], message);
+                    // 发送事件（2）
+                    sendTo(2, msg[0]);
+                    break;
+                case 2:
+                    // 发送事件（2）
+                    sendTo(2, msg[0]);
+                    break;
+            }
+        } else if (this.gameType == 3) {
+            switch (state) {
+                case 0:
+                    // 消费事件
+                    onMessage(msg[0], message);
+                    // 发送事件（1）
+                    sendTo(1, msg[0]);
+                    break;
+                case 1:
+                    // 发送事件（1）
+                    sendTo(1, msg[0]);
+                    break;
+                case 2:
+                    // 接收事件
+                    onMessage(msg[0], message);
+                    break;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param messageType 0
+     * @param message players
+     */
+    public void sendTo( int messageType, String message) {
+        this.gameTransmitData.sendToClients(messageType, message);
+    }
 
     /**
      * 接收到来自socket的消息
+     * @param type 表示消息的类型
+     * @param message 消息的内容
      */
-    public void onMessage(String message) {
+    public void onMessage(String type, String message) {
+        // 192.168.1.104:0 po 1 px 2 zo 3 mo
         Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
         Log.v(this.getClass().getName(), message);
         Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
+        Log.v(this.getClass().getName(), String.valueOf(gameStage));
         String[] messages = message.split(":");
         String ip = messages[0];
         String content = messages[1];
@@ -655,8 +712,10 @@ public class Game extends com.happylich.bridge.engine.game.Game{
                     // 服务器怎么处理这个消息的？
                     // 客户端发送的消息和服务端发送的消息有何不同？
                     // handleMessage时，只同步来自其他客户端的玩家消息（除了Direction）
-                    //
-                    handleMessagePlayer(content);
+                    // 处理不同类型的type
+                    if (type.equals("players")) {
+                        handleMessagePlayer(content);
+                    }
                     // 在将所有其他玩家的状态显示到ready中
                     break;
                 case 3:
@@ -688,6 +747,7 @@ public class Game extends com.happylich.bridge.engine.game.Game{
     }
 
     public void handleMessagePlayer(String content) {
+        // 0 po 1 px 2 zo 3 mo
         Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
         Log.v(this.getClass().getName(), content);
         Log.v(this.getClass().getName(), "xxxxxxxxxxxxxxxxxxxxx");
@@ -701,25 +761,26 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         // 分配Direction
         if (localPlayerDirection == -1) {
             while (state == 0) {
-                if (message[n*2] == "0") {
-                    if (message[n*2+1] == "px") {
+                if (message[n*2].equals("0")) {
+                    if (message[n*2+1].equals("px")) {
                         setLocalPlayerDirection(0);
                     }
-                } else if (message[n*2] == "1") {
-                    if (message[n*2+1] == "px") {
+                } else if (message[n*2].equals("1")) {
+                    if (message[n*2+1].equals("px")) {
                         setLocalPlayerDirection(1);
                     }
-                } else if (message[n*2] == "2") {
-                    if (message[n*2+1] == "px") {
+                } else if (message[n*2].equals("2")) {
+                    if (message[n*2+1].equals("px")) {
                         setLocalPlayerDirection(2);
                     }
-                } else if (message[n*2] == "3") {
-                    if (message[n*2+1] == "px") {
+                } else if (message[n*2].equals("3")) {
+                    if (message[n*2+1].equals("px")) {
                         setLocalPlayerDirection(3);
                     }
                 }
                 state = 1;
             }
+            playerBottom.setDirection(localPlayerDirection);
             playerLeft.setDirection(localPlayerDirection + 1);
             playerTop.setDirection(localPlayerDirection + 2);
             playerRight.setDirection(localPlayerDirection + 3);
@@ -730,74 +791,100 @@ public class Game extends com.happylich.bridge.engine.game.Game{
         // 增加一个根据direction找player的函数
         // 只需要设置RemotePlayer
         // 这里只同步了服务器到客户端
+//        Log.v(this.getClass().getName(), "位置-----------------------------");
+//        Log.v(this.getClass().getName(), "上" + String.valueOf(playerTop.direction));
+//        Log.v(this.getClass().getName(), "下" + String.valueOf(playerBottom.direction));
+//        Log.v(this.getClass().getName(), "左" + String.valueOf(playerLeft.direction));
+//        Log.v(this.getClass().getName(), "右" + String.valueOf(playerRight.direction));
+//        Log.v(this.getClass().getName(), "位置-----------------------------");
         AbstractPlayer player = null;
         state = 0;
         n = 0;
         Log.v(this.getClass().getName(), message.toString());
         while (state == 0) {
-            if (message[n] == "0") {
+            Log.v(this.getClass().getName(), message[n]);
+            if (message[n].equals("0")) {
+                Log.v(this.getClass().getName(), "0号玩家");
                 player = getPlayerByDirection(0);
-                if (player instanceof ProxyPlayer) {
-                    if (message[n * 2 + 1] == "mo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
-                    } else if (message[n * 2 + 1] == "zx") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
-                    } else if (message[n * 2 + 1] == "zo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
-                    } else if (message[n * 2 + 1] == "po") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
-                    } else if (message[n * 2 + 1] == "px") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                Log.v(this.getClass().getName(), player.getClass().getName());
+                if (player instanceof ProxyPlayer && ((ProxyPlayer) player).getRealPlayer() instanceof RemotePlayer) {
+                    if (message[n + 1].equals("mo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(0);
+                    } else if (message[n + 1].equals("zx")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(1);
+                    } else if (message[n + 1].equals("zo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(2);
+                    } else if (message[n + 1].equals("po")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(3);
+                    } else if (message[n + 1].equals("px")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(4);
                     }
                 }
-            } else if (message[n] == "1") {
+            } else if (message[n].equals("1")) {
+                Log.v(this.getClass().getName(), "1号玩家");
                 player = getPlayerByDirection(1);
-                if (player instanceof ProxyPlayer) {
-                    if (message[n * 2 + 1] == "mo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
-                    } else if (message[n * 2 + 1] == "zx") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
-                    } else if (message[n * 2 + 1] == "zo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
-                    } else if (message[n * 2 + 1] == "po") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
-                    } else if (message[n * 2 + 1] == "px") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                Log.v(this.getClass().getName(), player.getClass().getName());
+                if (player instanceof ProxyPlayer && ((ProxyPlayer) player).getRealPlayer() instanceof RemotePlayer) {
+                    if (message[n + 1].equals("mo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(0);
+                    } else if (message[n + 1].equals("zx")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(1);
+                    } else if (message[n + 1].equals("zo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(2);
+                    } else if (message[n + 1].equals("po")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(3);
+                    } else if (message[n + 1].equals("px")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(4);
                     }
                 }
-            } else if (message[n] == "2") {
+            } else if (message[n].equals("2")) {
+                Log.v(this.getClass().getName(), "2号玩家");
                 player = getPlayerByDirection(2);
-                if (player instanceof ProxyPlayer) {
-                    if (message[n * 2 + 1] == "mo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
-                    } else if (message[n * 2 + 1] == "zx") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
-                    } else if (message[n * 2 + 1] == "zo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
-                    } else if (message[n * 2 + 1] == "po") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
-                    } else if (message[n * 2 + 1] == "px") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                Log.v(this.getClass().getName(), player.getClass().getName());
+                if (player instanceof ProxyPlayer && ((ProxyPlayer) player).getRealPlayer() instanceof RemotePlayer) {
+                    if (message[n + 1].equals("mo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(0);
+                    } else if (message[n + 1].equals("zx")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(1);
+                    } else if (message[n + 1].equals("zo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(2);
+                    } else if (message[n + 1].equals("po")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(3);
+                    } else if (message[n + 1].equals("px")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(4);
                     }
                 }
-            } else if (message[n] == "3") {
+            } else if (message[n].equals("3")) {
+                Log.v(this.getClass().getName(), "3号玩家");
                 player = getPlayerByDirection(3);
-                if (player instanceof ProxyPlayer) {
-                    if (message[n * 2 + 1] == "mo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(0);
-                    } else if (message[n * 2 + 1] == "zx") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(1);
-                    } else if (message[n * 2 + 1] == "zo") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(2);
-                    } else if (message[n * 2 + 1] == "po") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(3);
-                    } else if (message[n * 2 + 1] == "px") {
-                        ((ProxyPlayer) player).getRealPlayer().setPlayerStage(4);
+                Log.v(this.getClass().getName(), player.getClass().getName());
+                if (player instanceof ProxyPlayer && ((ProxyPlayer) player).getRealPlayer() instanceof RemotePlayer) {
+                    if (message[n + 1].equals("mo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(0);
+                    } else if (message[n + 1].equals("zx")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(1);
+                    } else if (message[n + 1].equals("zo")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(2);
+                    } else if (message[n + 1].equals("po")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(3);
+                    } else if (message[n + 1].equals("px")) {
+                        ((RemotePlayer) ((ProxyPlayer) player).getRealPlayer()).setState(4);
                     }
                 }
             }
             n = n + 2;
             Log.v(this.getClass().getName(), "n = " + String.valueOf(n));
+            Log.v(this.getClass().getName(), "状态-----------------------------");
+            if (playerTop instanceof ProxyPlayer && ((ProxyPlayer) playerTop).getRealPlayer() instanceof RemotePlayer) {
+                Log.v(this.getClass().getName(), "上" + String.valueOf(((RemotePlayer) ((ProxyPlayer) playerTop).getRealPlayer()).getState()));
+            }
+            if (playerLeft instanceof ProxyPlayer && ((ProxyPlayer) playerLeft).getRealPlayer() instanceof RemotePlayer) {
+                Log.v(this.getClass().getName(), "左" + String.valueOf(((RemotePlayer) ((ProxyPlayer) playerLeft).getRealPlayer()).getState()));
+            }
+            if (playerRight instanceof ProxyPlayer && ((ProxyPlayer) playerRight).getRealPlayer() instanceof RemotePlayer) {
+                Log.v(this.getClass().getName(), "右" + String.valueOf(((RemotePlayer) ((ProxyPlayer) playerRight).getRealPlayer()).getState()));
+            }
+            Log.v(this.getClass().getName(), "状态-----------------------------");
             if (n == 8) {
                 state = 1;
             }
